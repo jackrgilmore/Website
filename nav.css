@@ -1,0 +1,116 @@
+/* ==============================================
+   NAV — completely self-contained
+   Uses .site-nav prefix so nothing else can
+   override these styles accidentally.
+   ============================================== */
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 2.5rem;
+    background: #0a0a0a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    font-family: 'Libre Baskerville', Georgia, serif;
+}
+
+/* ---- Name / Logo ---- */
+.site-nav .nav-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #e8e0d4;
+    text-decoration: none;
+    margin-right: auto;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+    border: none;
+}
+
+.site-nav .nav-name:hover {
+    color: #c9a96e;
+}
+
+.site-nav .nav-name.active {
+    color: #c9a96e;
+}
+
+/* ---- Link group ---- */
+.site-nav .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 100%;
+}
+
+/* ---- Individual links ---- */
+.site-nav .nav-links a {
+    color: #807a72;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 400;
+    font-style: italic;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+    padding: 0 1.25rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    transition: color 0.3s;
+    border: none;
+}
+
+.site-nav .nav-links a:hover {
+    color: #e8e0d4;
+}
+
+.site-nav .nav-links a.active {
+    color: #e8e0d4;
+}
+
+/* ---- Underline ---- */
+.site-nav .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 1px;
+    background: #c9a96e;
+    transition: width 0.4s;
+}
+
+.site-nav .nav-links a:hover::after,
+.site-nav .nav-links a.active::after {
+    width: 50%;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 550px) {
+    .site-nav {
+        height: auto;
+        flex-wrap: wrap;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .site-nav .nav-name {
+        width: 100%;
+        margin-bottom: 0.4rem;
+        font-size: 1.15rem;
+    }
+
+    .site-nav .nav-links a {
+        font-size: 0.82rem;
+        padding: 0.4rem 0.75rem;
+        height: auto;
+    }
+
+    .site-nav .nav-links a::after {
+        bottom: 2px;
+    }
+}

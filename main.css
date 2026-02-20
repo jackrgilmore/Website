@@ -1,0 +1,247 @@
+/* ==============================================
+   MAIN — index.html + writing.html
+   ============================================== */
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+figure,
+figcaption {
+    margin: 0;
+    padding: 0;
+}
+
+/* ---- Base ---- */
+body {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    background: #111;
+    color: #d4cdc4;
+    line-height: 1.85;
+}
+
+::selection {
+    background: #c9a96e;
+    color: #111;
+}
+
+/* ---- Links ---- */
+a {
+    color: #c9a96e;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s, border-color 0.3s;
+}
+
+a:hover {
+    color: #e0c48a;
+    border-bottom-color: #c9a96e;
+}
+
+
+/* ====================
+   HOMEPAGE
+   ==================== */
+
+/* ---- Hero / Title ---- */
+.hero {
+    text-align: center;
+    padding: 5rem 2rem 2rem;
+}
+
+.hero h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #e8e0d4;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    display: inline-block;
+}
+
+.hero h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: #c9a96e;
+    margin: 1rem auto 0;
+}
+
+/* ---- About Section ---- */
+.about {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 3rem;
+}
+
+.about p {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    color: #c4bdb4;
+}
+
+.about p:first-child {
+    font-style: italic;
+    color: #807a72;
+    font-size: 1.05rem;
+}
+
+/* ---- Photo ---- */
+.photo {
+    max-width: 420px;
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+    text-align: center;
+}
+
+.photo img {
+    width: 100%;
+    max-width: 380px;
+    border-radius: 8px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+    filter: grayscale(15%);
+    transition: filter 0.4s, box-shadow 0.4s;
+}
+
+.photo img:hover {
+    filter: grayscale(0%);
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+}
+
+.photo figcaption {
+    font-size: 0.82rem;
+    font-style: italic;
+    color: #5a5550;
+    margin-top: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+/* ---- Socials Footer ---- */
+.socials {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem 0 4rem;
+}
+
+.socials a {
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    transition: transform 0.3s;
+}
+
+.socials a:hover {
+    border: none;
+    transform: translateY(-3px);
+}
+
+.socials i {
+    font-size: 1.3rem;
+    color: #5a5550;
+    transition: color 0.3s;
+}
+
+.socials a:hover i {
+    color: #c9a96e;
+}
+
+
+/* ====================
+   WRITING PAGE
+   ==================== */
+
+.writing {
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 1rem 2rem 4rem;
+}
+
+.writing h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e8e0d4;
+    margin: 2.5rem 0 2rem;
+    letter-spacing: 0.5px;
+}
+
+.writing h2::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1.5px;
+    background: #c9a96e;
+    margin: 0.75rem auto 0;
+}
+
+.writing-group {
+    margin-bottom: 2.5rem;
+}
+
+.writing-group h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #c4bdb4;
+    text-transform: lowercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.writing-entry {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #807a72;
+    margin-bottom: 0.75rem;
+}
+
+.writing-entry i {
+    color: #5a5550;
+}
+
+
+/* ====================
+   RESPONSIVE
+   ==================== */
+
+@media (max-width: 600px) {
+    .hero {
+        padding: 3.5rem 1.5rem 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: 2.4rem;
+    }
+
+    .about {
+        padding: 1rem 1.5rem 2rem;
+    }
+
+    .about p {
+        font-size: 0.92rem;
+    }
+
+    .photo {
+        padding: 0 1.5rem;
+    }
+
+    .writing {
+        padding: 1rem 1.5rem 3rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation — Jack Gilmore</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="animation.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <script id="replace_with_navbar" src="nav.js"></script>
+
+    <!-- Featured Reel -->
+    <section class="featured">
+        <h2>Animation Gallery</h2>
+        <div id="featured-container">
+            <p class="loading">Loading featured reel...</p>
+        </div>
+    </section>
+
+    <!-- Gallery Grid -->
+    <section class="gallery">
+        <h2>Projects</h2>
+        <div class="grid" id="gallery-grid">
+            <p class="loading">Loading videos...</p>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+        <div class="lightbox-bg"></div>
+        <div class="lightbox-body">
+            <button class="lightbox-x" aria-label="Close">&times;</button>
+            <div class="lightbox-frame">
+                <iframe id="lightbox-iframe" src="" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="animation.js"></script>
+</body>
+
+</html>
