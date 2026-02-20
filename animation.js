@@ -48,6 +48,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // ============ HELPERS ============
 
     function thumb(video) {
+        // Use custom thumbnail if provided
+        if (video.customThumb) {
+            return video.customThumb;
+        }
         if (video.type === 'youtube') {
             return 'https://img.youtube.com/vi/' + video.id + '/mqdefault.jpg';
         }
@@ -83,22 +87,22 @@ document.addEventListener('DOMContentLoaded', function () {
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i].trim();
 
-            // Skip empty lines and comments
             if (!line || line.charAt(0) === '#') continue;
 
-            // Split on pipe: "Title | URL"
             var parts = line.split('|');
             if (parts.length < 2) continue;
 
             var title = parts[0].trim();
             var url = parts[1].trim();
+            var customThumb = parts[2] ? parts[2].trim() : null;
             var parsed = parseURL(url);
 
             if (parsed) {
                 videos.push({
                     title: title,
                     type: parsed.type,
-                    id: parsed.id
+                    id: parsed.id,
+                    customThumb: customThumb
                 });
             } else {
                 console.warn('Could not parse URL: ' + url);
