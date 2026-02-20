@@ -4,7 +4,7 @@
 # Lines starting with # are ignored
 # Blank lines are ignored
 
-Featured Demo Reel | https://www.youtube.com/watch?v=szRgEyiX6Sk
+Featured Demo Reel | https://vimeo.com/1166595738?fl=ip&fe=ec
 Chicken Render | https://vimeo.com/1166591921?fl=ip&fe=ec
 Client Video | https://vimeo.com/1166592372?fl=ip&fe=ec
 DCS Midterm | https://vimeo.com/1166592776?fl=ip&fe=ec

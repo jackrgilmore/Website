@@ -4,13 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Writing — Jack Gilmore</title>
+    <title>Reading — Jack Gilmore</title>
 
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
         rel="stylesheet">
+
+    <!-- Markdown Parser (tiny library, 8kb) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <!-- Styles -->
     <link rel="stylesheet" href="nav.css">
@@ -22,14 +25,14 @@
     <!-- Navigation -->
     <script id="replace_with_navbar" src="nav.js"></script>
 
-    <main class="writing-index">
-        <h1>Selected Writing</h1>
-        <div id="writing-list">
-            <p class="loading">Loading articles...</p>
-        </div>
+    <main class="article-page">
+        <a href="writing.html" class="back-link">← back to writing</a>
+        <article class="article-body" id="article-body">
+            <p class="loading">Loading...</p>
+        </article>
     </main>
 
-    <script src="writing.js"></script>
+    <script src="article.js"></script>
 </body>
 
 </html>
