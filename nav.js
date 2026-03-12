@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <a href="index.html" class="nav-name">Jack Gilmore</a>\
             <div class="nav-links">\
                 <a href="animation.html">animation</a>\
-                <a href="writing.html">writing</a>\
+               <!--<a href="writing.html">writing</a>--> \
             </div>\
         </nav>\
     ');
