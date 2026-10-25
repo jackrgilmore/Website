@@ -16,20 +16,24 @@
 #   The other text under a heading is its description.
 # - Start a heading with COMMENT to hide it without deleting it.
 
-* COMMENT Hat Guy Comics
+* The Adventures of Dan The Space Wizard
 :PROPERTIES:
 :KIND: series
 :END:
-Short comics about Hat Guy. Remove COMMENT above once there's an issue.
+Short comics about Dan the Space Wizard and his wacky adventures.
 
-** Issue 1: Example
+** Zip Zoops Birthday Party
 :PROPERTIES:
 :DATE: 2026-10-25
 :END:
 What happens in this one.
 
-[[file:../comics/hat-guy/01-1.png]]
-[[file:../comics/hat-guy/01-2.png]]
+[[file:comics/dan/Dan1_0.png]]
+[[file:comics/dan/Dan1_1.png]]
+[[file:comics/dan/Dan1_2.png]]
+[[file:comics/dan/Dan1_3.png]]
+[[file:comics/dan/Dan1_4.png]]
+[[file:comics/dan/Dan1_full_spreadResult.png]]
 
 * COMMENT Panels
 ** Example single panel

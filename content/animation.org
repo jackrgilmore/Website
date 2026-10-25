@@ -33,19 +33,19 @@
 :PROPERTIES:
 :KIND:      series
 :INSTAGRAM: https://www.instagram.com/hatguyanimation/
-:YOUTUBE:   https://www.youtube.com/@jackgilmorecreative
+:YOUTUBE:   https://www.youtube.com/@hatguyanimation/shorts
+:TIKTOK: https://www.tiktok.com/@hatguyanimation
 :END:
-An animated series about a guy and his hat.
+Just a guy. Just a hat.
 
-** COMMENT Episode 1: Example episode
+** Episode 1: Beginnings
 :PROPERTIES:
-:VIDEO:     https://www.youtube.com/shorts/XXXXXXXXXXX
-:INSTAGRAM: https://www.instagram.com/reel/XXXXXXXXXXX/
-:TIKTOK:    https://www.tiktok.com/@you/video/0000000000000000000
+:VIDEO:     https://www.youtube.com/shorts/59i0tes9iZI
+:INSTAGRAM: https://www.instagram.com/p/Da5XZI-DC49/
+:TIKTOK:    [[https://www.tiktok.com/@hatguyanimation/video/7663688348065664270]]
 :DATE:      2026-10-25
 :END:
-Delete COMMENT from this heading (and put in real links) to make it the first
-episode. Copy it for each new episode.
+The story begins. Follow along!
 
 * Projects
 ** What is Fusion?
