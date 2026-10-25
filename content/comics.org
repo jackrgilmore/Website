@@ -26,8 +26,6 @@ Short comics about Dan the Space Wizard and his wacky adventures.
 :PROPERTIES:
 :DATE: 2026-10-25
 :END:
-What happens in this one.
-
 [[file:comics/dan/Dan1_0.png]]
 [[file:comics/dan/Dan1_1.png]]
 [[file:comics/dan/Dan1_2.png]]
