@@ -356,7 +356,12 @@ Links to anything unpublished (private notes, drafts) are left out."
      `((nodes . ,(vconcat (mapcar (lambda (note)
                                     `((id . ,(alist-get 'url note))
                                       (title . ,(alist-get 'title note))
-                                      (tags . ,(vconcat (alist-get 'tags note)))))
+                                      (tags . ,(vconcat (alist-get 'tags note)))
+                                      ;; When the note's file was last saved
+                                      (modified . ,(format-time-string
+                                                    "%Y-%m-%dT%H:%M:%S"
+                                                    (file-attribute-modification-time
+                                                     (file-attributes (alist-get 'file note)))))))
                                   notes)))
        (links . ,(vconcat (mapcar (lambda (link) `((source . ,(car link)) (target . ,(cdr link))))
                                   (nreverse graph-links))))))

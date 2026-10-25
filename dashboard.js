@@ -102,97 +102,18 @@
     });
 
 
-    // ============ GARDEN GRAPH ============
-    // Each public org-roam note is a dot; each link between two notes is a line.
-    // Drag to move dots, scroll or pinch to zoom, click a dot to read the note.
+    // ============ GARDEN ============
+    // The graph (Site.gardenGraph, in catalog.js), then every note as a list.
 
     function drawGarden(box, garden) {
         if (!garden.nodes.length) {
             box.innerHTML = '<p class="empty">No public notes yet. Tag an org-roam note with <code>publish</code> to grow the garden.</p>';
             return;
         }
-        var list = '<div class="note-list">' + garden.nodes.map(function (n) {
+        box.innerHTML = '<div class="garden-graph"></div><div class="note-list">' + garden.nodes.map(function (n) {
             return '<a href="' + Site.esc(n.id) + '">' + Site.esc(n.title) + '</a>';
         }).join('') + '</div>';
-
-        if (typeof d3 === 'undefined') {
-            box.innerHTML = list; // graph library didn't load; the list still works
-            return;
-        }
-        box.innerHTML = '<div class="garden-graph"></div>' + list;
-        var holder = box.querySelector('.garden-graph');
-        var width = holder.clientWidth;
-        var height = holder.clientHeight;
-
-        // One line per pair of notes, even if they link both ways
-        var seen = {};
-        var links = [];
-        garden.links.forEach(function (l) {
-            var key = [l.source, l.target].sort().join('|');
-            if (!seen[key]) {
-                seen[key] = true;
-                links.push({ source: l.source, target: l.target });
-            }
-        });
-        var nodes = garden.nodes.map(function (n) { return { id: n.id, title: n.title, degree: 0 }; });
-        var byId = {};
-        nodes.forEach(function (n) { byId[n.id] = n; });
-        links.forEach(function (l) { byId[l.source].degree++; byId[l.target].degree++; });
-
-        var svg = d3.select(holder).append('svg')
-            .attr('viewBox', [-width / 2, -height / 2, width, height])
-            .attr('role', 'img')
-            .attr('aria-label', 'Graph of ' + nodes.length + ' notes and the links between them');
-        var world = svg.append('g');
-
-        svg.call(d3.zoom().scaleExtent([0.3, 4]).on('zoom', function (e) {
-            world.attr('transform', e.transform);
-        }));
-
-        var line = world.append('g').selectAll('line').data(links).join('line');
-        var node = world.append('g').selectAll('g').data(nodes).join('g').attr('class', 'node');
-        node.append('circle').attr('r', function (d) { return 5 + Math.sqrt(d.degree) * 3; });
-        node.append('text')
-            .attr('x', function (d) { return 9 + Math.sqrt(d.degree) * 3; })
-            .attr('y', 4)
-            .text(function (d) { return d.title; });
-        node.append('title').text(function (d) { return d.title; });
-
-        var simulation = d3.forceSimulation(nodes)
-            .force('link', d3.forceLink(links).id(function (d) { return d.id; }).distance(70))
-            .force('charge', d3.forceManyBody().strength(-180))
-            .force('x', d3.forceX())
-            .force('y', d3.forceY())
-            .on('tick', function () {
-                line.attr('x1', function (d) { return d.source.x; })
-                    .attr('y1', function (d) { return d.source.y; })
-                    .attr('x2', function (d) { return d.target.x; })
-                    .attr('y2', function (d) { return d.target.y; });
-                node.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-            });
-
-        var moved = false;
-        node.call(d3.drag()
-            .on('start', function (e, d) {
-                moved = false;
-                if (!e.active) simulation.alphaTarget(0.3).restart();
-                d.fx = d.x;
-                d.fy = d.y;
-            })
-            .on('drag', function (e, d) {
-                moved = true;
-                d.fx = e.x;
-                d.fy = e.y;
-            })
-            .on('end', function (e, d) {
-                if (!e.active) simulation.alphaTarget(0);
-                d.fx = null;
-                d.fy = null;
-            }));
-
-        node.on('click', function (e, d) {
-            if (!moved) window.location.href = d.id;
-        });
+        Site.gardenGraph(box.querySelector('.garden-graph'), garden);
     }
 
 })();

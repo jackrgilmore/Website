@@ -9,7 +9,15 @@
 # - #+reel: above is the reel on the home page and at /reel.html.
 # - A heading with :KIND: series is a show (the "streaming" view). Each heading
 #   under it is an episode, or a season if it has episodes under it.
-# - Any other heading is a group in the gallery; each video under it is a card.
+# - Any other top-level heading is a group, like "Projects" or "Independent
+#   animation": it gets its own button on the animation page, and its own row
+#   in the All view. Each video under it is a card. A heading under a group
+#   with videos under it (and no video of its own) is a subsection, shown as
+#   its own block in that group's view:
+#     * Independent animation
+#     ** Shorts
+#     *** My short film    (a video)
+# - The All view shows every series and every group as a row.
 # - Properties a video can have:
 #     :VIDEO:      the link that plays on the site (YouTube, Vimeo, Instagram,
 #                  TikTok, or a .mp4 in the repo)

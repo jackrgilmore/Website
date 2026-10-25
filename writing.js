@@ -34,25 +34,24 @@
             + pieces.map(function (p) { return entry(p, showDesc); }).join('') + '</div>';
     }
 
-    // The garden: each public note, with its tags and how many notes it links with
-    function garden(notes, links) {
-        var degree = {};
-        links.forEach(function (l) {
-            degree[l.source] = (degree[l.source] || 0) + 1;
-            degree[l.target] = (degree[l.target] || 0) + 1;
-        });
+    // The garden: the graph of every public note (drawn after the page, by
+    // Site.gardenGraph), then the five notes changed most recently
+    function garden(notes) {
         var head = '<div class="section-head"><h2>Garden</h2>'
-            + (notes.length ? '<a href="/dashboard.html#garden">see how they connect →</a>' : '') + '</div>'
+            + (notes.length > 5 ? '<a href="/dashboard.html#garden">all ' + notes.length + ' notes →</a>' : '') + '</div>'
             + '<p class="section-intro">Notes in progress: ideas, research and half-formed thoughts, linked together.</p>';
         if (!notes.length) return head + '<p class="empty">No public notes yet.</p>';
-        return head + notes.slice().sort(function (a, b) { return a.title.localeCompare(b.title); })
-            .map(function (n) {
-                var count = degree[n.id] || 0;
-                var meta = n.tags.concat(count ? [count + ' link' + (count === 1 ? '' : 's')] : []).join(' · ');
+        var recent = notes.slice()
+            .sort(function (a, b) { return (b.modified || '').localeCompare(a.modified || ''); })
+            .slice(0, 5);
+        return head + '<div class="garden-graph"></div>'
+            + '<div class="writing-group"><h3>Recently tended</h3>'
+            + recent.map(function (n) {
+                var meta = n.tags.concat(n.modified ? ['updated ' + Site.prettyDate(n.modified)] : []).join(' · ');
                 return '<a class="entry" href="' + Site.esc(n.id) + '">'
                     + '<span class="entry-title">' + Site.esc(n.title) + '</span>'
                     + '<span class="entry-meta">' + Site.esc(meta) + '</span></a>';
-            }).join('');
+            }).join('') + '</div>';
     }
 
     Promise.all([
@@ -92,9 +91,11 @@
             + (blog.length ? group('Latest posts', blog, true) : '<p class="empty">No posts yet.</p>')
             + '</section>';
 
-        html += '<section class="section" id="garden">' + garden(notes.nodes, notes.links) + '</section>';
+        html += '<section class="section" id="garden">' + garden(notes.nodes) + '</section>';
 
         box.innerHTML = html;
+        var graph = box.querySelector('.garden-graph');
+        if (graph) Site.gardenGraph(graph, notes);
         // The page is drawn after loading, so a link to #garden or #blog
         // arrives before its target exists: scroll there now
         if (location.hash) {

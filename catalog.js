@@ -329,10 +329,35 @@ var Site = (function () {
     }
 
     // Everything in content/animation.org:
-    //   { reel, series: [...], gallery: [...] }
+    //   { reel, series: [...], groups: [...], gallery: [...] }
+    //
+    // A top-level heading marked :KIND: series is a series. Any other top-level
+    // heading is a group ("Projects", "Independent animation"...), which gets
+    // its own button on the animation page. Inside a group, a heading with
+    // videos under it (and none of its own) is a subsection:
+    //   group = { title, slug, items: [every video], sections: [{ title, items }] }
+    // Top-level headings that are just a video go in a group called "Other".
+    // gallery is every video that isn't an episode, in one list.
     function loadAnimation() {
         return loadOrg('animation.org').then(function (doc) {
-            var data = { reel: null, series: [], gallery: [] };
+            var data = { reel: null, series: [], groups: [], gallery: [] };
+            var other = null;
+            var slugs = { all: true, series: true };    // taken by the page's own buttons
+
+            function newGroup(title) {
+                var group = { title: title, slug: slug(title), items: [], sections: [] };
+                while (slugs[group.slug]) group.slug += '-2';
+                slugs[group.slug] = true;
+                return group;
+            }
+            function add(group, section, node) {
+                var item = makeItem(node);
+                item.collection = group.title;
+                group.items.push(item);
+                section.items.push(item);
+                data.gallery.push(item);
+            }
+
             if (doc.meta.reel) {
                 data.reel = { title: doc.meta.reel_title || 'Animation Reel', video: media(doc.meta.reel) };
             }
@@ -341,15 +366,31 @@ var Site = (function () {
                     data.series.push(makeSeries(top));
                     return;
                 }
-                if (videoFor(top.props)) data.gallery.push(makeItem(top));
+                if (videoFor(top.props) && !top.children.length) {
+                    if (!other) other = newGroup('Other');
+                    if (!other.sections.length) other.sections.push({ title: '', items: [] });
+                    add(other, other.sections[0], top);
+                    return;
+                }
+                var group = newGroup(top.title);
+                var loose = { title: '', items: [] };
+                group.sections.push(loose);
+                if (videoFor(top.props)) add(group, loose, top);
                 top.children.forEach(function (child) {
                     if (videoFor(child.props)) {
-                        var item = makeItem(child);
-                        item.collection = top.title;
-                        data.gallery.push(item);
+                        add(group, loose, child);
+                    } else if (child.children.length) {
+                        var section = { title: child.title, items: [] };
+                        group.sections.push(section);
+                        child.children.forEach(function (grandchild) {
+                            if (videoFor(grandchild.props)) add(group, section, grandchild);
+                        });
                     }
                 });
+                group.sections = group.sections.filter(function (s) { return s.items.length; });
+                if (group.items.length) data.groups.push(group);
             });
+            if (other) data.groups.push(other);
             return data;
         });
     }
@@ -457,11 +498,22 @@ var Site = (function () {
         }
     }
 
-    // The Gallery / Series buttons: show one of #view-gallery and #view-series.
-    // The choice is kept in the address (#series) so it survives back/forward.
+    // The view buttons (.view-switch button[data-view=NAME]): show #view-NAME and
+    // hide the others. The first button is the default; any other choice is kept
+    // in the address (#series, #projects) so it survives back/forward and can be
+    // linked to. A link to one of those hashes switches the view too.
     function viewSwitch() {
         var buttons = document.querySelectorAll('.view-switch button');
+        if (!buttons.length) return;
+        var first = buttons[0].getAttribute('data-view');
+        function exists(view) {
+            for (var i = 0; i < buttons.length; i++) {
+                if (buttons[i].getAttribute('data-view') === view) return true;
+            }
+            return false;
+        }
         function show(view) {
+            if (!exists(view)) view = first;
             for (var i = 0; i < buttons.length; i++) {
                 var name = buttons[i].getAttribute('data-view');
                 buttons[i].setAttribute('aria-pressed', name === view ? 'true' : 'false');
@@ -472,10 +524,11 @@ var Site = (function () {
             buttons[i].addEventListener('click', function () {
                 var view = this.getAttribute('data-view');
                 show(view);
-                history.replaceState(null, '', view === 'gallery' ? location.pathname : '#' + view);
+                history.replaceState(null, '', view === first ? location.pathname : '#' + view);
             });
         }
-        show(location.hash === '#series' ? 'series' : 'gallery');
+        window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+        show(location.hash.slice(1));
     }
 
     // One show on the Series view: poster, description and a shelf of episodes.
@@ -501,6 +554,89 @@ var Site = (function () {
             + (series.summary ? '<p>' + esc(series.summary) + '</p>' : '')
             + '<p class="card-meta">' + count + ' ' + opts.unit + (count === 1 ? '' : 's') + '</p>'
             + shelf + '</div></div>';
+    }
+
+    // The garden graph: each public org-roam note is a dot, each link between two
+    // notes a line. Drag to move dots, scroll or pinch to zoom, click to read.
+    // HOLDER is an empty .garden-graph element; it is removed if d3 is missing.
+    function gardenGraph(holder, garden) {
+        if (typeof d3 === 'undefined' || !garden.nodes.length) {
+            holder.remove(); // graph library didn't load (or nothing to draw)
+            return;
+        }
+        var width = holder.clientWidth;
+        var height = holder.clientHeight;
+
+        // One line per pair of notes, even if they link both ways
+        var seen = {};
+        var links = [];
+        garden.links.forEach(function (l) {
+            var key = [l.source, l.target].sort().join('|');
+            if (!seen[key]) {
+                seen[key] = true;
+                links.push({ source: l.source, target: l.target });
+            }
+        });
+        var nodes = garden.nodes.map(function (n) { return { id: n.id, title: n.title, degree: 0 }; });
+        var byId = {};
+        nodes.forEach(function (n) { byId[n.id] = n; });
+        links.forEach(function (l) { byId[l.source].degree++; byId[l.target].degree++; });
+
+        var svg = d3.select(holder).append('svg')
+            .attr('viewBox', [-width / 2, -height / 2, width, height])
+            .attr('role', 'img')
+            .attr('aria-label', 'Graph of ' + nodes.length + ' notes and the links between them');
+        var world = svg.append('g');
+
+        svg.call(d3.zoom().scaleExtent([0.3, 4]).on('zoom', function (e) {
+            world.attr('transform', e.transform);
+        }));
+
+        var line = world.append('g').selectAll('line').data(links).join('line');
+        var node = world.append('g').selectAll('g').data(nodes).join('g').attr('class', 'node');
+        node.append('circle').attr('r', function (d) { return 5 + Math.sqrt(d.degree) * 3; });
+        node.append('text')
+            .attr('x', function (d) { return 9 + Math.sqrt(d.degree) * 3; })
+            .attr('y', 4)
+            .text(function (d) { return d.title; });
+        node.append('title').text(function (d) { return d.title; });
+
+        var simulation = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(function (d) { return d.id; }).distance(70))
+            .force('charge', d3.forceManyBody().strength(-260))
+            .force('collide', d3.forceCollide(function (d) { return 18 + Math.sqrt(d.degree) * 3; }))
+            .force('x', d3.forceX())
+            .force('y', d3.forceY())
+            .on('tick', function () {
+                line.attr('x1', function (d) { return d.source.x; })
+                    .attr('y1', function (d) { return d.source.y; })
+                    .attr('x2', function (d) { return d.target.x; })
+                    .attr('y2', function (d) { return d.target.y; });
+                node.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+            });
+
+        var moved = false;
+        node.call(d3.drag()
+            .on('start', function (e, d) {
+                moved = false;
+                if (!e.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            })
+            .on('drag', function (e, d) {
+                moved = true;
+                d.fx = e.x;
+                d.fy = e.y;
+            })
+            .on('end', function (e, d) {
+                if (!e.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }));
+
+        node.on('click', function (e, d) {
+            if (!moved) window.location.href = d.id;
+        });
     }
 
     function failed(el, error) {
@@ -531,6 +667,7 @@ var Site = (function () {
         copyLink: copyLink,
         viewSwitch: viewSwitch,
         seriesBlock: seriesBlock,
+        gardenGraph: gardenGraph,
         failed: failed
     };
 

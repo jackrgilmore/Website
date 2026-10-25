@@ -379,16 +379,34 @@ button:focus-visible {
     margin-top: 1.25rem;
 }
 
-/* Gallery / Series switch */
+/* View buttons (All / Series / each group): wrap onto more lines if needed */
 .view-switch {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 0.25rem;
     width: fit-content;
+    max-width: 100%;
     margin: 0 auto 2.5rem;
     padding: 0.25rem;
     background: var(--surface);
-    border-radius: 999px;
+    border-radius: 1.25rem;
+}
+
+.view-switch:empty {
+    display: none;
+}
+
+/* A subsection heading inside a group's view */
+.subsection {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--muted);
+    margin: 2.5rem 0 1rem;
+}
+
+.subsection:first-child {
+    margin-top: 0;
 }
 
 .view-switch button {
@@ -1140,6 +1158,10 @@ button:focus-visible {
     border-radius: 8px;
     background: var(--surface);
     overflow: hidden;
+}
+
+.garden-graph + .writing-group {
+    margin-top: 2rem;
 }
 
 .garden-graph svg {
