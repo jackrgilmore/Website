@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animation — Jack Gilmore</title>
+    <meta name="description" content="Jack Gilmore's animation: gallery and series.">
+
+    <!-- Light/dark mode (first, so the page never flashes the wrong one) -->
+    <script src="/theme.js"></script>
 
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,46 +17,36 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="nav.css">
-    <link rel="stylesheet" href="animation.css">
+    <link rel="stylesheet" href="/site.css">
+
+    <!-- Scripts (nav, shared helpers, then this page's own) -->
+    <script src="/nav.js" defer></script>
+    <script src="/catalog.js" defer></script>
+    <script src="/animation.js" defer></script>
 </head>
 
 <body>
 
-    <!-- Navigation -->
-    <script id="replace_with_navbar" src="nav.js"></script>
+    <main class="page">
+        <header class="page-head">
+            <h1>Animation</h1>
+        </header>
 
-    <!-- Featured Reel -->
-    <section class="featured">
-        <h2>Animation Gallery</h2>
-        <div id="featured-container">
-            <p class="loading">Loading featured reel...</p>
+        <!-- Featured reel -->
+        <section class="section reel-block" id="featured" aria-label="Demo reel"></section>
+
+        <!-- Gallery / Series -->
+        <div class="view-switch" role="group" aria-label="View as">
+            <button type="button" data-view="gallery" aria-pressed="true">Gallery</button>
+            <button type="button" data-view="series" aria-pressed="false">Series</button>
         </div>
-    </section>
 
-    <!-- Gallery Grid -->
-    <section class="gallery">
-        <h2>Projects</h2>
-        <div class="grid" id="gallery-grid">
+        <section id="view-gallery">
             <p class="loading">Loading videos...</p>
-        </div>
-    </section>
+        </section>
+        <section id="view-series" hidden></section>
+    </main>
 
-    <!-- Lightbox -->
-    <div class="lightbox" id="lightbox" aria-hidden="true">
-        <div class="lightbox-bg"></div>
-        <div class="lightbox-body">
-            <button class="lightbox-x" aria-label="Close">&times;</button>
-            <div class="lightbox-frame">
-                <iframe id="lightbox-iframe" src="" frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-                </iframe>
-            </div>
-        </div>
-    </div>
-
-    <script src="animation.js"></script>
 </body>
 
 </html>

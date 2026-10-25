@@ -1,0 +1,73 @@
+#+title: Animation
+#+reel: https://vimeo.com/1166595738
+#+reel_title: Demo Reel
+
+# This file is the animation page. The site reads it directly, so saving it
+# and pushing is all an update takes. (In Emacs: SPC n w a opens it, SPC n w P
+# publishes and pushes.)
+#
+# - #+reel: above is the reel on the home page and at /reel.html.
+# - A heading with :KIND: series is a show (the "streaming" view). Each heading
+#   under it is an episode, or a season if it has episodes under it.
+# - Any other heading is a group in the gallery; each video under it is a card.
+# - Properties a video can have:
+#     :VIDEO:      the link that plays on the site (YouTube, Vimeo, Instagram,
+#                  TikTok, or a .mp4 in the repo)
+#     :YOUTUBE: :INSTAGRAM: :TIKTOK:   "watch on" buttons (any of these also
+#                  plays if there's no :VIDEO:)
+#     :DATE:       2026-10-25
+#     :THUMB:      a custom thumbnail, relative to this file (../thumbs/x.jpg)
+#     :ASPECT:     vertical or wide, if the guess is wrong
+#   The text under a heading is its description.
+# - Start a heading with COMMENT to hide it without deleting it.
+
+* Hat Guy
+:PROPERTIES:
+:KIND:      series
+:INSTAGRAM: https://www.instagram.com/hatguyanimation/
+:YOUTUBE:   https://www.youtube.com/@jackgilmorecreative
+:END:
+An animated series about a guy and his hat.
+
+** COMMENT Episode 1: Example episode
+:PROPERTIES:
+:VIDEO:     https://www.youtube.com/shorts/XXXXXXXXXXX
+:INSTAGRAM: https://www.instagram.com/reel/XXXXXXXXXXX/
+:TIKTOK:    https://www.tiktok.com/@you/video/0000000000000000000
+:DATE:      2026-10-25
+:END:
+Delete COMMENT from this heading (and put in real links) to make it the first
+episode. Copy it for each new episode.
+
+* Projects
+** What is Fusion?
+:PROPERTIES:
+:VIDEO:    https://vimeo.com/1166593205
+:END:
+
+** iHOPE-KIDS Video
+:PROPERTIES:
+:VIDEO:    https://vimeo.com/1166592372
+:END:
+
+** Why Fusion?
+:PROPERTIES:
+:VIDEO:    https://vimeo.com/1166593104
+:END:
+
+** Fusion Short
+:PROPERTIES:
+:VIDEO:    https://vimeo.com/1166593688
+:THUMB:    ../thumbs/fusion-short.jpg
+:END:
+
+** Chicken Render
+:PROPERTIES:
+:VIDEO:    https://vimeo.com/1166591921
+:END:
+
+** DCS Midterm
+:PROPERTIES:
+:VIDEO:    https://vimeo.com/1166592776
+:THUMB:    ../thumbs/DCS-midterm.jpg
+:END:

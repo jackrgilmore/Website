@@ -3,36 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reading — Jack Gilmore</title>
-
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet">
-
-    <!-- Markdown Parser (tiny library, 8kb) -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="nav.css">
-    <link rel="stylesheet" href="writing.css">
+    <title>Writing — Jack Gilmore</title>
+    <!-- Old reader page: writing now lives at /writing/<name>.html -->
+    <script>
+        var file = new URLSearchParams(location.search).get('file') || '';
+        var pages = { 'Ice Rink Virginity.md': 'ice-rink-virginity', 'Subway Music.md': 'subway-music' };
+        location.replace(pages[file] ? '/writing/' + pages[file] + '.html' : '/writing.html');
+    </script>
+    <meta http-equiv="refresh" content="0; url=/writing.html">
 </head>
-
-<body>
-
-    <!-- Navigation -->
-    <script id="replace_with_navbar" src="nav.js"></script>
-
-    <main class="article-page">
-        <a href="writing.html" class="back-link">← back to writing</a>
-        <article class="article-body" id="article-body">
-            <p class="loading">Loading...</p>
-        </article>
-    </main>
-
-    <script src="article.js"></script>
-</body>
 
 </html>

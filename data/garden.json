@@ -1,0 +1,10 @@
+{
+  "nodes": [
+    {
+      "id": "/garden/first-node.html",
+      "title": "First Node",
+      "tags": []
+    }
+  ],
+  "links": []
+}

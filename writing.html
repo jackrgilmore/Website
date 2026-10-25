@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Writing — Jack Gilmore</title>
+    <meta name="description" content="Stories, essays and blog posts by Jack Gilmore.">
+
+    <!-- Light/dark mode (first, so the page never flashes the wrong one) -->
+    <script src="/theme.js"></script>
 
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,23 +17,25 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="nav.css">
-    <link rel="stylesheet" href="writing.css">
+    <link rel="stylesheet" href="/site.css">
+
+    <!-- Scripts (nav, shared helpers, then this page's own) -->
+    <script src="/nav.js" defer></script>
+    <script src="/catalog.js" defer></script>
+    <script src="/writing.js" defer></script>
 </head>
 
 <body>
 
-    <!-- Navigation -->
-    <script id="replace_with_navbar" src="nav.js"></script>
-
-    <main class="writing-index">
-        <h1>Selected Writing</h1>
-        <div id="writing-list">
-            <p class="loading">Loading articles...</p>
+    <main class="page page-narrow">
+        <header class="page-head">
+            <h1>Writing</h1>
+        </header>
+        <div id="writing">
+            <p class="loading">Loading...</p>
         </div>
     </main>
 
-    <script src="writing.js"></script>
 </body>
 
 </html>

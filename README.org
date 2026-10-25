@@ -1,0 +1,55 @@
+#+title: jackgilmorecreative.com
+
+A plain HTML/CSS/JavaScript site, served by GitHub Pages. No build tools: the
+only "build" is Emacs exporting the writing. Everything I edit is Org.
+
+How all of it works, file by file and line by line, is taught by the Emacs on
+the Web tutorial in my dotfiles (=SPC n w t=, or =~/dotfiles/tutorial/eow-lessons/=).
+
+* Updating the site (from Emacs)
+
+All under =SPC n w= (set up in =~/dotfiles/doom/.config/doom/config.org=):
+
+| Key         | Does                                                   |
+|-------------+--------------------------------------------------------|
+| =SPC n w n= | New piece of writing                                   |
+| =SPC n w a= | Open =content/animation.org= (reel, Hat Guy, gallery)   |
+| =SPC n w c= | Open =content/comics.org=                               |
+| =SPC n w g= | Make the org-roam note I'm in public (or private)      |
+| =SPC n w p= | Publish: export writing + garden to HTML               |
+| =SPC n w v= | Preview at http://localhost:8000                       |
+| =SPC n w P= | Publish, commit and push: live in a minute or two      |
+| =SPC n w t= | The tutorial: how this site works                      |
+
+Without Emacs: edit the Org files anywhere (even on github.com) and push. Only
+writing and garden notes need the publish step:
+=emacs --batch -l publish.el -f jg-site-publish=.
+
+* Where things are
+
+| Path                     | What                                                   |
+|--------------------------+--------------------------------------------------------|
+| =content/animation.org=   | The reel (=#+reel:=), series and episodes, gallery. Read by the browser |
+| =content/comics.org=      | Comic series and panels. Read by the browser           |
+| =content/writing/*.org=   | Stories, essays, blog posts (=#+type:=, =#+draft: t=)    |
+| =~/org/roam/=             | org-roam notes; ones tagged =publish= become the garden |
+| =comics/=, =thumbs/=       | Images (link them from the Org files as =../comics/...=) |
+| =writing/=, =garden/=, =data/= | *Generated* by =publish.el=. Don't edit; republish     |
+| =publish.el=              | The Org → HTML exporter                                |
+| =site.css=                | All the styles; light/dark colors are at the top       |
+| =theme.js=, =nav.js=       | Light/dark toggle, nav bar, footer (every page)        |
+| =catalog.js=              | Reads the Org catalogs, video embeds, cards, lightbox  |
+| =*.html= + =*.js=          | One pair per page: home (=reel.js=), reel, animation, series, comics, comic, writing, dashboard |
+
+Each catalog file explains its own format in the comments at its top.
+
+* Things to know
+
+- The whole repo is public on GitHub, including drafts in =content/writing/=
+  (=#+draft: t= only keeps them off the site). Keep secret drafts in =~/org=.
+- =SPC n w P= commits /everything/ in this folder. =.gitignore= lists files to
+  keep out (like =planning.org=).
+- Instagram and TikTok videos don't have automatic thumbnails: give episodes
+  from there a =:THUMB:=, or put the YouTube link in =:VIDEO:=.
+- To check a page locally, use the preview (=SPC n w v=), not double-clicking
+  the file: the pages load their data with =fetch=, which needs a server.
