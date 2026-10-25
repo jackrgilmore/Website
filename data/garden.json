@@ -4,16 +4,30 @@
       "id": "/garden/first-garden-note.html",
       "title": "First Garden Note",
       "tags": [],
-      "modified": "2026-10-25T12:58:25"
+      "modified": "2026-10-25T15:08:00"
     },
     {
       "id": "/garden/the-giant-in-the-mist.html",
       "title": "The Giant in the Mist",
       "tags": [],
       "modified": "2026-10-25T14:16:40"
+    },
+    {
+      "id": "/garden/subway-music.html",
+      "title": "Subway Music",
+      "tags": [],
+      "modified": "2026-10-25T15:05:41"
     }
   ],
   "links": [
+    {
+      "source": "/garden/first-garden-note.html",
+      "target": "/garden/subway-music.html"
+    },
+    {
+      "source": "/garden/first-garden-note.html",
+      "target": "/garden/the-giant-in-the-mist.html"
+    },
     {
       "source": "/garden/the-giant-in-the-mist.html",
       "target": "/garden/first-garden-note.html"

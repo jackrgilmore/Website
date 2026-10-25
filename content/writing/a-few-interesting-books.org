@@ -1,0 +1,21 @@
+#+title: A Few Interesting Books
+#+type: blog
+#+date: 2026-10-25
+#+publication:
+#+description: Book Recommendations
+#+draft: f
+
+Recently I've gotten really into weird fiction / cosmic horror as a genre, so here are some recommendations:
+
+1. /There is no Antimemetics Division/ by qntm
+   - This book was originally a series of short stories from the SMP Foundation. It's fantastic.
+2. /The Fisherman/ by John Langan
+3. /The Hike/ by Drew Magary
+   - Really bizzare story of a guy who tries to go on a short hike which ends up lasting decades
+4. /Blacktail/ by Scott Hawkins
+   - What if God wasn't human?
+5. /Slow Gods/ by Claire North
+6. /City of Stairs/ by Robert Jackson Bennet
+7. /A Short Stay in Hell/ by Steven L. Peck
+
+They are amazing! Also, if you haven't already, read the [[https://www.willwight.com/cradle.html][Cradle]] series by Will Wight.
