@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read — Jack Gilmore</title>
+    <meta name="description" content="Comics, stories, essays and blog posts by Jack Gilmore.">
+
+    <!-- Light/dark mode (first, so the page never flashes the wrong one) -->
+    <script src="/theme.js"></script>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/site.css">
+
+    <!-- Scripts (nav, shared helpers, then this page's own) -->
+    <script src="/nav.js" defer></script>
+    <script src="/catalog.js" defer></script>
+    <script src="/read.js" defer></script>
+</head>
+
+<body>
+
+    <main class="page">
+        <header class="page-head">
+            <h1>Read</h1>
+            <p>Comics, stories and the blog.</p>
+        </header>
+
+        <!-- All / Comics / Writing / Blog: made by read.js -->
+        <div class="view-switch" id="view-switch" role="group" aria-label="Show"></div>
+        <div id="views">
+            <p class="loading">Loading...</p>
+        </div>
+    </main>
+
+</body>
+
+</html>

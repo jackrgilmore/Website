@@ -4,6 +4,8 @@
 //   <group>  one button per other top-level heading in content/animation.org
 //            ("Projects"...): its videos as a grid, split into its subsections
 // The buttons follow the file: add a heading there and a button appears.
+// animation.html?play=<group>/<video> opens that video straight away (search
+// links here).
 
 (function () {
 
@@ -67,6 +69,13 @@
             : '<p class="empty">No series yet.</p>';
     }
 
+    function play(video) {
+        Site.openLightbox(
+            '<h2>' + Site.esc(video.title) + '</h2>'
+            + Site.player(video.video, true, video.title)
+            + (video.description || ''));
+    }
+
     function groupView(group) {
         return group.sections.map(function (section) {
             return (section.title ? '<h3 class="subsection">' + Site.esc(section.title) + '</h3>' : '')
@@ -101,12 +110,17 @@
             views.addEventListener('click', function (e) {
                 var card = e.target.closest('[data-index]');
                 if (!card) return;
-                var video = videos[+card.getAttribute('data-index')];
-                Site.openLightbox(
-                    '<h2>' + Site.esc(video.title) + '</h2>'
-                    + Site.player(video.video, true, video.title)
-                    + (video.description || ''));
+                play(videos[+card.getAttribute('data-index')]);
             });
+
+            // A link to one video: play it, then tidy the address (keeping the
+            // view) so reloading doesn't open it again
+            var wanted = Site.param('play');
+            var linked = data.gallery.filter(function (v) { return v.id === wanted; })[0];
+            if (linked) {
+                play(linked);
+                history.replaceState(null, '', location.pathname + location.hash);
+            }
         })
         .catch(function (error) {
             featured.remove();

@@ -33,7 +33,8 @@
         var latest = series.entries[series.entries.length - 1];
         var count = series.entries.length;
         var buttons = '';
-        if (first) buttons += '<button class="button button-primary" type="button" data-play="' + first.slug + '">' + icon('play') + ' Watch from the start</button>';
+        if (first) buttons += '<button class="button button-primary" type="button" data-play="' + first.slug + '"'
+            + (current ? '' : ' data-key="next"') + '>' + icon('play') + ' Watch from the start</button>';
         if (latest && latest !== first) buttons += '<button class="button" type="button" data-play="' + latest.slug + '">Latest episode</button>';
 
         return '<header class="series-hero">'
@@ -60,8 +61,8 @@
             + '<div class="description">' + current.description + '</div>'
             + (current.links.length ? '<div class="platforms">' + Site.platformButtons(current.links) + '</div>' : '')
             + '<div class="episode-nav">'
-            + (prev ? '<button class="button" type="button" data-play="' + prev.slug + '">← ' + Site.esc(prev.title) + '</button>' : '<span></span>')
-            + (next ? '<button class="button" type="button" data-play="' + next.slug + '">' + Site.esc(next.title) + ' →</button>' : '')
+            + (prev ? '<button class="button" type="button" data-key="prev" data-play="' + prev.slug + '">← ' + Site.esc(prev.title) + '</button>' : '<span></span>')
+            + (next ? '<button class="button" type="button" data-key="next" data-play="' + next.slug + '">' + Site.esc(next.title) + ' →</button>' : '')
             + '</div></section>';
     }
 
@@ -88,8 +89,15 @@
             + tabs + '<ul class="episode-list">' + list + '</ul></section>';
     }
 
+    // Watch / Hat Guy, or Watch / Hat Guy / the episode playing
+    function trail() {
+        var here = [['/animation.html', 'Watch']];
+        if (!current) return Site.crumbs(here.concat([[null, series.title]]));
+        return Site.crumbs(here.concat([['/series.html?s=' + series.slug, series.title], [null, current.title]]));
+    }
+
     function draw() {
-        box.innerHTML = hero() + nowPlaying() + episodes();
+        box.innerHTML = trail() + hero() + nowPlaying() + episodes();
     }
 
 

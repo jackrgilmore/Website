@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden — Jack Gilmore</title>
+    <meta name="description" content="Jack Gilmore's digital garden: notes in progress, linked together.">
+
+    <!-- Light/dark mode (first, so the page never flashes the wrong one) -->
+    <script src="/theme.js"></script>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/site.css">
+
+    <!-- Scripts (nav, shared helpers, the graph library, then this page's own) -->
+    <script src="/nav.js" defer></script>
+    <script src="/catalog.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
+    <script src="/garden.js" defer></script>
+</head>
+
+<body>
+
+    <main class="page">
+        <header class="page-head">
+            <h1>Garden</h1>
+            <p>Notes in progress: ideas, research and half-formed thoughts, linked together.</p>
+        </header>
+        <div id="garden">
+            <p class="loading">Loading...</p>
+        </div>
+    </main>
+
+</body>
+
+</html>

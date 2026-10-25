@@ -3,47 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comics — Jack Gilmore</title>
-    <meta name="description" content="Comics by Jack Gilmore.">
-
-    <!-- Light/dark mode (first, so the page never flashes the wrong one) -->
-    <script src="/theme.js"></script>
-
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="/site.css">
-
-    <!-- Scripts (nav, shared helpers, then this page's own) -->
-    <script src="/nav.js" defer></script>
-    <script src="/catalog.js" defer></script>
-    <script src="/comics.js" defer></script>
+    <!-- Old page: comics are now part of /read.html -->
+    <script>
+        location.replace('/read.html#comics');
+    </script>
+    <meta http-equiv="refresh" content="0; url=/read.html#comics">
 </head>
-
-<body>
-
-    <main class="page">
-        <header class="page-head">
-            <h1>Comics</h1>
-        </header>
-
-        <!-- Gallery / Series -->
-        <div class="view-switch" role="group" aria-label="View as">
-            <button type="button" data-view="gallery" aria-pressed="true">Gallery</button>
-            <button type="button" data-view="series" aria-pressed="false">Series</button>
-        </div>
-
-        <section id="view-gallery">
-            <p class="loading">Loading comics...</p>
-        </section>
-        <section id="view-series" hidden></section>
-    </main>
-
-</body>
 
 </html>

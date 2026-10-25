@@ -11,6 +11,7 @@ var ICONS = {
     email: 'M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z',
     sun: 'M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708',
     moon: 'M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286',
+    search: 'M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0',
     play: 'm11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393',
     link: 'M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z'
 };
@@ -23,28 +24,43 @@ function icon(name) {
 
     // ============ NAV ============
 
+    // Watch (animation), Read (comics, writing, the blog), Garden, and the reel.
+    // Everything else is in the footer's link to /everything.html.
     var links = [
-        ['/animation.html', 'animation'],
-        ['/comics.html', 'comics'],
-        ['/writing.html', 'writing'],
-        ['/dashboard.html', 'dashboard']
+        ['/animation.html', 'watch'],
+        ['/read.html', 'read'],
+        ['/garden.html', 'garden'],
+        ['/reel.html', 'reel']
     ];
 
-    // Which section we're in: generated pages count as their parent section
+    // Which section we're in: pages inside a section count as that section
     var path = window.location.pathname.toLowerCase();
     var section = path;
-    if (path === '/' || path === '/index.html') section = '/index.html';
-    if (path.indexOf('/writing/') === 0 || path.indexOf('/garden/') === 0) section = '/writing.html';
-    if (path === '/series.html' || path === '/reel.html') section = '/animation.html';
-    if (path === '/comic.html') section = '/comics.html';
+    if (path === '/series.html') section = '/animation.html';
+    if (path === '/comic.html' || path === '/comic-series.html' || path.indexOf('/writing/') === 0) section = '/read.html';
+    if (path.indexOf('/garden/') === 0) section = '/garden.html';
 
     var html = '<nav class="site-nav"><a href="/" class="nav-name">Jack Gilmore</a><div class="nav-links">';
     for (var i = 0; i < links.length; i++) {
         var active = links[i][0] === section ? ' class="active" aria-current="page"' : '';
         html += '<a href="' + links[i][0] + '"' + active + '>' + links[i][1] + '</a>';
     }
-    html += '</div><button class="theme-toggle" type="button"></button></nav>';
+    var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+    html += '</div><button class="nav-search" type="button" aria-label="Search the site" title="Search (' + (mac ? '⌘K' : 'Ctrl+K') + ')">'
+        + icon('search') + '<span class="nav-search-label">Search</span><kbd>' + (mac ? '⌘K' : 'Ctrl K') + '</kbd></button>'
+        + '<button class="theme-toggle" type="button"></button></nav>';
     document.body.insertAdjacentHTML('afterbegin', html);
+
+
+    // ============ SEARCH AND SHORTCUTS ============
+    // The panel the search button opens lives in search.js; the keyboard
+    // shortcuts (press ? for the list) in keys.js
+
+    ['/search.js', '/keys.js'].forEach(function (src) {
+        var script = document.createElement('script');
+        script.src = src;
+        document.head.appendChild(script);
+    });
 
 
     // ============ LIGHT / DARK TOGGLE ============
@@ -61,7 +77,7 @@ function icon(name) {
         var next = currentTheme() === 'dark' ? 'light' : 'dark';
         toggle.innerHTML = icon(next === 'light' ? 'sun' : 'moon');
         toggle.setAttribute('aria-label', 'Switch to ' + next + ' mode');
-        toggle.title = 'Switch to ' + next + ' mode';
+        toggle.title = 'Switch to ' + next + ' mode (t)';
     }
 
     toggle.addEventListener('click', function () {
@@ -75,6 +91,8 @@ function icon(name) {
 
 
     // ============ FOOTER ============
+    // A slim bar that stays at the bottom of the window: the socials, and the
+    // way into /everything.html
 
     var socials = [
         ['https://www.instagram.com/hatguyanimation/', 'instagram', 'Instagram'],
@@ -86,7 +104,21 @@ function icon(name) {
     for (var j = 0; j < socials.length; j++) {
         footer += '<a href="' + socials[j][0] + '" aria-label="' + socials[j][2] + '">' + icon(socials[j][1]) + '</a>';
     }
-    footer += '</div></footer>';
+    // Four squares (a grid of everything), which spread apart on hover
+    footer += '</div><a class="everything-link" href="/everything.html" title="Everything on the site, in one place (g e)"'
+        + (path === '/everything.html' ? ' aria-current="page"' : '') + '>'
+        + '<svg class="everything-icon" viewBox="0 0 16 16" aria-hidden="true">'
+        + '<rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.6"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.6"/>'
+        + '<rect x="1.5" y="9" width="5.5" height="5.5" rx="1.6"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.6"/>'
+        + '</svg><span>everything</span></a></footer>';
     document.body.insertAdjacentHTML('beforeend', footer);
+
+    // The squares pop in once a visit, to catch the eye without nagging
+    try {
+        if (!sessionStorage.getItem('footer-seen')) {
+            sessionStorage.setItem('footer-seen', '1');
+            document.querySelector('.everything-link').classList.add('hello');
+        }
+    } catch (e) { }
 
 })();

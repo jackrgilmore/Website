@@ -227,9 +227,12 @@ public note never points at (or reveals the location of) a private one."
 </head>
 <body>
 <main class=\"page page-narrow\">
-"    (if (eq kind 'garden)
-         "<a class=\"back-link\" href=\"/writing.html#garden\">← garden</a>\n"
-       "<a class=\"back-link\" href=\"/writing.html\">← writing</a>\n")
+"    ;; Breadcrumbs: Garden / this note, or Read / Blog (or Writing) / this piece
+     "<nav class=\"crumbs\" aria-label=\"Breadcrumb\">"
+     (cond ((eq kind 'garden) "<a href=\"/garden.html\">Garden</a>")
+           ((equal type "blog") "<a href=\"/read.html\">Read</a><a href=\"/read.html#blog\">Blog</a>")
+           (t "<a href=\"/read.html\">Read</a><a href=\"/read.html#writing\">Writing</a>"))
+     "<span aria-current=\"page\">" title "</span></nav>\n"
      "<article class=\"prose\">
 <header class=\"prose-head\">
 <p class=\"eyebrow\">" eyebrow "</p>

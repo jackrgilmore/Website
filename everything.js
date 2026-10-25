@@ -1,5 +1,6 @@
-// The dashboard: the reel, the newest episode, a tile for each part of the
-// site, the latest of each, and the garden graph (public org-roam notes).
+// The Everything page (linked from the footer): the reel, the newest episode,
+// a tile for each part of the site, the latest of each, and the garden graph
+// (public org-roam notes).
 
 (function () {
 
@@ -47,10 +48,10 @@
         var tiles = [
             ['/animation.html', 'Animation', plural(videoCount, 'video')],
             ['/animation.html#series', 'Series', animation.series.map(function (s) { return s.title; }).join(', ') || 'none yet'],
-            ['/comics.html', 'Comics', plural(issues.filter(function (c) { return c.images.length; }).length, 'comic')],
-            ['/writing.html', 'Writing', plural(writing.filter(function (w) { return w.type !== 'blog'; }).length, 'piece')],
-            ['/writing.html#blog', 'Blog', plural(writing.filter(function (w) { return w.type === 'blog'; }).length, 'post')],
-            ['#garden', 'Garden', plural(garden.nodes.length, 'note')]
+            ['/read.html#comics', 'Comics', plural(issues.filter(function (c) { return c.images.length; }).length, 'comic')],
+            ['/read.html#writing', 'Writing', plural(writing.filter(function (w) { return w.type !== 'blog'; }).length, 'piece')],
+            ['/read.html#blog', 'Blog', plural(writing.filter(function (w) { return w.type === 'blog'; }).length, 'post')],
+            ['/garden.html', 'Garden', plural(garden.nodes.length, 'note')]
         ];
         el('dash-tiles').innerHTML = tiles.map(function (t) {
             return '<a class="tile" href="' + t[0] + '"><strong>' + t[1] + '</strong><span>' + Site.esc(t[2]) + '</span></a>';
@@ -61,7 +62,7 @@
         el('dash-animation').innerHTML = videos.length
             ? '<div class="shelf">' + videos.map(function (v) {
                 return Site.card({
-                    href: v.series ? '/series.html?s=' + v.series.slug + '&e=' + v.slug : '/animation.html',
+                    href: v.series ? '/series.html?s=' + v.series.slug + '&e=' + v.slug : '/animation.html?play=' + encodeURIComponent(v.id),
                     thumb: Site.thumbOf(v),
                     title: v.title,
                     meta: v.series ? v.series.title : Site.prettyDate(v.date),

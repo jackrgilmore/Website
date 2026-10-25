@@ -353,6 +353,7 @@ var Site = (function () {
             function add(group, section, node) {
                 var item = makeItem(node);
                 item.collection = group.title;
+                item.id = group.slug + '/' + item.slug;    // animation.html?play=<id> plays it
                 group.items.push(item);
                 section.items.push(item);
                 data.gallery.push(item);
@@ -558,7 +559,10 @@ var Site = (function () {
 
     // The garden graph: each public org-roam note is a dot, each link between two
     // notes a line. Drag to move dots, scroll or pinch to zoom, click to read.
+    // The search button in its corner finds a note in the graph.
     // HOLDER is an empty .garden-graph element; it is removed if d3 is missing.
+    var graphCount = 0;
+
     function gardenGraph(holder, garden) {
         if (typeof d3 === 'undefined' || !garden.nodes.length) {
             holder.remove(); // graph library didn't load (or nothing to draw)
@@ -588,9 +592,10 @@ var Site = (function () {
             .attr('aria-label', 'Graph of ' + nodes.length + ' notes and the links between them');
         var world = svg.append('g');
 
-        svg.call(d3.zoom().scaleExtent([0.3, 4]).on('zoom', function (e) {
+        var zoom = d3.zoom().scaleExtent([0.3, 4]).on('zoom', function (e) {
             world.attr('transform', e.transform);
-        }));
+        });
+        svg.call(zoom);
 
         var line = world.append('g').selectAll('line').data(links).join('line');
         var node = world.append('g').selectAll('g').data(nodes).join('g').attr('class', 'node');
@@ -637,6 +642,144 @@ var Site = (function () {
         node.on('click', function (e, d) {
             if (!moved) window.location.href = d.id;
         });
+
+        graphSearch(holder, svg, zoom, node, line, nodes, links);
+    }
+
+    // The search button in the graph's corner. Typing fades every note that
+    // doesn't match; Enter (or clicking a result) flies to the note and lights
+    // up its links; Shift+Enter (or Shift+click) opens it.
+    function graphSearch(holder, svg, zoom, node, line, nodes, links) {
+        var id = 'graph-search-' + (++graphCount);
+        holder.insertAdjacentHTML('beforeend',
+            '<div class="graph-search">'
+            + '<div class="graph-search-box" hidden>'
+            + '<input type="text" placeholder="Find a note…" autocomplete="off" spellcheck="false" role="combobox"'
+            + ' aria-expanded="true" aria-controls="' + id + '" aria-autocomplete="list" aria-label="Find a note in the graph">'
+            + '<ul class="graph-search-results" id="' + id + '" role="listbox"></ul>'
+            + '<p class="graph-search-hint"><kbd>↵</kbd> find <kbd>⇧↵</kbd> open <kbd>esc</kbd> close</p>'
+            + '</div>'
+            + '<button class="graph-search-toggle" type="button" aria-label="Find a note in the graph" title="Find a note" aria-expanded="false">'
+            + (typeof icon === 'function' ? icon('search') : '⌕') + '</button>'
+            + '</div>');
+        var box = holder.querySelector('.graph-search-box');
+        var input = box.querySelector('input');
+        var list = box.querySelector('ul');
+        var toggle = holder.querySelector('.graph-search-toggle');
+        var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+        var matches = [];
+        var chosen = 0;
+
+        // Most-linked notes first when nothing is typed
+        var byLinks = nodes.slice().sort(function (a, b) { return b.degree - a.degree || a.title.localeCompare(b.title); });
+
+        function setOpen(open) {
+            box.hidden = !open;
+            toggle.setAttribute('aria-expanded', open);
+            if (open) {
+                filter();
+                input.focus();
+            } else {
+                input.value = '';
+                svg.classed('searching', false).classed('focused', false);
+                node.classed('match', false).classed('found', false).classed('near', false);
+                line.classed('found', false);
+                toggle.focus();
+            }
+        }
+
+        function filter() {
+            var words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+            matches = !words.length ? byLinks : byLinks.filter(function (n) {
+                var title = n.title.toLowerCase();
+                return words.every(function (w) { return title.indexOf(w) !== -1; });
+            }).sort(function (a, b) {
+                // titles that start with what's typed first
+                return (b.title.toLowerCase().indexOf(words[0]) === 0) - (a.title.toLowerCase().indexOf(words[0]) === 0);
+            });
+            chosen = 0;
+            svg.classed('focused', false).classed('searching', words.length > 0);
+            node.classed('found', false).classed('near', false)
+                .classed('match', function (d) { return words.length > 0 && matches.indexOf(d) !== -1; });
+            line.classed('found', false);
+            list.innerHTML = matches.length ? matches.map(function (n, i) {
+                return '<li role="option" id="' + id + '-' + i + '" data-i="' + i + '">'
+                    + '<span class="graph-search-title">' + esc(n.title) + '</span>'
+                    + '<span class="graph-search-meta">' + n.degree + (n.degree === 1 ? ' link' : ' links') + '</span></li>';
+            }).join('') : '<li class="graph-search-none">No note called that</li>';
+            pick(0);
+        }
+
+        function pick(i) {
+            var old = list.querySelector('[aria-selected="true"]');
+            if (old) old.setAttribute('aria-selected', 'false');
+            chosen = i;
+            var el = document.getElementById(id + '-' + i);
+            if (el) {
+                el.setAttribute('aria-selected', 'true');
+                el.scrollIntoView({ block: 'nearest' });
+                input.setAttribute('aria-activedescendant', el.id);
+            }
+        }
+
+        // Center the view on note D and light it and its links up
+        function locate(d) {
+            var k = Math.max(1.6, d3.zoomTransform(svg.node()).k);
+            svg.transition().duration(still.matches ? 0 : 650)
+                .call(zoom.transform, d3.zoomIdentity.translate(-d.x * k, -d.y * k).scale(k));
+            var near = {};
+            links.forEach(function (l) {
+                if (l.source === d) near[l.target.id] = true;
+                if (l.target === d) near[l.source.id] = true;
+            });
+            svg.classed('searching', false).classed('focused', true);
+            node.classed('match', false)
+                .classed('found', function (n) { return n === d; })
+                .classed('near', function (n) { return !!near[n.id]; });
+            line.classed('found', function (l) { return l.source === d || l.target === d; });
+        }
+
+        function use(i, openIt) {
+            var d = matches[i];
+            if (!d) return;
+            if (openIt) window.location.href = d.id;
+            else locate(d);
+        }
+
+        toggle.addEventListener('click', function () { setOpen(box.hidden); });
+        input.addEventListener('input', filter);
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (matches.length) pick((chosen + (e.key === 'ArrowDown' ? 1 : -1) + matches.length) % matches.length);
+            } else if (e.key === 'Enter' && !e.isComposing) {
+                e.preventDefault();
+                use(chosen, e.shiftKey);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                setOpen(false);
+            }
+        });
+        list.addEventListener('click', function (e) {
+            var row = e.target.closest('[data-i]');
+            if (!row) return;
+            pick(+row.getAttribute('data-i'));
+            use(chosen, e.shiftKey);
+        });
+        list.addEventListener('dblclick', function (e) {
+            var row = e.target.closest('[data-i]');
+            if (row) use(+row.getAttribute('data-i'), true);
+        });
+    }
+
+    // A breadcrumb trail at the top of a page: [[href, label], ..., [null, this page]]
+    function crumbs(trail) {
+        return '<nav class="crumbs" aria-label="Breadcrumb">' + trail.map(function (c) {
+            return c[0]
+                ? '<a href="' + esc(c[0]) + '">' + esc(c[1]) + '</a>'
+                : '<span aria-current="page">' + esc(c[1]) + '</span>';
+        }).join('') + '</nav>';
     }
 
     function failed(el, error) {
@@ -668,6 +811,7 @@ var Site = (function () {
         viewSwitch: viewSwitch,
         seriesBlock: seriesBlock,
         gardenGraph: gardenGraph,
+        crumbs: crumbs,
         failed: failed
     };
 

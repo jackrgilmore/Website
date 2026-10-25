@@ -38,8 +38,11 @@ writing and garden notes need the publish step:
 | =publish.el=              | The Org → HTML exporter                                |
 | =site.css=                | All the styles; light/dark colors are at the top       |
 | =theme.js=, =nav.js=       | Light/dark toggle, nav bar, footer (every page)        |
+| =search.js=               | The search panel (nav button, Cmd/Ctrl+K or /); loaded by nav.js |
+| =keys.js=                 | Keyboard shortcuts (press ? on the site for the list); loaded by nav.js |
 | =catalog.js=              | Reads the Org catalogs, video embeds, cards, lightbox  |
-| =*.html= + =*.js=          | One pair per page: home (=reel.js=), reel, animation, series, comics, comic, writing, dashboard |
+| =*.html= + =*.js=          | One pair per page: home (=reel.js=), reel, animation (Watch), series, read, comic-series, comic, garden, everything |
+| =comics.html=, =writing.html=, =dashboard.html=, =article.html= | Old addresses: they just redirect to the new pages |
 
 Each catalog file explains its own format in the comments at its top.
 

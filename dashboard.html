@@ -3,85 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — Jack Gilmore</title>
-    <meta name="description" content="Everything on jackgilmorecreative.com in one place.">
-
-    <!-- Light/dark mode (first, so the page never flashes the wrong one) -->
-    <script src="/theme.js"></script>
-
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="/site.css">
-
-    <!-- Scripts (nav, shared helpers, then this page's own) -->
-    <script src="/nav.js" defer></script>
-    <script src="/catalog.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
-    <script src="/dashboard.js" defer></script>
+    <title>Everything — Jack Gilmore</title>
+    <!-- Old page: the dashboard is now /everything.html -->
+    <script>
+        location.replace('/everything.html' + location.hash);
+    </script>
+    <meta http-equiv="refresh" content="0; url=/everything.html">
 </head>
-
-<body>
-
-    <main class="page">
-        <header class="page-head">
-            <h1>Dashboard</h1>
-            <p>Everything on the site, in one place.</p>
-        </header>
-
-        <!-- Reel and the newest episode -->
-        <div class="dash-top">
-            <section>
-                <h2>Demo reel</h2>
-                <div id="dash-reel"><p class="loading">Loading...</p></div>
-            </section>
-            <section>
-                <h2>Latest episode</h2>
-                <div id="dash-latest"><p class="loading">Loading...</p></div>
-            </section>
-        </div>
-
-        <!-- One tile per section of the site -->
-        <nav class="tiles" id="dash-tiles" aria-label="Sections"></nav>
-
-        <section class="section">
-            <div class="section-head">
-                <h2>Animation</h2>
-                <a href="/animation.html">all animation →</a>
-            </div>
-            <div id="dash-animation"><p class="loading">Loading...</p></div>
-        </section>
-
-        <section class="section">
-            <div class="section-head">
-                <h2>Comics</h2>
-                <a href="/comics.html">all comics →</a>
-            </div>
-            <div id="dash-comics"><p class="loading">Loading...</p></div>
-        </section>
-
-        <section class="section">
-            <div class="section-head">
-                <h2>Writing</h2>
-                <a href="/writing.html">all writing →</a>
-            </div>
-            <div id="dash-writing"><p class="loading">Loading...</p></div>
-        </section>
-
-        <section class="section" id="garden">
-            <div class="section-head">
-                <h2>Garden</h2>
-                <span class="card-meta">notes, and how they connect</span>
-            </div>
-            <div id="dash-garden"><p class="loading">Loading...</p></div>
-        </section>
-    </main>
-
-</body>
 
 </html>
