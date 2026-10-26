@@ -15,6 +15,8 @@
 #     [[file:comics/dan/01-1.png]]
 #     [[file:comics/dan/01-2.png]]
 # - Properties: :DATE: 2026-10-25, :COVER: comics/dan/x.png (else the first page).
+#   On a series heading, :COVER: is the series' poster (portrait, 3:4; else
+#   its first issue's first page). SPC n w e or hyper-v, then "cover", sets it.
 #   The other text under a heading is its description.
 # - Start a heading with COMMENT to hide it without deleting it.
 

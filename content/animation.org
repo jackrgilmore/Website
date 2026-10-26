@@ -8,7 +8,10 @@
 #
 # - #+reel: above is the reel on the home page and at /reel.html.
 # - A heading with :KIND: series is a show (the "streaming" view). Each heading
-#   under it is an episode, or a season if it has episodes under it.
+#   under it is an episode, or a season if it has episodes under it. Give the
+#   series :COVER: ../thumbs/x.jpg for a poster of its own (portrait, 3:4);
+#   without one it shows its first episode's thumbnail. (In Emacs: SPC n w e,
+#   or hyper-v, then "cover", copies the image in and sets it.)
 # - Any other top-level heading is a group, like "Projects" or "Independent
 #   animation": it gets its own button on the animation page, and its own row
 #   in the All view. Each video under it is a card. A heading under a group
@@ -35,6 +38,7 @@
 :INSTAGRAM: https://www.instagram.com/hatguyanimation/
 :YOUTUBE:   https://www.youtube.com/@hatguyanimation/shorts
 :TIKTOK: https://www.tiktok.com/@hatguyanimation
+:COVER:    ../thumbs/hat-guy-cover.png
 :END:
 Just a guy. Just a hat.
 
