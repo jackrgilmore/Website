@@ -34,7 +34,7 @@ writing and garden notes need the publish step:
 | =content/comics.org=      | Comic series and panels. Read by the browser           |
 | =content/writing/*.org=   | Stories, essays, blog posts (=#+type:=, =#+draft: t=)    |
 | =~/org/roam/=             | org-roam notes; ones tagged =publish= become the garden |
-| =comics/=, =thumbs/=       | Images (link them from the Org files as =../comics/...=) |
+| =content/comics/=, =thumbs/= | Comic pages (linked as =comics/...=), thumbnails (=../thumbs/...=) |
 | =writing/=, =garden/=, =data/= | *Generated* by =publish.el=. Don't edit; republish     |
 | =publish.el=              | The Org → HTML exporter                                |
 | =site.css=                | All the styles; light/dark colors are at the top       |

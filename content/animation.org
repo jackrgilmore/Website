@@ -3,8 +3,8 @@
 #+reel_title: Demo Reel
 
 # This file is the animation page. The site reads it directly, so saving it
-# and pushing is all an update takes. (In Emacs: SPC n w a opens it, SPC n w P
-# publishes and pushes.)
+# and pushing is all an update takes. (In Emacs: SPC n w a opens it, SPC n w e
+# adds a video or episode for you, SPC n w P publishes and pushes.)
 #
 # - #+reel: above is the reel on the home page and at /reel.html.
 # - A heading with :KIND: series is a show (the "streaming" view). Each heading
