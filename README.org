@@ -43,6 +43,8 @@ writing and garden notes need the publish step:
 | =search.js=               | The search panel (nav button, Cmd/Ctrl+K or /); loaded by nav.js |
 | =keys.js=                 | Keyboard shortcuts (press ? on the site for the list); loaded by nav.js |
 | =catalog.js=              | Reads the Org catalogs, video embeds, cards, lightbox  |
+| =analytics.js=            | Visitor counts (GoatCounter) and events: videos watched, pieces read to the end, links followed (every page) |
+| =favicon.*=, =apple-touch-icon.png= | The icon: Hat Guy (=favicon.svg= is the source; the others are made from it) |
 | =*.html= + =*.js=          | One pair per page: home (=reel.js=), reel, animation (Watch), series, read, comic-series, comic, garden, everything |
 | =comics.html=, =writing.html=, =dashboard.html=, =article.html= | Old addresses: they just redirect to the new pages |
 
@@ -56,5 +58,9 @@ Each catalog file explains its own format in the comments at its top.
   keep out (like =planning.org=).
 - Instagram and TikTok videos don't have automatic thumbnails: give episodes
   from there a =:THUMB:=, or put the YouTube link in =:VIDEO:=.
+- Visitors are counted by GoatCounter (=analytics.js=; no cookies, so no
+  banner). Emacs shows the numbers: hyper-s or =SPC n w s=. Previews on
+  localhost aren't counted; to leave out your own visits to the live site,
+  open =https://jackgilmorecreative.com/#toggle-goatcounter= once per browser.
 - To check a page locally, use the preview (=SPC n w v=), not double-clicking
   the file: the pages load their data with =fetch=, which needs a server.

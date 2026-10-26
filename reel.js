@@ -22,6 +22,7 @@
     var buttons = document.querySelectorAll('.share-reel');
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener('click', function () {
+            if (window.countEvent) countEvent('share', 'reel');
             if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
                 navigator.share({ title: 'Jack Gilmore — Demo Reel', url: reelPage }).catch(function () { });
             } else {

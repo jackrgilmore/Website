@@ -269,12 +269,16 @@ around CONTENTS, and HEAD is extra HTML for the <head>."
 <title>" (jg-site--escape title) " — Jack Gilmore</title>
 "    (if (string-empty-p description) ""
        (format "<meta name=\"description\" content=\"%s\">\n" description))
-     "<script src=\"/theme.js\"></script>
+     "<link rel=\"icon\" href=\"/favicon.ico\" sizes=\"32x32\">
+<link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">
+<link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\">
+<script src=\"/theme.js\"></script>
 <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
 <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
 <link href=\"https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap\" rel=\"stylesheet\">
 <link rel=\"stylesheet\" href=\"/site.css\">
 <script src=\"/nav.js\" defer></script>
+<script src=\"/analytics.js\" defer></script>
 " (or head "") "</head>
 <body>
 <main class=\"page page-narrow\">

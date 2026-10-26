@@ -249,11 +249,15 @@ var Site = (function () {
         }
         var open = '<div class="player' + (video.vertical ? ' vertical' : '') + '">';
         if (video.kind === 'file') {
-            return open + '<video src="' + esc(video.src) + '" controls playsinline' + (autoplay ? ' autoplay' : '') + '></video></div>';
+            return open + '<video src="' + esc(video.src) + '" title="' + esc(title || 'Video') + '" controls playsinline'
+                + (autoplay ? ' autoplay' : '') + '></video></div>';
         }
         if (video.kind === 'link') {
             return open + '<div class="player-missing"><a href="' + esc(video.url) + '" target="_blank" rel="noopener">Watch it here ↗</a></div></div>';
         }
+        // Opening a video to play it counts as watching it (analytics.js); the
+        // others count when someone clicks into the player
+        if (autoplay && window.countEvent) countEvent('watch', title || video.embed);
         var src = video.embed + (autoplay ? (video.embed.indexOf('?') === -1 ? '?' : '&') + 'autoplay=1' : '');
         return open + '<iframe src="' + esc(src) + '" title="' + esc(title || 'Video') + '"'
             + ' allow="autoplay; fullscreen; picture-in-picture; encrypted-media; clipboard-write"'
