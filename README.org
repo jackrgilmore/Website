@@ -33,6 +33,7 @@ writing and garden notes need the publish step:
 | =content/animation.org=   | The reel (=#+reel:=), series and episodes, gallery. Read by the browser |
 | =content/comics.org=      | Comic series and panels. Read by the browser           |
 | =content/writing/*.org=   | Stories, essays, blog posts (=#+type:=, =#+draft: t=)    |
+| =content/writing/*.fountain= | Screenplays in Fountain (title page: =Title:=, =Draft: t=) |
 | =~/org/roam/=             | org-roam notes; ones tagged =publish= become the garden |
 | =content/comics/=, =thumbs/= | Comic pages (linked as =comics/...=), thumbnails (=../thumbs/...=) |
 | =writing/=, =garden/=, =data/= | *Generated* by =publish.el=. Don't edit; republish     |

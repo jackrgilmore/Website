@@ -3,6 +3,7 @@
 ;; What this builds:
 ;;
 ;;   content/writing/*.org           ->  writing/*.html  + data/writing.json
+;;   content/writing/*.fountain      ->  writing/*.html  (screenplays, see below)
 ;;   ~/org/roam/**/*.org             ->  garden/*.html   + data/garden.json
 ;;   (only notes with the filetag :publish:)
 ;;
@@ -92,18 +93,24 @@
     (if (string-empty-p slug) "note" slug)))
 
 (defun jg-site--writing ()
-  "Every non-draft piece in content/writing/, as alists, newest first."
+  "Every non-draft piece in content/writing/, as alists, newest first.
+Org files and Fountain screenplays alike; a .fountain file is always a script."
   (let ((dir (expand-file-name "content/writing/" jg-site-root)) pieces)
     (dolist (file (and (file-directory-p dir)
-                       (directory-files dir t "\\`[^.#].*\\.org\\'")))
-      (let ((kw (jg-site--keywords file)))
+                       (directory-files dir t "\\`[^.#].*\\.\\(org\\|fountain\\)\\'")))
+      (let* ((fountain (jg-site--fountain-p file))
+             (kw (if fountain (jg-site--fountain-keywords file) (jg-site--keywords file))))
         (unless (member (downcase (or (jg-site--kw kw "draft") "")) '("t" "yes" "true"))
           (push `((title . ,(or (jg-site--kw kw "title") (file-name-base file)))
-                  (type . ,(downcase (or (jg-site--kw kw "type") "blog")))
+                  (type . ,(if fountain "script" (downcase (or (jg-site--kw kw "type") "blog"))))
                   (publication . ,(or (jg-site--kw kw "publication") ""))
-                  (date . ,(or (jg-site--date (jg-site--kw kw "date")) ""))
+                  (date . ,(or (jg-site--date (or (jg-site--kw kw "date")
+                                                  (jg-site--kw kw "draft date")))
+                               ""))
                   (description . ,(or (jg-site--kw kw "description") ""))
-                  (words . ,(jg-site--word-count file))
+                  (words . ,(if fountain
+                                (jg-site--fountain-word-count file)
+                              (jg-site--word-count file)))
                   (url . ,(jg-site--url "writing" file))
                   (file . ,file))
                 pieces))))
@@ -192,22 +199,33 @@ public note never points at (or reveals the location of) a private one."
 
 (defun jg-site--template (contents info)
   "Wrap the exported CONTENTS in the site's page layout."
-  (let* ((kind (plist-get info :jg-kind))
-         (title (org-export-data (plist-get info :title) info))
-         (input (plist-get info :input-file))
-         (kw (and input (jg-site--keywords input)))
-         (type (downcase (or (plist-get info :jg-type) "blog")))
+  (let* ((input (plist-get info :input-file))
+         (kw (and input (jg-site--keywords input))))
+    (jg-site--page
+     :kind (plist-get info :jg-kind)
+     :title (org-export-data (plist-get info :title) info)
+     :type (plist-get info :jg-type)
+     :publication (plist-get info :jg-publication)
+     :date (jg-site--kw kw "date")
+     :description (plist-get info :description)
+     :url (plist-get info :jg-url)
+     :contents contents)))
+
+(cl-defun jg-site--page (&key kind title type publication date description url
+                              contents (article-class "prose") head)
+  "A whole page in the site's layout, for a KIND page (writing or garden).
+TITLE and CONTENTS are HTML. ARTICLE-CLASS is the class of the <article>
+around CONTENTS, and HEAD is extra HTML for the <head>."
+  (let* ((type (downcase (or type "blog")))
          (eyebrow (if (eq kind 'garden)
                       "Garden note"
                     (or (cdr (assoc type jg-site-type-labels)) (capitalize type))))
          (byline (string-join
                   (seq-remove #'string-empty-p
-                              (delq nil (list (jg-site--escape (plist-get info :jg-publication))
-                                  (jg-site--pretty-date
-                                   (jg-site--date (jg-site--kw kw "date"))))))
+                              (delq nil (list (jg-site--escape publication)
+                                  (jg-site--pretty-date (jg-site--date date)))))
                   " · "))
-         (description (jg-site--escape (plist-get info :description)))
-         (url (plist-get info :jg-url))
+         (description (jg-site--escape description))
          (backlinks (and url (gethash url jg-site--backlinks))))
     (concat
      "<!DOCTYPE html>
@@ -224,7 +242,7 @@ public note never points at (or reveals the location of) a private one."
 <link href=\"https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap\" rel=\"stylesheet\">
 <link rel=\"stylesheet\" href=\"/site.css\">
 <script src=\"/nav.js\" defer></script>
-</head>
+" (or head "") "</head>
 <body>
 <main class=\"page page-narrow\">
 "    ;; Breadcrumbs: Garden / this note, or Read / Blog (or Writing) / this piece
@@ -233,7 +251,7 @@ public note never points at (or reveals the location of) a private one."
            ((equal type "blog") "<a href=\"/read.html\">Read</a><a href=\"/read.html#blog\">Blog</a>")
            (t "<a href=\"/read.html\">Read</a><a href=\"/read.html#writing\">Writing</a>"))
      "<span aria-current=\"page\">" title "</span></nav>\n"
-     "<article class=\"prose\">
+     "<article class=\"" article-class "\">
 <header class=\"prose-head\">
 <p class=\"eyebrow\">" eyebrow "</p>
 <h1>" title "</h1>
@@ -253,6 +271,13 @@ public note never points at (or reveals the location of) a private one."
 ")))
 
 (defun jg-site--export (file url kind)
+  "Export Org FILE as the page at site URL, a KIND page (writing or garden).
+A Fountain screenplay goes to `jg-site--export-fountain' instead."
+  (if (jg-site--fountain-p file)
+      (jg-site--export-fountain file url)
+    (jg-site--export-org file url kind)))
+
+(defun jg-site--export-org (file url kind)
   "Export Org FILE as the page at site URL, a KIND page (writing or garden)."
   (let* ((org-inhibit-startup t)
          (out-file (expand-file-name (url-unhex-string (substring url 1)) jg-site-root))
@@ -266,6 +291,224 @@ public note never points at (or reveals the location of) a private one."
             nil nil nil nil (list :jg-kind kind :jg-out-dir out-dir :jg-url url)))
       (unless visiting (kill-buffer buffer)))))
 
+
+;;; Fountain screenplays
+;;
+;; A .fountain file in content/writing/ is a screenplay in Fountain
+;; (https://fountain.io), the plain-text format screenwriting apps read. Its
+;; title page holds what the site needs, the same things an Org piece keeps
+;; in #+ keywords:
+;;
+;;   Title: The Giant
+;;   Credit: Written by
+;;   Author: Jack Gilmore
+;;   Draft date: 2026-10-25
+;;   Description: One line for the Read page.
+;;   Draft: t
+;;
+;; (Description and Draft aren't standard Fountain, but every app ignores keys
+;; it doesn't know.) The script itself becomes HTML with one class per element
+;; (scene-heading, action, character, dialogue...), which site.css lays out
+;; like a printed screenplay.
+
+(defun jg-site--fountain-p (file)
+  "Non-nil if FILE is a Fountain screenplay."
+  (string-suffix-p ".fountain" file t))
+
+(defun jg-site--fountain-read (file)
+  "FILE's text as (KEYWORDS . BODY): its title page as an alist with downcased
+keys, and the script after it, with boneyard /* */ and [[notes]] removed."
+  (with-temp-buffer
+    (let ((coding-system-for-read 'utf-8))
+      (insert-file-contents file))
+    (goto-char (point-min))
+    (while (re-search-forward "\r\n?" nil t) (replace-match "\n"))
+    (let ((text (replace-regexp-in-string
+                 "\\[\\[\\(?:.\\|\n\\)*?\\]\\]" ""
+                 (replace-regexp-in-string "/\\*\\(?:.\\|\n\\)*?\\*/" "" (buffer-string))))
+          keywords)
+      ;; A title page is "Key: value" lines at the very top, ending at the
+      ;; first blank line. Indented lines continue the key above them.
+      (when (string-match "\\`[ \t]*[A-Za-z][A-Za-z ]*:" text)
+        (let* ((end (or (string-match "\n[ \t]*\n" text) (length text)))
+               (lines (split-string (substring text 0 end) "\n")))
+          (setq text (substring text (min (length text) (1+ end))))
+          (dolist (line lines)
+            (if (string-match "\\`\\([A-Za-z][A-Za-z ]*\\):[ \t]*\\(.*?\\)[ \t]*\\'" line)
+                (push (cons (downcase (match-string 1 line)) (match-string 2 line)) keywords)
+              (when keywords
+                (setcdr (car keywords)
+                        (string-trim (concat (cdar keywords) " " (string-trim line)))))))))
+      (cons (nreverse keywords) text))))
+
+(defun jg-site--fountain-keywords (file)
+  "FILE's title page, as an alist with downcased keys (like `jg-site--keywords').
+The title loses Fountain's emphasis marks (_**TITLE**_ is common)."
+  (mapcar (lambda (kv)
+            (if (equal (car kv) "title")
+                (cons "title" (replace-regexp-in-string "[*_]" "" (cdr kv)))
+              kv))
+          (car (jg-site--fountain-read file))))
+
+(defun jg-site--fountain-word-count (file)
+  "Words in FILE's script, not counting its title page or notes."
+  (with-temp-buffer
+    (insert (cdr (jg-site--fountain-read file)))
+    (count-words (point-min) (point-max))))
+
+(defun jg-site--fountain-inline (text)
+  "TEXT escaped for HTML, with Fountain's *italic*, **bold**, ***both*** and
+_underline_. A backslash keeps a * or _ as it is."
+  (let ((s (thread-last (or text "")
+                        (replace-regexp-in-string "\\\\\\*" "\1")
+                        (replace-regexp-in-string "\\\\_" "\2")
+                        (replace-regexp-in-string "&" "&amp;")
+                        (replace-regexp-in-string "<" "&lt;")
+                        (replace-regexp-in-string ">" "&gt;"))))
+    (dolist (rule '(("\\*\\*\\*\\(.+?\\)\\*\\*\\*" . "<strong><em>\\1</em></strong>")
+                    ("\\*\\*\\(.+?\\)\\*\\*" . "<strong>\\1</strong>")
+                    ("\\*\\(.+?\\)\\*" . "<em>\\1</em>")
+                    ("_\\(.+?\\)_" . "<u>\\1</u>")))
+      (setq s (replace-regexp-in-string (car rule) (cdr rule) s t)))
+    (thread-last s
+                 (replace-regexp-in-string "\1" "*")
+                 (replace-regexp-in-string "\2" "_"))))
+
+(defconst jg-site--fountain-scene-re
+  "\\`\\(?:INT\\|EXT\\|EST\\|INT\\.?/EXT\\|I/E\\)[. ]"
+  "How an unforced scene heading starts (any case).")
+
+(defun jg-site--fountain-character-p (line)
+  "Non-nil if LINE looks like a character cue: a name in capitals, maybe with
+an extension like (V.O.) and a ^ for dual dialogue."
+  (let ((name (string-trim (replace-regexp-in-string "\\(([^)]*)\\|\\^\\)" "" line)))
+        (case-fold-search nil))
+    (and (string-match-p "[A-Z]" name)
+         (not (string-match-p "[a-z]" name)))))
+
+(defun jg-site--fountain-html (text)
+  "The screenplay TEXT (a script's body, after its title page) as HTML."
+  (let* ((lines (vconcat (split-string text "\n")))
+         (n (length lines))
+         (blank (lambda (j) (or (< j 0) (>= j n) (string-blank-p (aref lines j)))))
+         (i 0) out last-dialogue)
+    (cl-flet ((emit (class content &optional tag)
+                (push (format "<%s class=\"%s\">%s</%s>" (or tag "p") class content (or tag "p"))
+                      out)
+                (setq last-dialogue nil)))
+      (while (< i n)
+        (let* ((raw (aref lines i))
+               (line (string-trim raw)))
+          (cond
+           ((string-empty-p line) (setq i (1+ i)))
+           ;; === is a page break. # sections and = synopses are notes for
+           ;; the writer, which a screenplay doesn't print.
+           ((string-match-p "\\`===+\\'" line)
+            (push "<hr class=\"page-break\">" out)
+            (setq i (1+ i) last-dialogue nil))
+           ((string-match-p "\\`[#=]" line) (setq i (1+ i)))
+           ;; Scene heading: forced with a leading ., or INT./EXT. etc. on its
+           ;; own line. A trailing #12# is its scene number.
+           ((or (and (string-match-p "\\`\\.[^.]" line))
+                (and (let ((case-fold-search t))
+                       (string-match-p jg-site--fountain-scene-re line))
+                     (funcall blank (1- i)) (funcall blank (1+ i))))
+            (let* ((heading (if (string-prefix-p "." line) (substring line 1) line))
+                   (number (and (string-match "[ \t]*#\\([^#]+\\)#\\'" heading)
+                                (prog1 (match-string 1 heading)
+                                  (setq heading (substring heading 0 (match-beginning 0)))))))
+              (emit "scene-heading"
+                    (concat (jg-site--fountain-inline (upcase heading))
+                            (if number (format "<span class=\"scene-number\">%s</span>"
+                                               (jg-site--fountain-inline number))
+                              "")))
+              (setq i (1+ i))))
+           ;; > CENTERED <
+           ((string-match "\\`>[ \t]*\\(.*?\\)[ \t]*<\\'" line)
+            (emit "centered" (jg-site--fountain-inline (match-string 1 line)))
+            (setq i (1+ i)))
+           ;; Transition: forced with >, or capitals ending in TO: on their own
+           ((or (string-prefix-p ">" line)
+                (and (let ((case-fold-search nil))
+                       (string-match-p "\\`[^a-z]*TO:\\'" line))
+                     (funcall blank (1- i)) (funcall blank (1+ i))))
+            (emit "transition"
+                  (jg-site--fountain-inline (string-trim (string-remove-prefix ">" line))))
+            (setq i (1+ i)))
+           ;; ~ lyrics
+           ((string-prefix-p "~" line)
+            (emit "lyrics" (jg-site--fountain-inline (string-trim (substring line 1))))
+            (setq i (1+ i)))
+           ;; Character cue (forced with @), then its dialogue until a blank line
+           ((and (not (string-prefix-p "!" line))
+                 (funcall blank (1- i))
+                 (not (funcall blank (1+ i)))
+                 (or (string-prefix-p "@" line) (jg-site--fountain-character-p line)))
+            (let* ((dual (string-suffix-p "^" line))
+                   (name (string-trim (string-remove-suffix
+                                       "^" (string-remove-prefix "@" line))))
+                   (parts (list (format "<p class=\"character\">%s</p>"
+                                        (jg-site--fountain-inline name)))))
+              (setq i (1+ i))
+              (while (and (< i n) (not (funcall blank i)))
+                (let ((l (string-trim (aref lines i))))
+                  (push (cond ((string-match-p "\\`(.*)\\'" l)
+                               (format "<p class=\"parenthetical\">%s</p>"
+                                       (jg-site--fountain-inline l)))
+                              ((string-prefix-p "~" l)
+                               (format "<p class=\"lyrics\">%s</p>"
+                                       (jg-site--fountain-inline (string-trim (substring l 1)))))
+                              (t (format "<p class=\"dialogue\">%s</p>"
+                                         (jg-site--fountain-inline l))))
+                        parts))
+                (setq i (1+ i)))
+              (let ((block (concat "<div class=\"speech\">"
+                                   (apply #'concat (nreverse parts)) "</div>")))
+                ;; NAME ^ speaks at the same time as the speech just before
+                (if (and dual last-dialogue)
+                    (setcar out (concat "<div class=\"dual-dialogue\">"
+                                        (car out) block "</div>"))
+                  (push block out))
+                (setq last-dialogue (not dual)))))
+           ;; Anything else is action, up to the next blank line. Its line
+           ;; breaks and indentation stay as written (site.css: pre-wrap).
+           (t
+            (let (para)
+              (while (and (< i n) (not (funcall blank i)))
+                (push (jg-site--fountain-inline
+                       (let ((l (string-trim-right (aref lines i))))
+                         (if (string-prefix-p "!" (string-trim-left l))
+                             (replace-regexp-in-string "\\`\\([ \t]*\\)!" "\\1" l)
+                           l)))
+                      para)
+                (setq i (1+ i)))
+              (emit "action" (string-join (nreverse para) "\n"))))))))
+    (string-join (nreverse out) "\n")))
+
+(defun jg-site--export-fountain (file url)
+  "Export the Fountain screenplay FILE as the writing page at site URL."
+  (let* ((script (jg-site--fountain-read file))
+         (kw (mapcar (lambda (kv)
+                       (if (equal (car kv) "title")
+                           (cons "title" (replace-regexp-in-string "[*_]" "" (cdr kv)))
+                         kv))
+                     (car script)))
+         (out-file (expand-file-name (url-unhex-string (substring url 1)) jg-site-root))
+         (coding-system-for-write 'utf-8))
+    (make-directory (file-name-directory out-file) t)
+    (with-temp-file out-file
+      (insert
+       (jg-site--page
+        :kind 'writing
+        :title (jg-site--escape (or (jg-site--kw kw "title") (file-name-base file)))
+        :type "script"
+        :publication (jg-site--kw kw "publication")
+        :date (or (jg-site--kw kw "date") (jg-site--kw kw "draft date"))
+        :description (jg-site--kw kw "description")
+        :url url
+        :article-class "screenplay"
+        :head "<link href=\"https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap\" rel=\"stylesheet\">\n"
+        :contents (jg-site--fountain-html (cdr script)))))))
 
 ;;; Publishing
 

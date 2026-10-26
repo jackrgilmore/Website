@@ -1297,6 +1297,109 @@ kbd {
     padding-top: 1rem;
 }
 
+/* Screenplays (.fountain files): laid out like a printed script, in Courier
+   Prime. The indents are fractions of the column, as on a page: dialogue in
+   the middle, character names further in, transitions on the right. */
+
+.screenplay {
+    font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+.screenplay .prose-head h1 {
+    font-family: inherit;
+    text-transform: uppercase;
+}
+
+.screenplay p {
+    margin: 0 0 1.45em;
+}
+
+.screenplay .action {
+    white-space: pre-wrap;
+}
+
+.screenplay .scene-heading {
+    font-weight: 700;
+    margin-top: 2.2em;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.screenplay .scene-number {
+    color: var(--faint);
+    font-weight: 400;
+}
+
+.screenplay .speech {
+    margin: 0 0 1.45em;
+}
+
+/* Only the vertical margins: the indents below set each part's left margin */
+.screenplay .speech p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.screenplay .character {
+    margin-left: 37%;
+}
+
+.screenplay .parenthetical {
+    margin-left: 27%;
+    max-width: 40%;
+}
+
+.screenplay .dialogue,
+.screenplay .speech .lyrics {
+    margin-left: 17%;
+    max-width: 60%;
+}
+
+.screenplay .lyrics {
+    font-style: italic;
+}
+
+.screenplay .transition {
+    text-align: right;
+}
+
+.screenplay .centered {
+    text-align: center;
+}
+
+.screenplay .page-break {
+    border: none;
+    border-top: 1px dashed var(--line);
+    margin: 2.5em 0;
+}
+
+/* Two characters speaking at once: side by side, each with its own indents */
+.screenplay .dual-dialogue {
+    display: flex;
+    gap: 1.5rem;
+    margin: 0 0 1.45em;
+}
+
+.screenplay .dual-dialogue .speech {
+    flex: 1;
+    margin: 0;
+}
+
+.screenplay .dual-dialogue .character { margin-left: 20%; }
+.screenplay .dual-dialogue .parenthetical { margin-left: 10%; max-width: none; }
+.screenplay .dual-dialogue .dialogue { margin-left: 0; max-width: none; }
+
+@media (max-width: 760px) {
+    .screenplay { font-size: 0.92rem; }
+    .screenplay .character { margin-left: 30%; }
+    .screenplay .parenthetical { margin-left: 18%; max-width: 70%; }
+    .screenplay .dialogue,
+    .screenplay .speech .lyrics { margin-left: 8%; max-width: 84%; }
+}
+
 .backlinks {
     margin-top: 3rem;
     padding: 1.25rem 1.5rem;
