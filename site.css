@@ -1282,6 +1282,22 @@ kbd {
     text-align: center;
 }
 
+.prose figure img {
+    margin-bottom: 0.6rem;
+}
+
+/* An image's #+caption: (publish.el), like the photo captions */
+.prose figcaption {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+/* Org numbers captions "Figure 1:"; a piece of writing doesn't need that */
+.prose .figure-number {
+    display: none;
+}
+
 .prose ul,
 .prose ol {
     padding-left: 1.4rem;

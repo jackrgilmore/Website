@@ -17,6 +17,12 @@
 ;;
 ;; writing/ and garden/ hold generated pages: each publish deletes the .html
 ;; files in them and writes them fresh, so edit the Org files, not the HTML.
+;;
+;; Images and attachments: a [[file:...]] link to an image shows it (with
+;; #+caption: above it, as a captioned figure); a link to any other file that
+;; isn't Org or Fountain (a PDF, a zip) is a download link. Either way the file
+;; is copied to media/PAGE/ next to the page (writing/media/subway-music/...),
+;; and media/ is cleared each publish like the pages.
 
 (require 'cl-lib)
 (require 'ox-html)
@@ -166,11 +172,34 @@ Org files and Fountain screenplays alike; a .fountain file is always a script."
                (replace-regexp-in-string "\"" "&quot;")))
 
 (defun jg-site--copy-media (file info)
-  "Copy image FILE next to the page being exported; return its relative URL."
-  (let ((dir (expand-file-name "media/" (plist-get info :jg-out-dir))))
+  "Copy FILE (an image or attachment) to media/PAGE/ next to the page being
+exported; return its relative URL. A folder per page, so two pieces can each
+have a cover.jpg."
+  (let* ((page (file-name-base (url-unhex-string (plist-get info :jg-url))))
+         (dir (expand-file-name (concat "media/" page "/") (plist-get info :jg-out-dir))))
     (make-directory dir t)
     (copy-file file (expand-file-name (file-name-nondirectory file) dir) t)
-    (concat "media/" (url-hexify-string (file-name-nondirectory file)))))
+    (concat "media/" (url-hexify-string page) "/"
+            (url-hexify-string (file-name-nondirectory file)))))
+
+(defun jg-site--attachment-p (file)
+  "Non-nil if FILE can be published as a download: a file that isn't Org or
+Fountain. Those are pages, published or private, never downloads."
+  (and (file-regular-p file)
+       (not (string-match-p "\\.\\(org\\|fountain\\)\\'" file))))
+
+(defun jg-site--image-alt (link info)
+  "Alt text for the image LINK: its #+attr_html: :alt, or else its caption."
+  (let* ((paragraph (org-export-get-parent-element link))
+         (alt (plist-get (org-export-read-attribute :attr_html paragraph) :alt))
+         (caption (org-export-get-caption paragraph)))
+    (if alt
+        (jg-site--escape alt)
+      ;; The caption is already HTML (entities and all): drop its tags, and
+      ;; quote marks would end the attribute
+      (thread-last (if caption (org-export-data caption info) "")
+                   (replace-regexp-in-string "<[^>]+>" "")
+                   (replace-regexp-in-string "\"" "&quot;")))))
 
 (defun jg-site--link (link desc info)
   "Export LINK. Links to pages that aren't published become plain text, so a
@@ -192,8 +221,12 @@ public note never points at (or reveals the location of) a private one."
                 (let ((src (jg-site--copy-media file info)))
                   (if desc
                       (format "<a href=\"%s\">%s</a>" src desc)
-                    (format "<img src=\"%s\" alt=\"\">" src))))
+                    (format "<img src=\"%s\" alt=\"%s\">" src (jg-site--image-alt link info)))))
                (page (format "<a href=\"%s\">%s</a>" page (or desc page)))
+               ;; Any other file (a PDF, say): a download link
+               ((jg-site--attachment-p file)
+                (format "<a href=\"%s\" download>%s</a>" (jg-site--copy-media file info)
+                        (or desc (jg-site--escape (file-name-nondirectory file)))))
                (t (or desc "")))))
       (_ (org-html-link link desc info)))))
 
@@ -287,8 +320,10 @@ A Fountain screenplay goes to `jg-site--export-fountain' instead."
                                 (find-file-noselect file)))))
     (unwind-protect
         (with-current-buffer buffer
+          ;; html5-fancy: a captioned image is a <figure> with a <figcaption>
           (org-export-to-file 'jg-site out-file
-            nil nil nil nil (list :jg-kind kind :jg-out-dir out-dir :jg-url url)))
+            nil nil nil nil (list :jg-kind kind :jg-out-dir out-dir :jg-url url
+                                  :html-doctype "html5" :html-html5-fancy t)))
       (unless visiting (kill-buffer buffer)))))
 
 
@@ -540,11 +575,14 @@ Links to anything unpublished (private notes, drafts) are left out."
       (insert (json-encode data) "\n"))))
 
 (defun jg-site--clean (dir)
-  "Delete the generated .html pages in DIR (relative to the site root)."
+  "Delete the generated .html pages in DIR (relative to the site root), and
+the images and attachments copied for them (DIR/media/)."
   (let ((path (expand-file-name dir jg-site-root)))
     (make-directory path t)
     (dolist (file (directory-files path t "\\.html\\'"))
-      (delete-file file))))
+      (delete-file file))
+    (when (file-directory-p (expand-file-name "media" path))
+      (delete-directory (expand-file-name "media" path) t))))
 
 (defun jg-site-publish ()
   "Export the writing and public garden notes, and write their indexes."
