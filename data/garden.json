@@ -1,36 +1,32 @@
 {
   "nodes": [
     {
-      "id": "/garden/first-garden-note.html",
-      "title": "First Garden Note",
+      "id": "/garden/what-is-this.html",
+      "title": "What is this?",
       "tags": [],
-      "modified": "2026-10-25T15:08:00"
+      "modified": "2026-10-25T21:11:44"
     },
     {
-      "id": "/garden/the-giant-in-the-mist.html",
-      "title": "The Giant in the Mist",
+      "id": "/garden/the-giant-in-the-mist-explanation.html",
+      "title": "The Giant in the Mist - Explanation",
       "tags": [],
-      "modified": "2026-10-25T14:16:40"
+      "modified": "2026-10-25T21:11:49"
     },
     {
-      "id": "/garden/subway-music.html",
-      "title": "Subway Music",
+      "id": "/garden/subway-music-explanation.html",
+      "title": "Subway Music - Explanation",
       "tags": [],
-      "modified": "2026-10-25T15:05:41"
+      "modified": "2026-10-25T21:11:50"
     }
   ],
   "links": [
     {
-      "source": "/garden/first-garden-note.html",
-      "target": "/garden/subway-music.html"
+      "source": "/garden/what-is-this.html",
+      "target": "/garden/subway-music-explanation.html"
     },
     {
-      "source": "/garden/first-garden-note.html",
-      "target": "/garden/the-giant-in-the-mist.html"
-    },
-    {
-      "source": "/garden/the-giant-in-the-mist.html",
-      "target": "/garden/first-garden-note.html"
+      "source": "/garden/what-is-this.html",
+      "target": "/garden/the-giant-in-the-mist-explanation.html"
     }
   ]
 }
