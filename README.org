@@ -13,6 +13,7 @@ All under =SPC n w= (set up in =~/dotfiles/doom/.config/doom/config.org=):
 | Key         | Does                                                   |
 |-------------+--------------------------------------------------------|
 | =SPC n w n= | New piece of writing                                   |
+| =SPC n w e= | New video or comic: asks which series/season or group  |
 | =SPC n w a= | Open =content/animation.org= (reel, Hat Guy, gallery)   |
 | =SPC n w c= | Open =content/comics.org=                               |
 | =SPC n w g= | Make the org-roam note I'm in public (or private)      |

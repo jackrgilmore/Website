@@ -1,4 +1,5 @@
-// The animation page: the reel, then the videos, in views chosen by buttons:
+// The animation page (Watch): the videos, in views chosen by buttons. (The reel
+// is on the home page and /reel.html, not here.)
 //   All      every series and every group as a row (a streaming-style shelf)
 //   Series   each series with its poster, description and episodes
 //   <group>  one button per other top-level heading in content/animation.org
@@ -9,7 +10,6 @@
 
 (function () {
 
-    var featured = document.getElementById('featured');
     var switcher = document.getElementById('view-switch');
     var views = document.getElementById('views');
     var videos = [];    // every card that opens the lightbox, by data-index
@@ -86,13 +86,6 @@
     Site.loadAnimation()
         .then(function (data) {
 
-            // Featured reel
-            if (data.reel) {
-                featured.innerHTML = Site.player(data.reel.video, false, data.reel.title);
-            } else {
-                featured.remove();
-            }
-
             // The views, and a button for each: [name, label, html]
             var list = [['all', 'All', allView(data)]];
             if (data.series.length) list.push(['series', 'Series', seriesView(data)]);
@@ -123,7 +116,6 @@
             }
         })
         .catch(function (error) {
-            featured.remove();
             Site.failed(views, error);
         });
 
