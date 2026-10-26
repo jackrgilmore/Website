@@ -174,7 +174,6 @@ Hat fights a monster.
 :END:
 Hat goes through the mysterious door.
 
-
 * Projects
 ** What is Fusion?
 :PROPERTIES:
