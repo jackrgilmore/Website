@@ -4,7 +4,7 @@
       "id": "/garden/what-is-this.html",
       "title": "What is this?",
       "tags": [],
-      "modified": "2026-10-25T21:11:44"
+      "modified": "2026-10-25T22:10:41"
     },
     {
       "id": "/garden/the-giant-in-the-mist-explanation.html",
@@ -17,6 +17,12 @@
       "title": "Subway Music - Explanation",
       "tags": [],
       "modified": "2026-10-25T21:11:50"
+    },
+    {
+      "id": "/garden/emacs-is-a-piece-of-shit.html",
+      "title": "Emacs is a piece of shit",
+      "tags": [],
+      "modified": "2026-10-25T22:12:15"
     }
   ],
   "links": [
