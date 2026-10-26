@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#faf7f2"/>
+  <!-- Hat Guy, as in favicon.svg, scaled up -->
+  <g transform="translate(80 125) scale(6)">
+    <g stroke="#1f1b17" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+      <circle cx="28" cy="40" r="20" fill="#ffffff"/>
+      <path d="M8.5 36 C7.5 19 17 9 29 9 C42 9 49 18 49 31 Z" fill="#62a8d6"/>
+      <path d="M40 30 C48 24.5 59 24.5 62 30.5 C58 36 47 37 38 36 Z" fill="#62a8d6"/>
+    </g>
+    <ellipse cx="32" cy="44" rx="3" ry="4" fill="#1f1b17"/>
+    <ellipse cx="42" cy="44" rx="3" ry="4" fill="#1f1b17"/>
+  </g>
+  <g font-family="Baskerville, 'Libre Baskerville', Georgia, serif">
+    <text x="530" y="285" font-size="92" fill="#1f1b17">Jack Gilmore</text>
+    <text x="534" y="360" font-size="44" font-style="italic" fill="#946f2f">Animation · Comics · Writing</text>
+    <rect x="536" y="395" width="150" height="3" fill="#946f2f"/>
+    <text x="536" y="450" font-size="30" fill="#8f877e">jackgilmorecreative.com</text>
+  </g>
+</svg>

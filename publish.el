@@ -23,6 +23,12 @@
 ;; isn't Org or Fountain (a PDF, a zip) is a download link. Either way the file
 ;; is copied to media/PAGE/ next to the page (writing/media/subway-music/...),
 ;; and media/ is cleared each publish like the pages.
+;;
+;; Sharing and search: each page gets Open Graph tags, which are what
+;; Instagram, iMessage, Discord and the rest show when someone shares a link
+;; (title, description, picture: the piece's first image, else og.png), and
+;; each publish writes sitemap.xml, the list of pages search engines read
+;; (robots.txt points them to it).
 
 (require 'cl-lib)
 (require 'ox-html)
@@ -30,6 +36,7 @@
 (require 'seq)
 (require 'subr-x)
 (require 'url-util)
+(require 'url-expand)
 
 (defvar jg-site-root
   (file-name-directory (or load-file-name buffer-file-name))
@@ -37,6 +44,9 @@
 
 (defvar jg-site-roam-directory (expand-file-name "~/org/roam/")
   "Where org-roam notes live. Only notes tagged `jg-site-publish-tag' go online.")
+
+(defvar jg-site-url "https://jackgilmorecreative.com"
+  "The live site's address, for links that leave it (previews, the sitemap).")
 
 (defvar jg-site-publish-tag "publish"
   "The filetag that makes an org-roam note public.")
@@ -244,6 +254,57 @@ public note never points at (or reveals the location of) a private one."
      :url (plist-get info :jg-url)
      :contents contents)))
 
+(defconst jg-site--entities
+  '(("amp" . "&") ("lt" . "<") ("gt" . ">") ("quot" . "\"") ("nbsp" . " ")
+    ("rsquo" . "’") ("lsquo" . "‘") ("rdquo" . "”") ("ldquo" . "“")
+    ("hellip" . "…") ("mdash" . "—") ("ndash" . "–"))
+  "The named HTML entities Org's export writes, as the characters they are.")
+
+(defun jg-site--unescape (html)
+  "HTML's entities (&rsquo;, &#x2026;) as the characters they stand for."
+  (replace-regexp-in-string
+   "&\\(#x[0-9a-fA-F]+\\|#[0-9]+\\|[a-z]+\\);"
+   (lambda (match)
+     (let ((name (substring match 1 -1)))
+       (cond ((string-prefix-p "#x" name) (string (string-to-number (substring name 2) 16)))
+             ((string-prefix-p "#" name) (string (string-to-number (substring name 1))))
+             (t (or (cdr (assoc name jg-site--entities)) match)))))
+   html t t))
+
+(defun jg-site--summary (contents)
+  "The start of CONTENTS (HTML) as plain text: its first paragraph, cut to
+about 200 characters. For pages without a #+description:."
+  (if (not (string-match "<p>\\(\\(?:.\\|\n\\)*?\\)</p>" (or contents "")))
+      ""
+    (let ((text (string-trim (replace-regexp-in-string
+                              "[ \t\n]+" " "
+                              (jg-site--unescape
+                               (replace-regexp-in-string "<[^>]+>" "" (match-string 1 contents)))))))
+      (if (<= (length text) 200)
+          text
+        (concat (replace-regexp-in-string " +[^ ]*\\'" "" (substring text 0 200)) "…")))))
+
+(defun jg-site--share-image (contents url)
+  "The picture a shared link to the page at URL shows: the first image in its
+CONTENTS, as a full address, or the site's card (og.png)."
+  (if (string-match "<img src=\"\\([^\"]+\\)\"" (or contents ""))
+      (url-expand-file-name (match-string 1 contents) (concat jg-site-url url))
+    (concat jg-site-url "/og.png")))
+
+(defun jg-site--share-tags (title description image url)
+  "Open Graph tags (and Twitter's) for a page: what a shared link shows.
+TITLE and DESCRIPTION are already escaped."
+  (concat
+   "<meta property=\"og:site_name\" content=\"Jack Gilmore\">\n"
+   "<meta property=\"og:type\" content=\"article\">\n"
+   (format "<meta property=\"og:title\" content=\"%s\">\n" title)
+   (if (string-empty-p description) ""
+     (format "<meta property=\"og:description\" content=\"%s\">\n" description))
+   (format "<meta property=\"og:image\" content=\"%s\">\n" image)
+   (format "<meta property=\"og:url\" content=\"%s%s\">\n" jg-site-url url)
+   "<meta name=\"twitter:card\" content=\"summary_large_image\">\n"
+   (format "<link rel=\"canonical\" href=\"%s%s\">\n" jg-site-url url)))
+
 (cl-defun jg-site--page (&key kind title type publication date description url
                               contents (article-class "prose") head)
   "A whole page in the site's layout, for a KIND page (writing or garden).
@@ -258,7 +319,11 @@ around CONTENTS, and HEAD is extra HTML for the <head>."
                               (delq nil (list (jg-site--escape publication)
                                   (jg-site--pretty-date (jg-site--date date)))))
                   " · "))
-         (description (jg-site--escape description))
+         ;; No #+description:? The opening lines say what it is, for Google
+         ;; and link previews alike
+         (description (jg-site--escape (if (string-empty-p (or description ""))
+                                           (jg-site--summary contents)
+                                         description)))
          (backlinks (and url (gethash url jg-site--backlinks))))
     (concat
      "<!DOCTYPE html>
@@ -269,6 +334,8 @@ around CONTENTS, and HEAD is extra HTML for the <head>."
 <title>" (jg-site--escape title) " — Jack Gilmore</title>
 "    (if (string-empty-p description) ""
        (format "<meta name=\"description\" content=\"%s\">\n" description))
+     (jg-site--share-tags (jg-site--escape title) description
+                          (jg-site--share-image contents url) url)
      "<link rel=\"icon\" href=\"/favicon.ico\" sizes=\"32x32\">
 <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">
 <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\">
@@ -578,6 +645,55 @@ Links to anything unpublished (private notes, drafts) are left out."
     (with-temp-file path
       (insert (json-encode data) "\n"))))
 
+(defconst jg-site--sitemap-pages
+  '("/" "/animation.html" "/read.html" "/garden.html" "/everything.html" "/reel.html")
+  "The hand-written pages, for the sitemap (not the old ones that redirect).")
+
+(defun jg-site--series-slugs (file)
+  "The addresses' names (slugs) of the series in FILE (relative to content/):
+top-level headings with :KIND: series, not COMMENTed, slugged like catalog.js."
+  (let ((path (expand-file-name file (expand-file-name "content/" jg-site-root))))
+    (when (file-exists-p path)
+      (with-temp-buffer
+        (let ((coding-system-for-read 'utf-8))
+          (insert-file-contents path))
+        (let ((org-inhibit-startup t)) (delay-mode-hooks (org-mode)))
+        (let (slugs)
+          (org-map-entries
+           (lambda ()
+             (when (and (= (org-current-level) 1)
+                        (not (org-in-commented-heading-p))
+                        (equal (downcase (or (org-entry-get nil "KIND") "")) "series"))
+               (push (jg-site--slug (org-get-heading t t t t)) slugs))))
+          (nreverse slugs))))))
+
+(defun jg-site--write-sitemap (writing notes)
+  "Write sitemap.xml: the hand-written pages, each series, and every piece
+of WRITING and garden note in NOTES (with when it last changed)."
+  (let ((entry (lambda (url &optional lastmod)
+                 (format "  <url><loc>%s%s</loc>%s</url>\n"
+                         jg-site-url (replace-regexp-in-string "&" "&amp;" url)
+                         (if (and lastmod (not (string-empty-p lastmod)))
+                             (format "<lastmod>%s</lastmod>" lastmod)
+                           ""))))
+        (coding-system-for-write 'utf-8))
+    (with-temp-file (expand-file-name "sitemap.xml" jg-site-root)
+      (insert "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+              "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
+      (dolist (url jg-site--sitemap-pages)
+        (insert (funcall entry url)))
+      (dolist (slug (jg-site--series-slugs "animation.org"))
+        (insert (funcall entry (concat "/series.html?s=" slug))))
+      (dolist (slug (jg-site--series-slugs "comics.org"))
+        (insert (funcall entry (concat "/comic-series.html?s=" slug))))
+      (dolist (piece writing)
+        (insert (funcall entry (alist-get 'url piece) (alist-get 'date piece))))
+      (dolist (note notes)
+        (insert (funcall entry (alist-get 'url note)
+                         (format-time-string "%Y-%m-%d" (file-attribute-modification-time
+                                                         (file-attributes (alist-get 'file note)))))))
+      (insert "</urlset>\n"))))
+
 (defun jg-site--clean (dir)
   "Delete the generated .html pages in DIR (relative to the site root), and
 the images and attachments copied for them (DIR/media/)."
@@ -653,6 +769,7 @@ the images and attachments copied for them (DIR/media/)."
                                   notes)))
        (links . ,(vconcat (mapcar (lambda (link) `((source . ,(car link)) (target . ,(cdr link))))
                                   (nreverse graph-links))))))
+    (jg-site--write-sitemap writing notes)
     (message "Published %d piece%s of writing and %d garden note%s"
              (length writing) (if (= (length writing) 1) "" "s")
              (length notes) (if (= (length notes) 1) "" "s"))))
