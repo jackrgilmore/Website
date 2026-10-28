@@ -28,7 +28,7 @@
       "id": "/garden/dan-the-space-wizard.html",
       "title": "Dan The Space Wizard",
       "tags": [],
-      "modified": "2026-10-28T14:01:08"
+      "modified": "2026-10-28T14:06:46"
     },
     {
       "id": "/garden/illumination.html",
@@ -49,6 +49,10 @@
     {
       "source": "/garden/dan-the-space-wizard.html",
       "target": "/garden/hat-guy.html"
+    },
+    {
+      "source": "/garden/dan-the-space-wizard.html",
+      "target": "/garden/illumination.html"
     }
   ]
 }
