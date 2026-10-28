@@ -20,6 +20,8 @@ All under =SPC n w= (set up in =~/dotfiles/doom/.config/doom/config.org=):
 | =SPC n w p= | Publish: export writing + garden to HTML               |
 | =SPC n w v= | Preview at http://localhost:8000                       |
 | =SPC n w P= | Publish, commit and push: live in a minute or two      |
+| =SPC n w x= | Share a blog post: email, Instagram and Facebook       |
+| =SPC n w b= | Set a book's cover (in the book)                       |
 | =SPC n w t= | The tutorial: how this site works                      |
 
 Without Emacs: edit the Org files anywhere (even on github.com) and push. Only
@@ -33,7 +35,8 @@ writing and garden notes need the publish step:
 | =content/animation.org=   | The reel (=#+reel:=), series and episodes, gallery. Read by the browser |
 | =content/comics.org=      | Comic series and panels. Read by the browser           |
 | =content/writing/*.org=   | Stories, essays, blog posts (=#+type:=, =#+draft: t=)    |
-| =content/writing/*.fountain= | Screenplays in Fountain (title page: =Title:=, =Draft: t=) |
+| =content/writing/*.org= with =#+type: book= | A book: each =*= heading a chapter, =#+cover:= its cover. Becomes a page, a page per chapter and an EPUB |
+| =content/writing/*.fountain= | Screenplays in Fountain (title page: =Title:=, =Revision:= to name the draft, =Draft: t= to hide it). Each also becomes a screenplay-format PDF (Download PDF on its page) |
 | =~/org/roam/=             | org-roam notes; ones tagged =publish= become the garden |
 | =content/comics/=, =thumbs/= | Comic pages (linked as =comics/...=), thumbnails (=../thumbs/...=) |
 | =writing/=, =garden/=, =data/= | *Generated* by =publish.el=. Don't edit; republish     |
@@ -46,6 +49,8 @@ writing and garden notes need the publish step:
 | =analytics.js=            | Visitor counts (GoatCounter) and events: videos watched, pieces read to the end, links followed (every page) |
 | =favicon.*=, =apple-touch-icon.png= | The icon: Hat Guy (=favicon.svg= is the source; the others are made from it) |
 | =og.png= (from =og.svg=)   | The picture a shared link shows when a page has none of its own |
+| =feed.xml=                | The blog's RSS feed (written by =publish.el=). The RSS button in the nav (=nav.js=) offers it and email sign-up (Buttondown) |
+| =og.jpg=                  | =og.png= as a JPEG, for Instagram cross-posts (its API only takes JPEGs) |
 | =sitemap.xml=, =robots.txt= | The page list for search engines (written by =publish.el= each publish), and where to find it |
 | =*.html= + =*.js=          | One pair per page: home (=reel.js=), reel, animation (Watch), series, read, comic-series, comic, garden, everything |
 | =comics.html=, =writing.html=, =dashboard.html=, =article.html= | Old addresses: they just redirect to the new pages |
@@ -53,6 +58,27 @@ writing and garden notes need the publish step:
 Each catalog file explains its own format in the comments at its top.
 
 * Things to know
+
+- =examples/= holds example books and scripts, laid out like =content/=. They're
+  never published; =SPC n w V= builds a throwaway copy of the site with them
+  added and previews it at localhost:8001.
+
+- Every piece (writing, garden notes, books and chapters, comics, series,
+  episodes, videos) has a Share button (just an icon): the share sheet on a
+  phone; on a computer it copies the link, turns into a check mark and pops up
+  "Link copied". It's one handler in =nav.js= for any =[data-share]=
+  button; pages made in the browser call =shareButton(url, title)=.
+
+- A piece's date is the day it goes online. Each publish dates today anything
+  whose page isn't in the last commit yet (a draft made public, a note just
+  tagged =publish=, a new video or comic), writing it into the Org file. To
+  backdate something, push it first, then change its date.
+- New blog posts are shared when they're pushed from Emacs: emailed to the
+  subscribers (Buttondown, who keeps the list), posted to
+  Instagram (@jackgilmorecreative) through its API, and Facebook's share
+  window opens with the caption on the clipboard (Facebook doesn't let apps
+  post to personal profiles). Setup and details: "Cross-posting the blog" in
+  =config.org=.
 
 - The whole repo is public on GitHub, including drafts in =content/writing/=
   (=#+draft: t= only keeps them off the site). Keep secret drafts in =~/org=.

@@ -37,6 +37,7 @@
                 + '<p class="eyebrow">' + Site.esc(series ? 'Issue ' + comic.number : (comic.collection || 'Comic')) + '</p>'
                 + '<h1>' + Site.esc(comic.title) + '</h1>'
                 + (comic.date ? '<p class="byline">' + Site.prettyDate(comic.date) + '</p>' : '')
+                + '<div class="prose-actions">' + shareButton('/comic.html?c=' + encodeURIComponent(comic.id), document.title) + '</div>'
                 + '</header>'
                 + '<div class="prose">' + comic.description + '</div>'
                 + '<div class="comic-pages">' + comic.images.map(function (src, n) {

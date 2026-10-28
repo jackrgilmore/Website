@@ -1,0 +1,31 @@
+#+title: Night Bus (Example Book)
+#+type: book
+#+date: 2026-10-12
+#+description: An example book with no cover, to show the plain cover the site draws instead.
+
+An *example book* without a =#+cover:=, so the site draws a plain cover from the
+title. It isn't on the real site.
+
+* Route 9
+The night bus ran from the hospital to the harbor and back, nine stops each way,
+and Dell had driven it for six years without once having a full bus.
+
+Tonight there were three passengers. A nurse going home. A man with a cello
+case. A girl of maybe ten, alone, sitting very straight in the front seat with
+her ticket held out in both hands.
+
+"Where to?" said Dell.
+
+"The end," said the girl.
+
+* The End of the Line
+The end of the line was the harbor, and the harbor at two in the morning was
+fog and gulls and the long slow groan of the ferry ropes.
+
+The nurse got off at stop four. The man with the cello got off at seven. The
+girl stayed where she was, ticket still held out, until the doors hissed open on
+the dark water.
+
+"Someone meeting you?" Dell asked.
+
+She pointed. At the end of the pier, a lantern was swinging, coming closer.

@@ -1,0 +1,58 @@
+#+title: The Lamplighter (Example Book)
+#+type: book
+#+date: 2026-10-20
+#+cover: media/example-the-lamplighter/cover.jpg
+#+description: An example book, to show how long-form writing looks on the site.
+
+This is an *example book*. It isn't on the real site; it's here so you can see
+what a book looks like: the cover, this "about" section, the table of contents,
+each chapter on its own page, and the EPUB download.
+
+Each top-level heading (=* Chapter=) is a chapter. Subheadings stay inside their
+chapter.
+
+* The Last Street in Town
+Every evening at a quarter past five, Orrin Pell walked the length of Harrow
+Lane with a ladder over one shoulder and a tin of matches in his coat. The town
+had switched to electric lamps eleven years ago. Nobody had told Orrin, or
+rather, everybody had, and he had politely declined to hear it.
+
+"They light themselves now," said the woman at the bakery, the way she said it
+every evening.
+
+"So they say," said Orrin, and climbed.
+
+The lamp at the top of the ladder was cold and dark and perfectly fine. He
+struck a match anyway, held it to the glass until it went out, and climbed back
+down.
+
+** The Ledger
+He kept a ledger. Every lamp, every evening, a small tick. Forty-one lamps.
+Eleven years. He had never missed one.
+
+* The Lamp That Stayed Dark
+On a Tuesday in November, the lamp at the corner of Harrow and Vine did not come
+on.
+
+The others flickered to life at a quarter past five, the way they always did,
+humming their electric hum. But the corner lamp stayed dark, and Orrin stood
+beneath it with his ladder and his matches and a feeling he couldn't name.
+
+He climbed. He struck a match. He held it to the glass.
+
+The lamp came on.
+
+/That's not how it works/, he told himself, and climbed down very slowly.
+
+* What the Town Said
+By morning everybody knew. The baker told the postman, who told the school, who
+told everybody else.
+
+- Some said it was a loose wire.
+- Some said it was Orrin.
+- The children said it was obviously magic, and couldn't understand why the
+  grown-ups were arguing.
+
+Orrin said nothing at all. He walked Harrow Lane at a quarter past five with his
+ladder and his matches, and that evening, for the first time in eleven years, a
+small crowd walked with him.

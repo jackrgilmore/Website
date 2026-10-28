@@ -44,7 +44,8 @@
             + '<div><p class="eyebrow">Series · ' + count + ' episode' + (count === 1 ? '' : 's') + '</p>'
             + '<h1>' + Site.esc(series.title) + '</h1>'
             + '<div class="lead">' + series.description + '</div>'
-            + '<div class="platforms">' + buttons + Site.platformButtons(series.links) + '</div></div>'
+            + '<div class="platforms">' + buttons + Site.platformButtons(series.links)
+            + shareButton('/series.html?s=' + series.slug, series.title + ' — Jack Gilmore') + '</div></div>'
             + '</header>';
     }
 
@@ -59,7 +60,8 @@
             + '<p class="episode-meta">' + Site.esc(episodeLabel(current))
             + (current.date ? ' · ' + Site.prettyDate(current.date) : '') + '</p>'
             + '<div class="description">' + current.description + '</div>'
-            + (current.links.length ? '<div class="platforms">' + Site.platformButtons(current.links) + '</div>' : '')
+            + '<div class="platforms">' + Site.platformButtons(current.links)
+            + shareButton('/series.html?s=' + series.slug + '&e=' + current.slug, current.title + ' — ' + series.title) + '</div>'
             + '<div class="episode-nav">'
             + (prev ? '<button class="button" type="button" data-key="prev" data-play="' + prev.slug + '">← ' + Site.esc(prev.title) + '</button>' : '<span></span>')
             + (next ? '<button class="button" type="button" data-key="next" data-play="' + next.slug + '">' + Site.esc(next.title) + ' →</button>' : '')

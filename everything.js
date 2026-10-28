@@ -85,14 +85,18 @@
             }).join('') + '</div>'
             : '<p class="empty">The first comics are on their way.</p>';
 
-        // ---- Latest writing ----
-        el('dash-writing').innerHTML = writing.length
-            ? writing.slice(0, 5).map(function (w) {
-                var meta = [w.type === 'blog' ? 'Blog' : w.type.charAt(0).toUpperCase() + w.type.slice(1), w.publication, Site.prettyDate(w.date)].filter(Boolean).join(' · ');
-                return '<a class="entry" href="' + Site.esc(w.url) + '"><span class="entry-title">' + Site.esc(w.title)
-                    + '</span><span class="entry-meta">' + Site.esc(meta) + '</span></a>';
-            }).join('')
-            : '<p class="empty">No writing yet.</p>';
+        // ---- Latest writing and blog, side by side ----
+        function entries(list, empty, kind) {
+            return list.length
+                ? list.slice(0, 5).map(function (w) {
+                    var meta = [kind && w.type.charAt(0).toUpperCase() + w.type.slice(1), w.publication, Site.prettyDate(w.date)].filter(Boolean).join(' · ');
+                    return '<a class="entry" href="' + Site.esc(w.url) + '"><span class="entry-title">' + Site.esc(w.title)
+                        + '</span><span class="entry-meta">' + Site.esc(meta) + '</span></a>';
+                }).join('')
+                : '<p class="empty">' + empty + '</p>';
+        }
+        el('dash-writing').innerHTML = entries(writing.filter(function (w) { return w.type !== 'blog'; }), 'No writing yet.', true);
+        el('dash-blog').innerHTML = entries(writing.filter(function (w) { return w.type === 'blog'; }), 'No posts yet.', false);
 
         // ---- Garden ----
         drawGarden(el('dash-garden'), garden);

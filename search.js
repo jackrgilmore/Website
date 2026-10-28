@@ -43,7 +43,8 @@
         poem: ['Poem', 'feather'],
         script: ['Script', 'doc'],
         essay: ['Essay', 'doc'],
-        article: ['Article', 'doc']
+        article: ['Article', 'doc'],
+        book: ['Book', 'book']
     };
 
     // The main pages: [href, title, description, other words that should find it, icon]

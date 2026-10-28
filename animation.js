@@ -73,7 +73,10 @@
         Site.openLightbox(
             '<h2>' + Site.esc(video.title) + '</h2>'
             + Site.player(video.video, true, video.title)
-            + (video.description || ''));
+            + (video.description || '')
+            + '<div class="prose-actions">'
+            + shareButton('/animation.html?play=' + encodeURIComponent(video.id), video.title + ' — Jack Gilmore')
+            + '</div>');
     }
 
     function groupView(group) {

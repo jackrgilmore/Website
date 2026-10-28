@@ -226,7 +226,8 @@ button:focus-visible {
     background: var(--surface);
 }
 
-.theme-toggle {
+.theme-toggle,
+.nav-feed {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -242,7 +243,130 @@ button:focus-visible {
     transition: color 0.2s, border-color 0.2s;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.nav-feed:hover,
+.nav-feed[aria-expanded="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Follow the blog: the panel under the RSS button */
+.feed-pop {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 1rem;
+    width: min(330px, calc(100vw - 2rem));
+    padding: 1rem 1.1rem;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    z-index: 110;
+}
+
+.feed-pop[hidden] {
+    display: none;
+}
+
+.feed-pop p {
+    margin: 0;
+}
+
+.feed-pop-title {
+    font-weight: 700;
+    color: var(--heading);
+}
+
+.feed-pop-text,
+.feed-pop-help {
+    margin-top: 0.35rem !important;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.feed-pop-help {
+    color: var(--faint);
+    font-style: italic;
+}
+
+.feed-pop-copy {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+}
+
+.feed-pop-copy input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.45rem 0.75rem;
+    font: inherit;
+    font-size: 0.75rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+}
+
+.feed-pop-copy .button {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+}
+
+.feed-pop-email {
+    margin-top: 0.5rem;
+}
+
+.feed-pop-email input::placeholder {
+    color: var(--faint);
+}
+
+.feed-pop-done {
+    margin-top: 0.5rem !important;
+    font-size: 0.8rem;
+    color: var(--accent);
+}
+
+/* A line with words in the middle, between email and RSS */
+.feed-pop-or {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1rem !important;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+.feed-pop-or::before,
+.feed-pop-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+}
+
+.feed-pop-or + .feed-pop-copy {
+    margin-top: 0.6rem;
+}
+
+.feed-pop-apps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+}
+
+.feed-pop-apps a {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+}
+
+.feed-pop-apps a:hover {
     color: var(--accent);
     border-color: var(--accent);
 }
@@ -1214,6 +1338,89 @@ kbd {
     margin: 0;
 }
 
+/* Share (and Download PDF), under a title */
+.prose-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+}
+
+/* Share: just an icon, round; a check mark once the link's copied */
+.share-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.share-button .icon {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+/* "Link copied", just above the Share button that was clicked */
+.share-tip {
+    position: absolute;
+    z-index: 300;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -100%) translateY(4px);
+    transition: opacity 0.15s, transform 0.15s;
+}
+
+.share-tip.show {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+}
+
+/* Beside full-size buttons (series and book pages), the same height as them */
+.platforms .share-button,
+.book-actions .share-button {
+    width: 2.6rem;
+    height: 2.6rem;
+}
+
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.8rem;
+    font: inherit;
+    font-size: 0.78rem;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.share-button:hover,
+.action-link:hover,
+.share-button.copied {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
 .prose {
     font-size: 1.02rem;
 }
@@ -1456,6 +1663,17 @@ kbd {
     text-transform: uppercase;
     color: var(--accent);
     margin: 0 0 0.8rem;
+}
+
+/* Everything: Writing and Blog as two columns */
+.dash-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 2.5rem;
+}
+
+@media (max-width: 760px) {
+    .dash-split { grid-template-columns: 1fr; }
 }
 
 .tiles {
@@ -2101,6 +2319,491 @@ kbd {
 /* Shortcuts that do nothing on this page */
 .keys-row.unavailable {
     opacity: 0.4;
+}
+
+
+/* ====================
+   BOOKS (generated by publish.el): the book's page and its chapters
+   ==================== */
+
+.book-hero {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+/* A book's shape (2:3), with a spine-side edge that's squarer */
+.book-cover img,
+.book-cover-blank,
+.thumb.book img,
+.thumb.book .thumb-placeholder {
+    border-radius: 3px 8px 8px 3px;
+}
+
+.book-cover img,
+.book-cover-blank {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    box-shadow: var(--shadow);
+}
+
+/* No #+cover:? The title, set on a plain cover */
+.book-cover-blank,
+.thumb.book .thumb-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.3;
+    color: var(--bg);
+    background: linear-gradient(160deg, var(--accent), var(--accent-hover));
+}
+
+.book-info h1 {
+    font-size: 2rem;
+    margin: 0.3rem 0 0.5rem;
+}
+
+.book-desc {
+    margin: 0.9rem 0 1.25rem;
+}
+
+.book-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.book-actions .button:hover {
+    border-bottom-width: 1px;
+}
+
+.book-epub-note {
+    margin: 0.7rem 0 0;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+.book-about {
+    margin-bottom: 2.5rem;
+}
+
+.book-toc h2 {
+    font-size: 0.95rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--muted);
+    text-transform: lowercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+    margin: 0 0 0.75rem;
+}
+
+.book-toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.book-toc a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.8rem 0.4rem;
+    color: var(--heading);
+    border-bottom: 1px solid var(--line);
+}
+
+.book-toc a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--line);
+}
+
+.toc-num {
+    min-width: 1.6em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.toc-title {
+    flex: 1;
+    font-weight: 700;
+}
+
+.toc-meta {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--faint);
+    white-space: nowrap;
+}
+
+/* Under a chapter: previous, the contents, next */
+.chapter-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+}
+
+.chapter-nav .prev,
+.chapter-nav .next {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    color: var(--heading);
+    border: none;
+}
+
+.chapter-nav .next {
+    text-align: right;
+}
+
+.chapter-nav .prev:hover,
+.chapter-nav .next:hover {
+    color: var(--accent);
+}
+
+.chapter-nav-label {
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+.chapter-nav-title {
+    font-weight: 700;
+}
+
+.chapter-nav-toc {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+}
+
+.chapter-nav-toc:hover {
+    border-color: var(--accent);
+}
+
+/* Book covers on the Read page */
+.thumb.book {
+    aspect-ratio: 2 / 3;
+    border: none;
+    box-shadow: var(--shadow);
+}
+
+.grid-books {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 200px));
+}
+
+/* Books and scripts on the Read page: two centered shelves, side by side
+   when there are both, covers and title pages the same width */
+.cover-shelves {
+    display: grid;
+    gap: 2.75rem 3rem;
+    margin-bottom: 3rem;
+}
+
+.cover-shelves.two {
+    grid-template-columns: 1fr 1fr;
+}
+
+.shelf-half h3 {
+    font-size: 0.95rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--muted);
+    text-transform: lowercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+    margin: 0 0 1.25rem;
+}
+
+.covers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.75rem 1.5rem;
+}
+
+.covers .card {
+    width: 170px;
+}
+
+.covers .thumb {
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.covers .card:hover .thumb {
+    transform: translateY(-4px);
+}
+
+/* A script's title page: white paper, Courier, the title centered a third
+   of the way down, then which draft and its date, the way a printed script
+   starts. The same shape as a
+   book cover, so the two shelves line up; the type is bigger than on paper so
+   it reads at this size */
+.thumb.script {
+    aspect-ratio: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 42% 0.8rem 0;
+    text-align: center;
+    font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+    color: #1a1a1a;
+    background: #fbfaf6;
+    border: none;
+    border-radius: 2px;
+    box-shadow: var(--shadow);
+}
+
+.script-title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    overflow-wrap: anywhere;
+}
+
+.script-draft {
+    margin-top: 1.4rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.script-revision {
+    text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+    .cover-shelves.two { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+    .covers .card { width: calc(50% - 0.75rem); }
+}
+
+
+/* ====================
+   READ PAGE: the All view, one panel per kind of reading
+   ==================== */
+
+.hub {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+}
+
+/* All gold, like the rest of the site (the per-kind colors are for search) */
+.hub-panel {
+    --tone: var(--accent);
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1.25rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--tone);
+    border-radius: 10px;
+}
+
+.hub-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.hub-head h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-style: italic;
+    color: var(--heading);
+}
+
+.hub-count {
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--tone);
+    white-space: nowrap;
+}
+
+.hub-blurb {
+    margin: -0.6rem 0 1rem;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* The newest one, big */
+.hub-feature {
+    display: block;
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.hub-feature:hover {
+    color: var(--text);
+    border-color: var(--tone);
+    border-bottom-color: var(--tone);
+    transform: translateY(-1px);
+}
+
+.hub-feature .card {
+    margin: 0;
+}
+
+.hub-new {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--tone);
+}
+
+.hub-title {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--heading);
+}
+
+.hub-feature:hover .hub-title {
+    color: var(--tone);
+}
+
+.hub-desc {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.hub-meta {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+/* A comic's cover in its panel: a smaller cover beside its name */
+.hub-feature.hub-cover {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+}
+
+.hub-cover img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* The rest, as a short list */
+.hub-list {
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+}
+
+.hub-list a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.15rem;
+    font-size: 0.9rem;
+    color: var(--heading);
+    border-bottom: 1px solid var(--line);
+}
+
+.hub-list a:hover {
+    color: var(--tone);
+    border-bottom-color: var(--line);
+}
+
+.hub-list .hub-meta {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.hub-more {
+    margin-top: auto;
+    padding-top: 0.5rem;
+    align-self: flex-start;
+    font-size: 0.85rem;
+    color: var(--tone);
+}
+
+.hub-more:hover {
+    color: var(--tone);
+}
+
+.hub-empty {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+@media (max-width: 900px) {
+    .hub {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .book-hero {
+        grid-template-columns: minmax(0, 1fr);
+        text-align: center;
+    }
+
+    .book-cover {
+        width: 55%;
+        margin: 0 auto;
+    }
+
+    .book-actions {
+        justify-content: center;
+    }
+
+    .chapter-nav {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .chapter-nav-toc {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-self: center;
+    }
 }
 
 

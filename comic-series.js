@@ -48,7 +48,8 @@
                 + '<div><p class="eyebrow">Comic series · ' + count + ' issue' + (count === 1 ? '' : 's') + '</p>'
                 + '<h1>' + Site.esc(series.title) + '</h1>'
                 + '<div class="lead">' + series.description + '</div>'
-                + '<div class="platforms">' + buttons + Site.platformButtons(series.links) + '</div></div>'
+                + '<div class="platforms">' + buttons + Site.platformButtons(series.links)
+                + shareButton('/comic-series.html?s=' + series.slug, document.title) + '</div></div>'
                 + '</header>'
                 + '<section class="section"><div class="section-head"><h2>Issues</h2></div>' + issues + '</section>';
         })
