@@ -1572,6 +1572,107 @@ title and the end of the article, with its links made full addresses."
                  (concat attr (url-expand-file-name link (concat jg-site-url url)) "\""))))
            (string-trim (buffer-substring start end)) t t))))))
 
+;; ---- Instagram slides ----
+;;
+;; Every blog post also becomes square pictures for Instagram, drawn by
+;; tools/slides.swift: its picture (or the site's card), its text in Georgia
+;; over as many slides as it takes, and a slide about the site; and a
+;; phone-sized picture for the story, pointing people to the website. They're
+;; written to social/SLUG/1.jpg, 2.jpg... and story.jpg, and pushed with the
+;; site, so Instagram can fetch them when Emacs cross-posts the post: the
+;; slides as a carousel, then the story.
+;; The tool is compiled once (into ~/.cache/jg-site/) and only redraws a
+;; post's slides when the post or the tool has changed (social/SLUG/key holds
+;; what they were drawn from). Without Swift (not a Mac), there are no slides
+;; and Instagram gets the single picture instead.
+
+(defconst jg-site-slides-max 8
+  "The most text slides a post gets. With its picture and the slide about the
+site that's 10, the most an Instagram carousel can hold.")
+
+(defun jg-site--slides-tool ()
+  "The compiled slides tool, compiling it if it isn't yet; nil without Swift."
+  (let* ((source (expand-file-name "tools/slides.swift" jg-site-root))
+         (hash (with-temp-buffer
+                 (insert-file-contents-literally source)
+                 (md5 (current-buffer))))
+         (tool (expand-file-name (concat "jg-site/slides-" hash)
+                                 (or (getenv "XDG_CACHE_HOME") "~/.cache/"))))
+    (cond ((file-executable-p tool) tool)
+          ((not (executable-find "swiftc")) nil)
+          (t (make-directory (file-name-directory tool) t)
+             ;; Builds of older versions of the tool
+             (dolist (old (directory-files (file-name-directory tool) t "\\`slides-"))
+               (delete-file old))
+             (message "Compiling the Instagram slides tool (once)...")
+             (and (eq 0 (call-process "swiftc" nil nil nil "-O" source "-o" tool))
+                  tool)))))
+
+(defun jg-site--slides-page (url)
+  "The page at URL's description and picture file: (DESCRIPTION . FILE).
+FILE is \"\" when it has no picture of its own."
+  (cons (with-temp-buffer
+          (insert-file-contents (expand-file-name (url-unhex-string (substring url 1)) jg-site-root))
+          (if (re-search-forward "<meta name=\"description\" content=\"\\([^\"]*\\)\"" nil t)
+              (jg-site--unescape (match-string 1))
+            ""))
+        (jg-site--slides-cover url)))
+
+(defun jg-site--slides-cover (url)
+  "The picture file of the page at URL, for its first slide, or \"\" for none."
+  (with-temp-buffer
+    (insert-file-contents (expand-file-name (url-unhex-string (substring url 1)) jg-site-root))
+    (let ((image (and (re-search-forward "<meta property=\"og:image\" content=\"\\([^\"]+\\)\"" nil t)
+                      (match-string 1))))
+      (if (and image
+               (string-prefix-p (concat jg-site-url "/writing/") image)
+               (string-match-p "\\.\\(jpe?g\\|png\\)\\'" image))
+          (expand-file-name (url-unhex-string (substring image (1+ (length jg-site-url)))) jg-site-root)
+        ""))))
+
+(defun jg-site--write-slides (writing)
+  "Draw the Instagram slides for every blog post in WRITING (already exported)."
+  (let ((posts (seq-filter (lambda (p) (equal (alist-get 'type p) "blog")) writing))
+        (social (expand-file-name "social/" jg-site-root))
+        (tool (jg-site--slides-tool))
+        (drawn 0))
+    (if (not tool)
+        (message "No Swift here, so no Instagram slides")
+      ;; Slides of posts that are gone (or no longer blog posts)
+      (when (file-directory-p social)
+        (let ((slugs (mapcar (lambda (p) (file-name-base (alist-get 'file p))) posts)))
+          (dolist (dir (directory-files social nil "\\`[^.]"))
+            (unless (member dir slugs)
+              (delete-directory (expand-file-name dir social) t)))))
+      (dolist (post posts)
+        (let* ((url (alist-get 'url post))
+               (out (expand-file-name (file-name-base (alist-get 'file post)) social))
+               (spec (json-encode
+                      `((title . ,(alist-get 'title post))
+                        (date . ,(or (jg-site--pretty-date (alist-get 'date post)) ""))
+                        (description . ,(car (jg-site--slides-page url)))
+                        (html . ,(replace-regexp-in-string
+                                  "<figure\\(?:.\\|\n\\)*?</figure>\\|<img[^>]*>" ""
+                                  (jg-site--feed-body url)))
+                        (cover . ,(jg-site--slides-cover url))
+                        (card . ,(expand-file-name "og.png" jg-site-root))
+                        (out . ,out)
+                        (site . ,(string-remove-prefix "https://" jg-site-url))
+                        (max . ,jg-site-slides-max))))
+               (key (md5 (concat spec tool)))
+               (key-file (expand-file-name "key" out)))
+          (unless (and (file-exists-p key-file)
+                       (equal key (with-temp-buffer (insert-file-contents key-file) (buffer-string))))
+            (let ((spec-file (make-temp-file "jg-slides" nil ".json" spec)))
+              (unwind-protect
+                  (if (eq 0 (call-process tool nil nil nil spec-file))
+                      (progn (with-temp-file key-file (insert key))
+                             (setq drawn (1+ drawn)))
+                    (message "Couldn't draw the Instagram slides for %s" url))
+                (delete-file spec-file))))))
+      (when (> drawn 0)
+        (message "Drew Instagram slides for %d post%s" drawn (if (= drawn 1) "" "s"))))))
+
 (defun jg-site--write-feed (writing)
   "Write feed.xml: the newest blog posts in WRITING (already exported)."
   (let* ((posts (seq-take (seq-filter (lambda (p) (equal (alist-get 'type p) "blog")) writing)
@@ -1780,6 +1881,7 @@ site root), and its folders: the images and attachments copied for them
                                   (nreverse graph-links))))))
     (jg-site--write-sitemap writing notes)
     (jg-site--write-feed writing)
+    (jg-site--write-slides writing)
     (setq jg-site-newly-published
           (mapcar (lambda (page) (assq-delete-all 'file (copy-alist page)))
                   (seq-filter (lambda (page) (member (alist-get 'url page) new-urls))

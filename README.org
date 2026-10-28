@@ -59,6 +59,13 @@ Each catalog file explains its own format in the comments at its top.
 
 * Things to know
 
+- Each blog post also gets square Instagram slides in =social/POST/=, drawn by
+  =tools/slides.swift= when you publish: its picture, its text in Georgia
+  over as many slides as it takes (8 at most), and a slide about the site; plus =story.jpg=, phone-sized,
+  for the story. Cross-posting puts the square ones on Instagram as a
+  carousel, then the story. They're only redrawn
+  when the post changes.
+
 - =examples/= holds example books and scripts, laid out like =content/=. They're
   never published; =SPC n w V= builds a throwaway copy of the site with them
   added and previews it at localhost:8001.
