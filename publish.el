@@ -361,10 +361,10 @@ Under the byline is a Share button (nav.js makes it work), then ACTIONS
 <head>
 <meta charset=\"utf-8\">
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-<title>" (jg-site--escape title) " — Jack Gilmore</title>
+<title>" (jg-site--escape (jg-site--unescape title)) " — Jack Gilmore</title>
 "    (if (string-empty-p description) ""
        (format "<meta name=\"description\" content=\"%s\">\n" description))
-     (jg-site--share-tags (jg-site--escape title) description
+     (jg-site--share-tags (jg-site--escape (jg-site--unescape title)) description
                           (jg-site--share-image contents url) url)
      "<link rel=\"icon\" href=\"/favicon.ico\" sizes=\"32x32\">
 <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">
