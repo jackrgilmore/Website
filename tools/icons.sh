@@ -4,6 +4,10 @@
 #   apple-touch-icon.png  for iPhones' home screens (180 px, on the paper color)
 #   og.png                the card a shared link shows, drawn from og.svg,
 #                         which places favicon.svg on it rather than a copy
+#   design/card-dark.png  the same card in the site's dark colors, for the
+#                         Instagram pictures (tools/slides.swift)
+#   design/hat-guy.png    Hat Guy alone, big, on nothing (see-through), for the
+#                         story of a post with no picture of its own
 # Each is only remade when what it's made from is newer, so running this
 # when nothing has changed changes nothing. publish.el runs it every publish;
 # it can also be run by hand from anywhere: tools/icons.sh
@@ -43,4 +47,19 @@ fi
 if [[ -f og.svg && ( og.svg -nt og.png || favicon.svg -nt og.png ) ]]; then
   rsvg-convert og.svg -o $tmp/og.png &&
     magick $tmp/og.png $plain PNG24:og.png && echo "Made og.png"
+fi
+
+# The dark card: og.svg with the light colors swapped for the dark theme's
+# (site.css), drawn next to a copy of favicon.svg so Hat Guy comes along
+if [[ -f og.svg && ( ! -f design/card-dark.png || og.svg -nt design/card-dark.png || favicon.svg -nt design/card-dark.png ) ]]; then
+  cp favicon.svg $tmp/ &&
+    sed -e 's/#faf7f2/#111111/' -e 's/#1f1b17/#e8e0d4/' -e 's/#946f2f/#c9a96e/g' -e 's/#8f877e/#8f887f/' \
+        og.svg > $tmp/card-dark.svg &&
+    rsvg-convert $tmp/card-dark.svg -o $tmp/card-dark.png &&
+    magick $tmp/card-dark.png $plain PNG24:design/card-dark.png && echo "Made design/card-dark.png"
+fi
+
+if [[ ! -f design/hat-guy.png || favicon.svg -nt design/hat-guy.png ]]; then
+  rsvg-convert -w 1024 -h 1024 favicon.svg -o $tmp/hat-guy.png &&
+    magick $tmp/hat-guy.png $plain PNG32:design/hat-guy.png && echo "Made design/hat-guy.png"
 fi

@@ -49,6 +49,8 @@ writing and garden notes need the publish step:
 | =analytics.js=            | Visitor counts (GoatCounter) and events: videos watched, pieces read to the end, links followed (every page) |
 | =favicon.*=, =apple-touch-icon.png= | The icon: Hat Guy. Draw =favicon.svg=; the others are made from it when you publish (=tools/icons.sh=) |
 | =og.png= (from =og.svg=)   | The picture a shared link shows when a page has none of its own |
+| =design/card-dark.png=    | The same card in the site's dark colors, for the Instagram pictures (made from =og.svg=) |
+| =design/hat-guy.png=      | Hat Guy alone, big, for the story of a post with no picture (made from =favicon.svg=) |
 | =feed.xml=                | The blog's RSS feed (written by =publish.el=). The RSS button in the nav (=nav.js=) offers it and email sign-up (Buttondown) |
 | =og.jpg=                  | =og.png= as a JPEG, for Instagram cross-posts (its API only takes JPEGs) |
 | =sitemap.xml=, =robots.txt= | The page list for search engines (written by =publish.el= each publish), and where to find it |
@@ -63,13 +65,16 @@ You can redo these in Photoshop, Inkscape or anything else; the next publish
 uses them (and redraws every post's pictures):
 
 - *The card*, =og.png= (1200×630): what a shared link shows when the page has
-  no picture of its own, and the last slide of each Instagram carousel.
-  =og.svg= is its source, for Inkscape: Hat Guy on it is =favicon.svg= itself,
-  so it follows the icon, and =og.png= is made from it when you publish. To
-  make =og.png= in Photoshop instead, delete =og.svg=. =og.jpg= is made from
+  no picture of its own. =og.svg= is its source, for Inkscape: Hat Guy on it
+  is =favicon.svg= itself, so it follows the icon, and =og.png= is made from
+  it when you publish, along with =design/card-dark.png=, the same card in
+  the site's dark colors (the Instagram pictures are dark, and it's their
+  last slide). To make
+  =og.png= in Photoshop instead, delete =og.svg=. =og.jpg= is made from
   =og.png= when you publish.
 - *The icon*, =favicon.svg= (64×64): draw it in Inkscape. Publishing remakes
-  =favicon.ico=, =apple-touch-icon.png= and the card from it
+  =favicon.ico=, =apple-touch-icon.png=, the cards and =design/hat-guy.png=
+  (Hat Guy on the story of a post with no picture) from it
   (=tools/icons.sh=, which needs =brew install librsvg imagemagick=; run it
   by hand to see them without publishing).
 - *The story's background*, =design/story.png= (1080×1920). The post's
@@ -79,13 +84,15 @@ uses them (and redraws every post's pictures):
   =design/story-guide.png= over your design as a top layer to see where they
   land and which strips Instagram's buttons cover; it's redrawn when you
   change =story.json=. Fonts are PostScript names, as Font Book shows them
-  (=Georgia-Bold=). Delete =story.png= for a plain background.
+  (=Georgia-Bold=). Delete =story.png= for a plain background. To start
+  over from the plain dark one: build the tool (=swiftc tools/slides.swift
+  -o /tmp/slides=) and run =/tmp/slides --starter design design/card-dark.png=.
 
 * Things to know
 
 - Each blog post also gets Instagram pictures in =social/POST/=, drawn by
-  =tools/slides.swift= when you publish: square slides of its text in Georgia
-  (9 at most) and a slide about the site, posted as a carousel; and
+  =tools/slides.swift= when you publish, in the site's dark colors: square
+  slides of its text in Georgia (9 at most) and a slide about the site, posted as a carousel; and
   =story.jpg=, phone-sized, for the story. They're only redrawn when the
   post or a design file changes.
 - =examples/= holds example books and scripts, laid out like =content/=. They're

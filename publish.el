@@ -1575,10 +1575,11 @@ title and the end of the article, with its links made full addresses."
 ;; ---- Instagram slides ----
 ;;
 ;; Every blog post also becomes square pictures for Instagram, drawn by
-;; tools/slides.swift: its text in Georgia over as many slides as it takes,
-;; then a slide about the site (the card, og.png); and a phone-sized picture
-;; for the story: design/story.png (a background to design in Photoshop or
-;; Inkscape) with the post's picture, title and description in the boxes
+;; tools/slides.swift, in the site's dark colors: its text in Georgia over
+;; as many slides as it takes, then a slide about the site (the card in dark
+;; colors, design/card-dark.png, which tools/icons.sh makes from og.svg); and
+;; a phone-sized picture for the story: design/story.png (a background to
+;; design in Photoshop or Inkscape) with the post's picture, title and description in the boxes
 ;; design/story.json gives (design/story-guide.png shows them). They're
 ;; written to social/SLUG/1.jpg, 2.jpg... and story.jpg, and pushed with the
 ;; site, so Instagram can fetch them when Emacs cross-posts the post: the
@@ -1691,14 +1692,19 @@ FILE is \"\" when it has no picture of its own."
                                   "<figure\\(?:.\\|\n\\)*?</figure>\\|<img[^>]*>" ""
                                   (jg-site--feed-body url)))
                         (cover . ,(jg-site--slides-cover url))
-                        (card . ,(expand-file-name "og.png" jg-site-root))
+                        (card . ,(expand-file-name (if (file-exists-p (expand-file-name "design/card-dark.png" jg-site-root))
+                                                       "design/card-dark.png"
+                                                     "og.png")
+                                                   jg-site-root))
+                        (hat . ,(let ((hat (expand-file-name "design/hat-guy.png" jg-site-root)))
+                                  (if (file-exists-p hat) hat "")))
                         (design . ,(expand-file-name "design" jg-site-root))
                         (out . ,out)
                         (site . ,(string-remove-prefix "https://" jg-site-url))
                         (max . ,jg-site-slides-max))))
                (key (md5 (concat spec tool
                                  (mapconcat (lambda (f) (jg-site--file-hash (expand-file-name f jg-site-root)))
-                                            '("og.png" "design/story.png" "design/story.json") ""))))
+                                            '("og.png" "design/card-dark.png" "design/hat-guy.png" "design/story.png" "design/story.json") ""))))
                (key-file (expand-file-name "key" out)))
           (unless (and (file-exists-p key-file)
                        (equal key (with-temp-buffer (insert-file-contents key-file) (buffer-string))))

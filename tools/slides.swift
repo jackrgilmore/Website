@@ -3,7 +3,7 @@
 //   1.jpg ...   square (1080×1080) slides for a carousel: the post's text in
 //               Georgia, split across as many as it takes (at most MAX; past
 //               that, the rest is on the website), then a slide about the
-//               website (the site's card, og.png)
+//               website (the site's card in dark colors, design/card-dark.png)
 //   story.jpg   phone-sized (1080×1920), for the story: design/story.png (a
 //               background you can make in Photoshop or Inkscape) with the
 //               post's picture, title and description where design/story.json
@@ -12,9 +12,10 @@
 // Usage:
 //   slides SPEC.json           draw a post's pictures. SPEC is
 //                              {"title", "date", "description", "html", "cover",
-//                               "card", "design", "out", "site", "max"}:
+//                               "card", "hat", "design", "out", "site", "max"}:
 //                              html the post's body (no images), cover its
-//                              picture file or "", card the site's og.png,
+//                              picture file or "", card the site's dark card,
+//                              hat Hat Guy alone (design/hat-guy.png) or "",
 //                              design the design/ folder, out the folder for
 //                              the pictures (emptied first). Prints how many
 //                              slides it made (not counting the story).
@@ -29,20 +30,24 @@ let side: CGFloat = 1080
 let tall: CGFloat = 1920                     // the story
 let margin: CGFloat = 110                    // left and right
 let top: CGFloat = 120                       // above the text
-let bottom: CGFloat = 150                    // below it, for the footer
+let bottom: CGFloat = 160                    // below it, for the footer
 let textSize: CGFloat = 34
+let footSize: CGFloat = 30                   // the site at the bottom
+let pageSize: CGFloat = 44                   // the page numbers beside it, bigger to read
 
-let ink = NSColor(srgbRed: 0.12, green: 0.105, blue: 0.09, alpha: 1)
-let gold = NSColor(srgbRed: 0.60, green: 0.46, blue: 0.22, alpha: 1)
-let faint = NSColor(srgbRed: 0.47, green: 0.44, blue: 0.40, alpha: 1)
-let paper = NSColor(srgbRed: 0.985, green: 0.975, blue: 0.959, alpha: 1)
+// The website's dark theme (site.css): headings, text, accent, muted, background
+let ink = NSColor(srgbRed: 0.91, green: 0.878, blue: 0.831, alpha: 1)      // #e8e0d4
+let prose = NSColor(srgbRed: 0.831, green: 0.804, blue: 0.769, alpha: 1)    // #d4cdc4
+let gold = NSColor(srgbRed: 0.788, green: 0.663, blue: 0.431, alpha: 1)    // #c9a96e
+let faint = NSColor(srgbRed: 0.561, green: 0.533, blue: 0.498, alpha: 1)   // #8f887f
+let paper = NSColor(srgbRed: 0.067, green: 0.067, blue: 0.067, alpha: 1)   // #111111
 
 func georgia(_ size: CGFloat, bold: Bool = false, italic: Bool = false) -> NSFont {
     let name = bold ? (italic ? "Georgia-BoldItalic" : "Georgia-Bold") : (italic ? "Georgia-Italic" : "Georgia")
     return NSFont(name: name, size: size) ?? NSFont.systemFont(ofSize: size)
 }
 
-var card: NSImage?                           // the site's card (og.png)
+var card: NSImage?                           // the site's dark card (design/card-dark.png)
 
 // A bitmap SIDE wide and HEIGHT tall with the origin at the top left (y going
 // down), filled with paper (unless CLEAR), then whatever DRAW draws
@@ -81,13 +86,6 @@ func drawCropped(_ image: NSImage, in rect: NSRect) {
     let scale = min(w / rect.width, h / rect.height)
     let cw = rect.width * scale, ch = rect.height * scale
     drawImage(image, in: rect, from: NSRect(x: (w - cw) / 2, y: (h - ch) / 2, width: cw, height: ch))
-}
-
-// IMAGE as big as fits in RECT, centered, nothing cropped
-func drawFitted(_ image: NSImage, in rect: NSRect) {
-    let scale = min(rect.width / image.size.width, rect.height / image.size.height)
-    let w = image.size.width * scale, h = image.size.height * scale
-    drawImage(image, in: NSRect(x: rect.midX - w / 2, y: rect.midY - h / 2, width: w, height: h))
 }
 
 // TEXT drawn centered across the slide at Y, wrapped; returns its height
@@ -134,11 +132,11 @@ struct Box: Codable {
 }
 
 struct StoryLayout: Codable {
-    var picture = Box(x: 150, y: 330, width: 780, height: 780, radius: 28)
-    var title = Box(x: 110, y: 1160, width: 860, height: 160,
-                    size: 68, font: "Georgia-Bold", color: "#1f1b16", align: "center")
+    var picture = Box(x: 150, y: 370, width: 780, height: 780, radius: 20)
+    var title = Box(x: 110, y: 1170, width: 860, height: 160,
+                    size: 64, font: "Georgia-Bold", color: "#e8e0d4", align: "center")
     var description = Box(x: 150, y: 1335, width: 780, height: 84,
-                          size: 34, font: "Georgia-Italic", color: "#78706a", align: "center")
+                          size: 34, font: "Georgia-Italic", color: "#8f887f", align: "center")
 }
 
 func storyLayout(_ design: String) -> StoryLayout {
@@ -187,19 +185,12 @@ func fit(_ text: String, in box: Box) {
                              options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine], attributes: attrs(size))
 }
 
-// The starter background: the paper, "New on the blog" above the picture,
-// and below the description a gold pill pointing to the website
+// The starter background, kept plain: the dark paper, "New on the blog"
+// above the picture, and the website, small, at the bottom
 func starterBackground(site: String) -> NSBitmapImageRep {
     slide(height: tall) {
-        centered("New on the blog", georgia(40, italic: true), gold, y: 250, width: 860)
-        let text = "Read it on my website  →"
-        let attrs: [NSAttributedString.Key: Any] = [.font: georgia(40), .foregroundColor: paper]
-        let words = (text as NSString).size(withAttributes: attrs)
-        let pill = NSRect(x: (side - words.width - 128) / 2, y: 1450, width: words.width + 128, height: 116)
-        gold.setFill()
-        NSBezierPath(roundedRect: pill, xRadius: 58, yRadius: 58).fill()
-        (text as NSString).draw(at: NSPoint(x: pill.minX + 64, y: pill.midY - words.height / 2), withAttributes: attrs)
-        centered("\(site) · link in bio", georgia(30, italic: true), gold, y: 1600, width: 860)
+        centered("New on the blog", georgia(36, italic: true), gold, y: 280, width: 860)
+        centered(site, georgia(32, italic: true), faint, y: 1625, width: 860)
     }
 }
 
@@ -261,6 +252,7 @@ struct Spec: Decodable {
     let html: String
     let cover: String
     let card: String
+    let hat: String
     let design: String
     let out: String
     let site: String
@@ -282,9 +274,9 @@ let photo: NSImage? = {
 
 let css = """
 <style>
-body { font-family: Georgia; font-size: \(textSize)px; line-height: 1.5; color: #1f1b16; }
+body { font-family: Georgia; font-size: \(textSize)px; line-height: 1.5; color: #d4cdc4; }
 p { margin: 0 0 0.75em; }
-a { color: #1f1b16; text-decoration: none; }
+a { color: #d4cdc4; text-decoration: none; }
 h1, h2, h3, h4 { font-size: 1.12em; font-weight: bold; margin: 0.4em 0 0.5em; }
 blockquote { font-style: italic; margin: 0 0 0.75em 1.2em; }
 ul, ol { margin: 0 0 0.75em; }
@@ -301,7 +293,7 @@ let body = try NSMutableAttributedString(
 // the HTML reader gives (it ignores line-height), and no blank lines at the end
 let all = NSRange(location: 0, length: body.length)
 body.removeAttribute(.link, range: all)
-body.addAttribute(.foregroundColor, value: ink, range: all)
+body.addAttribute(.foregroundColor, value: prose, range: all)
 body.enumerateAttribute(.paragraphStyle, in: all) { value, range, _ in
     let style = ((value as? NSParagraphStyle) ?? NSParagraphStyle.default).mutableCopy() as! NSMutableParagraphStyle
     style.lineHeightMultiple = 1.22
@@ -363,13 +355,17 @@ for (i, page) in pages.enumerated() {
         layout.drawGlyphs(forGlyphRange: range, at: NSPoint(x: margin, y: page.1))
 
         // Footer: the site, and where you are in the post
-        let foot = side - 92
+        let foot = side - 108
         (spec.site as NSString).draw(at: NSPoint(x: margin, y: foot),
-                                     withAttributes: [.font: georgia(22, italic: true), .foregroundColor: gold])
-        let more = (i == pages.count - 1 && cut) ? "continued on the website" : "\(i + 1) / \(pages.count)"
-        let attrs: [NSAttributedString.Key: Any] = [.font: georgia(22, italic: true), .foregroundColor: faint]
+                                     withAttributes: [.font: georgia(footSize, italic: true), .foregroundColor: gold])
+        // On the same baseline as the site, though bigger
+        let last = i == pages.count - 1 && cut
+        let more = last ? "continued on the website" : "\(i + 1) / \(pages.count)"
+        let font = georgia(last ? footSize : pageSize, italic: true)
+        let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: faint]
         let width = (more as NSString).size(withAttributes: attrs).width
-        (more as NSString).draw(at: NSPoint(x: side - margin - width, y: foot), withAttributes: attrs)
+        let baseline = foot + georgia(footSize, italic: true).ascender
+        (more as NSString).draw(at: NSPoint(x: side - margin - width, y: baseline - font.ascender), withAttributes: attrs)
     })
 }
 
@@ -383,7 +379,7 @@ slides.append(slide {
     }
     y += centered(cut ? "Read the rest of “\(spec.title)” at \(spec.site)"
                       : "More writing, comics and animation at \(spec.site)",
-                  georgia(34), ink, y: y, width: side - 2 * 140)
+                  georgia(34), prose, y: y, width: side - 2 * 140)
     centered("Link in bio", georgia(28, italic: true), gold, y: y + 26)
 })
 
@@ -395,7 +391,8 @@ let story = slide(height: tall) {
     if let background = background {
         drawCropped(background, in: NSRect(x: 0, y: 0, width: side, height: tall))
     }
-    // The picture, cropped to its box; with none, the card, fitted in it
+    // The picture, cropped to its box; with none, Hat Guy (as favicon.svg
+    // draws him, sticker border and all), smaller, in the middle of it
     let frame = boxes.picture.rect
     if let photo = photo {
         NSGraphicsContext.saveGraphicsState()
@@ -403,8 +400,9 @@ let story = slide(height: tall) {
         NSBezierPath(roundedRect: frame, xRadius: r, yRadius: r).addClip()
         drawCropped(photo, in: frame)
         NSGraphicsContext.restoreGraphicsState()
-    } else if let card = card {
-        drawFitted(card, in: frame)
+    } else if let hat = NSImage(contentsOfFile: spec.hat) {
+        let s = min(frame.width, frame.height) * 0.6
+        drawImage(hat, in: NSRect(x: frame.midX - s / 2, y: frame.midY - s / 2, width: s, height: s))
     }
     fit(spec.title, in: boxes.title)
     fit(spec.description, in: boxes.description)
