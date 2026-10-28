@@ -1601,6 +1601,17 @@ the most an Instagram carousel can hold.")
         (md5 (current-buffer)))
     ""))
 
+(defun jg-site--write-icons ()
+  "Remake the icons and the card from favicon.svg and og.svg, if they've changed.
+tools/icons.sh does it (it can be run by hand too), and says what it made."
+  (let ((script (expand-file-name "tools/icons.sh" jg-site-root)))
+    (when (file-executable-p script)
+      (with-temp-buffer
+        (call-process script nil t)
+        (let ((said (string-trim (buffer-string))))
+          (unless (string-empty-p said)
+            (message "%s" said)))))))
+
 (defun jg-site--write-og-jpg ()
   "Write og.jpg from og.png when og.png is newer: Instagram only takes JPEGs.
 So the card is designed once, as og.png (or og.svg, exported to og.png)."
@@ -1909,6 +1920,8 @@ site root), and its folders: the images and attachments copied for them
                                   (nreverse graph-links))))))
     (jg-site--write-sitemap writing notes)
     (jg-site--write-feed writing)
+    ;; The icons first: the card they redraw goes on every post's last slide
+    (jg-site--write-icons)
     (jg-site--write-slides writing)
     (setq jg-site-newly-published
           (mapcar (lambda (page) (assq-delete-all 'file (copy-alist page)))

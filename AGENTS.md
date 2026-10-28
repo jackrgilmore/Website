@@ -34,7 +34,9 @@ something it teaches (theme, nav, publish, preview...).
   garden notes to `garden/`, and writes `data/writing.json`,
   `data/garden.json`, `sitemap.xml`, `feed.xml` (blog only), `og.jpg` (from
   `og.png`) and the Instagram pictures in `social/SLUG/` (blog only, via
-  `tools/slides.swift`, compiled once into `~/.cache/jg-site/`). It stamps
+  `tools/slides.swift`, compiled once into `~/.cache/jg-site/`). It runs
+  `tools/icons.sh`, which remakes `favicon.ico`, `apple-touch-icon.png` and
+  `og.png` (from `og.svg`, which embeds `favicon.svg`) when their SVGs are newer. It stamps
   today's date into any page not yet in the last commit (`git ls-tree HEAD`).
   It wipes and regenerates `writing/` and `garden/` every run.
 - Generated pages share one template, `jg-site--page`. Their Share button is

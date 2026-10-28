@@ -47,7 +47,7 @@ writing and garden notes need the publish step:
 | =keys.js=                 | Keyboard shortcuts (press ? on the site for the list); loaded by nav.js |
 | =catalog.js=              | Reads the Org catalogs, video embeds, cards, lightbox  |
 | =analytics.js=            | Visitor counts (GoatCounter) and events: videos watched, pieces read to the end, links followed (every page) |
-| =favicon.*=, =apple-touch-icon.png= | The icon: Hat Guy (=favicon.svg= is the source; the others are made from it) |
+| =favicon.*=, =apple-touch-icon.png= | The icon: Hat Guy. Draw =favicon.svg=; the others are made from it when you publish (=tools/icons.sh=) |
 | =og.png= (from =og.svg=)   | The picture a shared link shows when a page has none of its own |
 | =feed.xml=                | The blog's RSS feed (written by =publish.el=). The RSS button in the nav (=nav.js=) offers it and email sign-up (Buttondown) |
 | =og.jpg=                  | =og.png= as a JPEG, for Instagram cross-posts (its API only takes JPEGs) |
@@ -64,8 +64,14 @@ uses them (and redraws every post's pictures):
 
 - *The card*, =og.png= (1200×630): what a shared link shows when the page has
   no picture of its own, and the last slide of each Instagram carousel.
-  =og.svg= is its source, for Inkscape (export it as =og.png=, 1200×630), or
-  make =og.png= in Photoshop. =og.jpg= is made from it when you publish.
+  =og.svg= is its source, for Inkscape: Hat Guy on it is =favicon.svg= itself,
+  so it follows the icon, and =og.png= is made from it when you publish. To
+  make =og.png= in Photoshop instead, delete =og.svg=. =og.jpg= is made from
+  =og.png= when you publish.
+- *The icon*, =favicon.svg= (64×64): draw it in Inkscape. Publishing remakes
+  =favicon.ico=, =apple-touch-icon.png= and the card from it
+  (=tools/icons.sh=, which needs =brew install librsvg imagemagick=; run it
+  by hand to see them without publishing).
 - *The story's background*, =design/story.png= (1080×1920). The post's
   picture, title and description go on top, in the boxes
   =design/story.json= gives (x and y from the top left, in pixels; text size,
