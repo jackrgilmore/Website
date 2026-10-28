@@ -16,5 +16,14 @@
     "description": "Book Recommendations",
     "words": 130,
     "url": "/writing/a-few-interesting-books.html"
+  },
+  {
+    "title": "The Thoughts of Trees",
+    "type": "story",
+    "publication": "",
+    "date": "2026-10-16",
+    "description": "I wonder what trees think.",
+    "words": 575,
+    "url": "/writing/the-thoughts-of-trees.html"
   }
 ]
