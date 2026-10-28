@@ -9,12 +9,12 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="alternate" type="application/rss+xml" title="Jack Gilmore — Blog" href="/feed.xml">
     <title>Jack Gilmore</title>
-    <meta name="description" content="Jack Gilmore, animator from Concord, Massachusetts.">
+    <meta name="description" content="Animation, comics and writing by Jack Gilmore, animator from Concord, Massachusetts.">
     <!-- What a shared link shows (Open Graph): title, description, picture -->
     <meta property="og:site_name" content="Jack Gilmore">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Jack Gilmore">
-    <meta property="og:description" content="Jack Gilmore, animator from Concord, Massachusetts.">
+    <meta property="og:description" content="Animation, comics and writing by Jack Gilmore, animator from Concord, Massachusetts.">
     <meta property="og:image" content="https://jackgilmorecreative.com/og.png">
     <meta property="og:url" content="https://jackgilmorecreative.com/">
     <meta name="twitter:card" content="summary_large_image">
@@ -36,75 +36,76 @@
     <script src="/nav.js" defer></script>
     <script src="/analytics.js" defer></script>
     <script src="/catalog.js" defer></script>
-    <script src="/reel.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
+    <script src="/home.js" defer></script>
 </head>
 
 <body>
 
-    <!-- Title -->
-    <header class="hero">
-        <h1>Jack Gilmore</h1>
-    </header>
+    <!-- The home page: everything on the site, newest first. (The page about
+         me, to send people, is /about.html.) home.js fills in the parts. -->
+    <main class="page home">
+        <header class="home-head">
+            <h1>Jack Gilmore</h1>
+            <p>Animation, comics and writing from Concord, Massachusetts.
+                <a href="/about.html">About me&nbsp;→</a></p>
+        </header>
 
-    <!-- Reel: set in content/animation.org (#+reel:) -->
-    <section class="reel-block" aria-label="Demo reel">
-        <div id="reel">
-            <p class="loading">Loading reel...</p>
+        <!-- The big search box: typing in it opens the site search (search.js) -->
+        <form class="home-search" role="search" action="javascript:void(0)">
+            <svg class="home-search-icon" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="7" cy="7" r="4.5" /><path d="m10.5 10.5 3.5 3.5" />
+            </svg>
+            <input type="search" placeholder="Search animation, comics, writing, notes…" autocomplete="off"
+                spellcheck="false" aria-label="Search the site">
+            <kbd class="home-search-key" aria-hidden="true">/</kbd>
+        </form>
+
+        <!-- One link per part of the site, in its search color, with a count -->
+        <nav class="home-jump" id="home-jump" aria-label="Parts of the site"></nav>
+
+        <!-- The reel, and the newest thing in each part of the site -->
+        <div class="home-top">
+            <section aria-labelledby="home-reel-title">
+                <div class="home-label">
+                    <h2 id="home-reel-title">Demo reel</h2>
+                    <span id="home-reel-share"></span>
+                </div>
+                <div id="home-reel"><p class="loading">Loading...</p></div>
+            </section>
+            <section aria-labelledby="home-new-title">
+                <div class="home-label">
+                    <h2 id="home-new-title">Latest</h2>
+                </div>
+                <div id="home-new"><p class="loading">Loading...</p></div>
+            </section>
         </div>
-        <div class="button-row">
-            <button class="button button-primary share-reel" type="button">Share my reel</button>
-            <a class="button" href="/animation.html">See more animation</a>
-        </div>
-    </section>
 
-    <!-- About Me -->
-    <main class="about">
-        <p>Hi there,</p>
+        <section class="section" id="animation" aria-labelledby="animation-title">
+            <div class="section-head">
+                <h2 id="animation-title">Animation</h2>
+                <a href="/animation.html">watch it all →</a>
+            </div>
+            <div id="home-animation"><p class="loading">Loading...</p></div>
+        </section>
 
-        <p>
-            I'm an animator from Concord Massachusetts.
-        </p>
+        <section class="section" id="read" aria-labelledby="read-title">
+            <div class="section-head">
+                <h2 id="read-title">Comics &amp; writing</h2>
+                <a href="/read.html">read it all →</a>
+            </div>
+            <div id="home-read"><p class="loading">Loading...</p></div>
+        </section>
 
-        <p>
-            I animate anything and everything. I'm looking to build creative
-            projects in sci-fi, fantasy, comedy, and anything in between.
-            You can see some of my <a href="/animation.html"><b>doodles here.</b></a>
-        </p>
-
-        <p>
-            I also like to write! Check out some of my writing
-            <a href="/read.html"><b>here</b></a>.
-        </p>
-
-        <p>
-            When I'm not animating, I'm usually baking or
-            reading Brandon Sanderson books.
-        </p>
-
-        <p>Contact me!</p>
-
-        <p>
-            Email:
-            <a href="mailto:jackgilmorecreative@gmail.com">
-                jackgilmorecreative@gmail.com
-            </a>
-        </p>
-
-        <p>
-            Instagram:
-            <a href="https://www.instagram.com/jackgilmorecreative/">
-                jackgilmorecreative
-            </a>
-            and
-            <a href="https://www.instagram.com/hatguyanimation/">hatguyanimation</a>
-        </p>
+        <section class="section" id="garden" aria-labelledby="garden-title">
+            <div class="section-head">
+                <h2 id="garden-title">Garden</h2>
+                <a href="/garden.html">the garden →</a>
+            </div>
+            <p class="section-intro">Notes in progress, and how they link.</p>
+            <div id="home-garden"><p class="loading">Loading...</p></div>
+        </section>
     </main>
-
-    <!-- Photo -->
-    <figure class="photo">
-        <img src="/Me and Katie.jpeg" alt="Jack and his sister Katie">
-        <figcaption>*My little sister and me</figcaption>
-    </figure>
 
 </body>
 

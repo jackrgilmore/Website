@@ -38,13 +38,14 @@ function shareButton(url, title) {
 
     // ============ NAV ============
 
-    // Watch (animation), Read (comics, writing, the blog), Garden, and the reel.
-    // Everything else is in the footer's link to /everything.html.
+    // Watch (animation), Read (comics, writing, the blog), Garden, the reel,
+    // and About (the page to send people). The home page has everything.
     var links = [
         ['/animation.html', 'watch'],
         ['/read.html', 'read'],
         ['/garden.html', 'garden'],
-        ['/reel.html', 'reel']
+        ['/reel.html', 'reel'],
+        ['/about.html', 'about']
     ];
 
     // Which section we're in: pages inside a section count as that section
@@ -125,8 +126,10 @@ function shareButton(url, title) {
     }
 
     feedButton.addEventListener('click', function () { showFeed(feedPop.hidden); });
+    // Any [data-follow] button on a page (the Blog panel's) opens it too
     document.addEventListener('click', function (e) {
-        if (!feedPop.hidden && !feedPop.contains(e.target) && !feedButton.contains(e.target)) showFeed(false);
+        if (e.target.closest('[data-follow]')) showFeed(true);
+        else if (!feedPop.hidden && !feedPop.contains(e.target) && !feedButton.contains(e.target)) showFeed(false);
     });
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && !feedPop.hidden) {
@@ -262,7 +265,7 @@ function shareButton(url, title) {
 
     // ============ FOOTER ============
     // A slim bar that stays at the bottom of the window: the socials, and the
-    // way into /everything.html
+    // way back to everything (the home page)
 
     var socials = [
         ['https://www.instagram.com/hatguyanimation/', 'instagram', 'Instagram'],
@@ -275,8 +278,8 @@ function shareButton(url, title) {
         footer += '<a href="' + socials[j][0] + '" aria-label="' + socials[j][2] + '">' + icon(socials[j][1]) + '</a>';
     }
     // Four squares (a grid of everything), which spread apart on hover
-    footer += '</div><a class="everything-link" href="/everything.html" title="Everything on the site, in one place (g e)"'
-        + (path === '/everything.html' ? ' aria-current="page"' : '') + '>'
+    footer += '</div><a class="everything-link" href="/" title="Everything on the site, in one place (g h)"'
+        + (path === '/' || path === '/index.html' ? ' aria-current="page"' : '') + '>'
         + '<svg class="everything-icon" viewBox="0 0 16 16" aria-hidden="true">'
         + '<rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.6"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.6"/>'
         + '<rect x="1.5" y="9" width="5.5" height="5.5" rx="1.6"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.6"/>'

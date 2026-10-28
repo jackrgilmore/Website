@@ -1,7 +1,7 @@
 // Keyboard shortcuts, on every page (nav.js loads this). Press ? for the list.
 //
 //   ⌘K or /     search (that one lives in search.js)
-//   g, then h w r g l e   go to Home, Watch, Read, Garden, Reel, Everything
+//   g, then h w r g l a   go to Home (everything), Watch, Read, Garden, Reel, About
 //   t           light / dark mode
 //   c           copy this page's link
 //   u           up a level (the last link in the breadcrumbs)
@@ -20,7 +20,7 @@
         ['r', '/read.html', 'Read'],
         ['g', '/garden.html', 'Garden'],
         ['l', '/reel.html', 'Reel'],
-        ['e', '/everything.html', 'Everything']
+        ['a', '/about.html', 'About']
     ];
     var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
     var waitingForGo = null;    // timer while waiting for the key after g

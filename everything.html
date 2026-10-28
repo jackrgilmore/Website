@@ -3,109 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/favicon.ico" sizes="32x32">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="alternate" type="application/rss+xml" title="Jack Gilmore — Blog" href="/feed.xml">
-    <title>Everything — Jack Gilmore</title>
-    <meta name="description" content="Everything on jackgilmorecreative.com in one place.">
-    <!-- What a shared link shows (Open Graph): title, description, picture -->
-    <meta property="og:site_name" content="Jack Gilmore">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Everything — Jack Gilmore">
-    <meta property="og:description" content="Everything on jackgilmorecreative.com in one place.">
-    <meta property="og:image" content="https://jackgilmorecreative.com/og.png">
-    <meta property="og:url" content="https://jackgilmorecreative.com/everything.html">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="canonical" href="https://jackgilmorecreative.com/everything.html">
-
-    <!-- Light/dark mode (first, so the page never flashes the wrong one) -->
-    <script src="/theme.js"></script>
-
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="/site.css">
-
-    <!-- Scripts (nav, shared helpers, then this page's own) -->
-    <script src="/nav.js" defer></script>
-    <script src="/analytics.js" defer></script>
-    <script src="/catalog.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" defer></script>
-    <script src="/everything.js" defer></script>
+    <title>Jack Gilmore</title>
+    <!-- Old page: everything is on the home page now -->
+    <script>
+        location.replace('/' + location.hash);
+    </script>
+    <meta http-equiv="refresh" content="0; url=/">
+    <link rel="canonical" href="https://jackgilmorecreative.com/">
 </head>
-
-<body>
-
-    <main class="page">
-        <header class="page-head">
-            <h1>Everything</h1>
-            <p>Everything on the site, in one place.</p>
-        </header>
-
-        <!-- Reel and the newest episode -->
-        <div class="dash-top">
-            <section>
-                <h2>Demo reel</h2>
-                <div id="dash-reel"><p class="loading">Loading...</p></div>
-            </section>
-            <section>
-                <h2>Latest episode</h2>
-                <div id="dash-latest"><p class="loading">Loading...</p></div>
-            </section>
-        </div>
-
-        <!-- One tile per section of the site -->
-        <nav class="tiles" id="dash-tiles" aria-label="Sections"></nav>
-
-        <section class="section">
-            <div class="section-head">
-                <h2>Animation</h2>
-                <a href="/animation.html">watch →</a>
-            </div>
-            <div id="dash-animation"><p class="loading">Loading...</p></div>
-        </section>
-
-        <section class="section">
-            <div class="section-head">
-                <h2>Comics</h2>
-                <a href="/read.html#comics">all comics →</a>
-            </div>
-            <div id="dash-comics"><p class="loading">Loading...</p></div>
-        </section>
-
-        <div class="dash-split">
-            <section class="section">
-                <div class="section-head">
-                    <h2>Writing</h2>
-                    <a href="/read.html#writing">all writing →</a>
-                </div>
-                <div id="dash-writing"><p class="loading">Loading...</p></div>
-            </section>
-
-            <section class="section">
-                <div class="section-head">
-                    <h2>Blog</h2>
-                    <a href="/read.html#blog">all posts →</a>
-                </div>
-                <div id="dash-blog"><p class="loading">Loading...</p></div>
-            </section>
-        </div>
-
-        <section class="section" id="garden">
-            <div class="section-head">
-                <h2>Garden</h2>
-                <a href="/garden.html">the garden →</a>
-            </div>
-            <div id="dash-garden"><p class="loading">Loading...</p></div>
-        </section>
-    </main>
-
-</body>
 
 </html>

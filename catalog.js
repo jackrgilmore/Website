@@ -450,6 +450,132 @@ var Site = (function () {
         return '<button class="card" type="button" ' + (opts.attrs || '') + '>' + inner + '</button>';
     }
 
+    // How long a piece takes to read, from its word count
+    function minutes(words) {
+        return Math.max(1, Math.round(words / 230)) + ' min read';
+    }
+
+    // A book (from data/writing.json): its cover (or its title on a plain
+    // one), book-shaped. On the Read page and the home page.
+    function bookCard(book) {
+        var meta = [book.chapters.length + ' chapter' + (book.chapters.length === 1 ? '' : 's'), prettyDate(book.date)].filter(Boolean).join(' · ');
+        return '<a class="card" href="' + esc(book.url) + '"><span class="thumb book">'
+            + (book.cover
+                ? '<img src="' + esc(book.cover) + '" alt="" loading="lazy">'
+                : '<span class="thumb-placeholder">' + esc(book.title) + '</span>')
+            + '</span><span class="card-title">' + esc(book.title) + '</span>'
+            + '<span class="card-meta">' + esc(meta) + '</span></a>';
+    }
+
+    // A script: its title page, in Courier on white paper, the way it prints:
+    // the title a third of the way down, then which draft and its date
+    function scriptCard(script) {
+        var meta = [prettyDate(script.date), minutes(script.words)].filter(Boolean).join(' · ');
+        var m = /(\d{4})-(\d{2})-(\d{2})/.exec(script.draft || script.date || '');
+        var when = m ? +m[2] + '/' + +m[3] + '/' + m[1].slice(2) : '';   // 2026-10-18 → 10/18/26
+        return '<a class="card" href="' + esc(script.url) + '"><span class="thumb script">'
+            + '<span class="script-title">' + esc(script.title) + '</span>'
+            + '<span class="script-draft"><span class="script-revision">' + esc(script.revision || 'First Draft') + '</span>'
+            + (when ? '<br>' + esc(when) : '') + '</span>'
+            + '</span><span class="card-title">' + esc(script.title) + '</span>'
+            + '<span class="card-meta">' + esc(meta) + '</span></a>';
+    }
+
+    // What one piece of each kind is called, above its title in the Read hub
+    var READ_KINDS = {
+        story: 'Short story', poem: 'Poem', script: 'Script', essay: 'Essay',
+        article: 'Article', blog: 'Blog post'
+    };
+
+    // Books and scripts, side by side: a shelf of covers and one of title pages
+    function readShelves(books, scripts) {
+        function shelf(title, cards) {
+            return cards.length ? '<section class="shelf-half"><h3>' + title + '</h3>'
+                + '<div class="covers">' + cards.join('') + '</div></section>' : '';
+        }
+        if (!books.length && !scripts.length) return '';
+        return '<div class="cover-shelves' + (books.length && scripts.length ? ' two' : '') + '">'
+            + shelf('Books', books.map(bookCard)) + shelf('Scripts', scripts.map(scriptCard)) + '</div>';
+    }
+
+    // ---- The Read page's All view (and the home page's Read row) ----
+
+    // The newest piece of writing or post, big: what it is, its title, its
+    // description, when
+    function featured(piece) {
+        var meta = [prettyDate(piece.date), minutes(piece.words)].filter(Boolean).join(' · ');
+        return '<a class="hub-feature" href="' + esc(piece.url) + '">'
+            + '<span class="hub-new">Newest · ' + esc(READ_KINDS[piece.type] || piece.type) + '</span>'
+            + '<span class="hub-title">' + esc(piece.title) + '</span>'
+            + (piece.description ? '<span class="hub-desc">' + esc(piece.description) + '</span>' : '')
+            + '<span class="hub-meta">' + esc(meta) + '</span></a>';
+    }
+
+    // The newest comic: its cover beside its name
+    function featuredComic(comic) {
+        var thumb = thumbOf(comic);
+        var meta = comic.series ? comic.series.title + ' · Issue ' + comic.number : prettyDate(comic.date);
+        return '<a class="hub-feature hub-cover" href="' + esc('/comic.html?c=' + encodeURIComponent(comic.id)) + '">'
+            + (thumb ? '<img src="' + esc(thumb) + '" alt="" loading="lazy">' : '<span></span>')
+            + '<span><span class="hub-new">Newest</span>'
+            + '<span class="hub-title">' + esc(comic.title) + '</span>'
+            + '<span class="hub-meta">' + esc(meta) + '</span></span></a>';
+    }
+
+    // The next few, as a list: [href, title, meta] each
+    function shortList(items) {
+        if (!items.length) return '';
+        return '<ul class="hub-list">' + items.map(function (item) {
+            return '<li><a href="' + esc(item[0]) + '"><span>' + esc(item[1]) + '</span>'
+                + '<span class="hub-meta">' + esc(item[2] || '') + '</span></a></li>';
+        }).join('') + '</ul>';
+    }
+
+    // One panel: KIND (comics, writing, blog) is the Read page's view its
+    // "all" link opens; BASE is '' on the Read page, '/read.html' elsewhere.
+    // EXTRA goes at its foot, beside that link.
+    function panel(base, kind, title, count, blurb, body, more, extra) {
+        return '<section class="hub-panel hub-' + kind + '" aria-label="' + esc(title) + '">'
+            + '<div class="hub-head"><h2>' + esc(title) + '</h2><span class="hub-count">' + esc(count) + '</span></div>'
+            + '<p class="hub-blurb">' + esc(blurb) + '</p>'
+            + body
+            + (more || extra ? '<div class="hub-foot">'
+               + (more ? '<a class="hub-more" href="' + base + '#' + kind + '">' + esc(more) + ' →</a>' : '')
+               + (extra || '') + '</div>' : '')
+            + '</section>';
+    }
+
+    // Comics, Writing and the Blog side by side, the newest of each big and
+    // the next few listed. COMICS is every comic (issues included), CREATIVE
+    // the writing that isn't the blog, books or scripts.
+    function readHub(comics, creative, blog, base) {
+        function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+        function comicHref(c) { return '/comic.html?c=' + encodeURIComponent(c.id); }
+        var newestComics = comics.slice().sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        var listed = function (p) { return [p.url, p.title, prettyDate(p.date)]; };
+        // The blog's Follow button opens the nav's email/RSS panel (nav.js)
+        var follow = '<button class="hub-follow" type="button" data-follow>Follow by email or RSS</button>';
+        return '<div class="hub">'
+            + panel(base, 'comics', 'Comics', plural(comics.length, 'comic'), 'Stories in pictures.',
+                    newestComics.length
+                        ? featuredComic(newestComics[0]) + shortList(newestComics.slice(1, 4).map(function (c) {
+                            return [comicHref(c), c.title, c.series ? 'Issue ' + c.number : prettyDate(c.date)];
+                        }))
+                        : '<p class="hub-empty">The first comics are on their way.</p>',
+                    comics.length > 1 || base ? 'All comics' : '')
+            + panel(base, 'writing', 'Writing', plural(creative.length, 'piece'), 'Short stories, poems and essays.',
+                    creative.length
+                        ? featured(creative[0]) + shortList(creative.slice(1, 4).map(listed))
+                        : '<p class="hub-empty">No stories yet.</p>',
+                    creative.length > 1 || base ? 'All writing' : '')
+            + panel(base, 'blog', 'Blog', plural(blog.length, 'post'), 'News, notes and recommendations.',
+                    blog.length
+                        ? featured(blog[0]) + shortList(blog.slice(1, 4).map(listed))
+                        : '<p class="hub-empty">No posts yet.</p>',
+                    blog.length > 1 || base ? 'All posts' : '', follow)
+            + '</div>';
+    }
+
     var lightboxEl = null;
     var lastFocus = null;
 
@@ -808,6 +934,11 @@ var Site = (function () {
         loadComics: loadComics,
         loadJSON: loadJSON,
         card: card,
+        minutes: minutes,
+        bookCard: bookCard,
+        scriptCard: scriptCard,
+        readShelves: readShelves,
+        readHub: readHub,
         openLightbox: openLightbox,
         closeLightbox: closeLightbox,
         toast: toast,

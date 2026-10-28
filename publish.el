@@ -1786,7 +1786,7 @@ Links to anything unpublished (private notes, drafts) are left out."
       (insert (json-encode data) "\n"))))
 
 (defconst jg-site--sitemap-pages
-  '("/" "/animation.html" "/read.html" "/garden.html" "/everything.html" "/reel.html")
+  '("/" "/about.html" "/animation.html" "/read.html" "/garden.html" "/reel.html")
   "The hand-written pages, for the sitemap (not the old ones that redirect).")
 
 (defun jg-site--series-slugs (file)

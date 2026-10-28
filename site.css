@@ -777,7 +777,7 @@ kbd {
 
 
 /* ====================
-   HOME
+   ABOUT (about.html; .reel-block is on reel.html too)
    ==================== */
 
 .hero {
@@ -1646,69 +1646,270 @@ kbd {
 
 
 /* ====================
-   DASHBOARD
+   HOME: everything on the site (index.html, home.js)
    ==================== */
 
-.dash-top {
+.home-head {
+    text-align: center;
+    margin: 1rem 0 2rem;
+}
+
+.home-head h1 {
+    font-size: 2.6rem;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.home-head p {
+    color: var(--muted);
+    font-style: italic;
+    margin: 0.75rem 0 0;
+}
+
+.home-head a {
+    white-space: nowrap;
+    margin-left: 0.35rem;
+}
+
+/* The big search box: hands over to the search panel (search.js) */
+.home-search {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.home-search input {
+    width: 100%;
+    height: 60px;
+    padding: 0 3.5rem 0 3.4rem;
+    font: inherit;
+    font-size: 1.05rem;
+    color: var(--heading);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.home-search input::placeholder {
+    color: var(--faint);
+    font-style: italic;
+}
+
+.home-search input:hover,
+.home-search input:focus {
+    border-color: var(--accent);
+}
+
+.home-search input::-webkit-search-cancel-button {
+    display: none;
+}
+
+.home-search-icon {
+    position: absolute;
+    left: 1.35rem;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+.home-search-key {
+    position: absolute;
+    right: 1.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* A link to each part of the site, under the search box, with the same
+   colors as the search panel's filters */
+.home-jump {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1.25rem 0 3rem;
+}
+
+.home-jump:empty {
+    min-height: 2.1rem;
+}
+
+.home-jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.85rem;
+    color: var(--heading);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.home-jump a:hover {
+    color: var(--tone);
+    border-color: var(--tone);
+}
+
+.home-jump-count {
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+.tone-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tone);
+    flex-shrink: 0;
+}
+
+/* The reel beside the newest of each */
+.home-top {
     display: grid;
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
     gap: 2rem;
     margin-bottom: 3.5rem;
 }
 
-.dash-top h2 {
+.home-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 32px;
+    margin-bottom: 0.8rem;
+}
+
+.home-label h2 {
     font-size: 0.8rem;
     font-weight: 400;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--accent);
-    margin: 0 0 0.8rem;
+    margin: 0;
 }
 
-/* Everything: Writing and Blog as two columns */
-.dash-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 2.5rem;
+.home-new {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
 }
 
-@media (max-width: 760px) {
-    .dash-split { grid-template-columns: 1fr; }
-}
-
-.tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 3.5rem;
-}
-
-.tile {
+.home-new a {
     display: block;
-    padding: 1.25rem 1.4rem;
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    padding: 0.8rem 0.25rem 0.8rem 1rem;
+    color: var(--heading);
+    border-bottom: 1px solid var(--line);
+    border-left: 3px solid transparent;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.home-new a:hover {
+    color: var(--heading);
     background: var(--surface);
-    color: inherit;
-    transition: border-color 0.2s, transform 0.2s;
+    border-bottom-color: var(--line);
+    border-left-color: var(--tone);
 }
 
-.tile:hover {
-    color: inherit;
-    border-color: var(--accent);
-    transform: translateY(-2px);
-}
-
-.tile strong {
+.home-new-kind {
     display: block;
-    font-size: 1.05rem;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--tone);
+}
+
+.home-new-title {
+    display: block;
+    margin-top: 0.15rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.home-new-meta {
+    display: block;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--faint);
+}
+
+/* Animation: a row per series and group, its first four */
+.home-row + .home-row {
+    margin-top: 2rem;
+}
+
+.home-row h3 {
+    font-size: 1rem;
+    margin: 0 0 0.9rem;
+}
+
+.home-row h3 a {
     color: var(--heading);
 }
 
-.tile span {
-    font-size: 0.85rem;
+.home-row h3 a:hover {
+    color: var(--accent);
+}
+
+.home-row h3 span {
+    margin-left: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 400;
     font-style: italic;
-    color: var(--muted);
+    color: var(--faint);
+}
+
+.home-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.home .section-head {
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.garden-graph.home-graph {
+    height: 340px;
+}
+
+@media (max-width: 860px) {
+    .home-top {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .home-head h1 {
+        font-size: 2rem;
+    }
+
+    .home-search input {
+        height: 52px;
+        font-size: 1rem;
+        padding-right: 1.25rem;
+    }
+
+    .home-search-key {
+        display: none;
+    }
 }
 
 .garden-graph {
@@ -2755,12 +2956,38 @@ kbd {
     white-space: nowrap;
 }
 
-.hub-more {
+/* The foot: the "all" link, and the Blog's Follow button */
+.hub-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
     margin-top: auto;
     padding-top: 0.5rem;
-    align-self: flex-start;
+}
+
+.hub-more {
     font-size: 0.85rem;
     color: var(--tone);
+}
+
+.hub-follow {
+    padding: 0.3rem 0.8rem;
+    font: inherit;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.hub-follow:hover {
+    color: var(--tone);
+    border-color: var(--tone);
 }
 
 .hub-more:hover {

@@ -49,12 +49,12 @@
 
     // The main pages: [href, title, description, other words that should find it, icon]
     var PAGES = [
-        ['/', 'Home', 'About me, the reel, and how to get in touch', 'jack gilmore about contact email instagram', 'house'],
+        ['/', 'Home', 'Everything on the site: the newest animation, comics, writing and notes', 'jack gilmore everything overview latest new dashboard', 'house'],
+        ['/about.html', 'About', 'About me, the reel, and how to get in touch', 'jack gilmore about me bio contact email instagram hire', 'window'],
         ['/animation.html', 'Watch', 'Animation: series, projects and more', 'animation videos gallery', 'window'],
         ['/read.html', 'Read', 'Comics, stories and the blog', 'comics writing stories essays poems', 'window'],
         ['/garden.html', 'Garden', 'Notes in progress, and the graph of how they link', 'notes digital garden graph', 'window'],
-        ['/reel.html', 'Demo Reel', 'The reel on its own page, to send to people', 'showreel portfolio share', 'window'],
-        ['/everything.html', 'Everything', 'Everything on the site, in one place', 'overview latest dashboard', 'window']
+        ['/reel.html', 'Demo Reel', 'The reel on its own page, to send to people', 'showreel portfolio share', 'window']
     ];
 
     // Line icons, drawn on a 16×16 grid
@@ -612,7 +612,9 @@
         window.location.href = r.item.href;
     }
 
-    function open() {
+    // TEXT (optional): what to search for, already typed (the home page's
+    // big search box hands over what's typed in it)
+    function open(text) {
         if (!backdrop) make();
         if (!backdrop.hidden) return;
         opener = document.activeElement;
@@ -621,7 +623,12 @@
         backdrop.classList.add('open');
         document.body.style.overflow = 'hidden';
         input.focus();
-        input.select();         // the last search stays, ready to replace
+        if (typeof text === 'string') {
+            input.value = text;
+            selected = 0;
+        } else {
+            input.select();     // the last search stays, ready to replace
+        }
         render();
         load();
     }
@@ -637,9 +644,12 @@
 
     // ============ OPENING IT ============
 
+    // For other scripts: Search.open('hat guy'), Search.load()
+    window.Search = { open: open, load: load };
+
     var button = document.querySelector('.nav-search');
     if (button) {
-        button.addEventListener('click', open);
+        button.addEventListener('click', function () { open(); });
         // Start loading as soon as it looks like it'll be used
         button.addEventListener('pointerenter', load, { once: true });
     }

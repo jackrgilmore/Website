@@ -17,6 +17,24 @@
       "title": "Subway Music - Explanation",
       "tags": [],
       "modified": "2026-10-28T08:06:18"
+    },
+    {
+      "id": "/garden/hat-guy.html",
+      "title": "Hat Guy",
+      "tags": [],
+      "modified": "2026-10-28T13:57:23"
+    },
+    {
+      "id": "/garden/dan-the-space-wizard.html",
+      "title": "Dan The Space Wizard",
+      "tags": [],
+      "modified": "2026-10-28T14:01:08"
+    },
+    {
+      "id": "/garden/illumination.html",
+      "title": "Illumination",
+      "tags": [],
+      "modified": "2026-10-28T14:01:08"
     }
   ],
   "links": [
@@ -27,6 +45,10 @@
     {
       "source": "/garden/what-is-this.html",
       "target": "/garden/the-giant-in-the-mist-explanation.html"
+    },
+    {
+      "source": "/garden/dan-the-space-wizard.html",
+      "target": "/garden/hat-guy.html"
     }
   ]
 }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://jackgilmorecreative.com/</loc></url>
+  <url><loc>https://jackgilmorecreative.com/about.html</loc></url>
   <url><loc>https://jackgilmorecreative.com/animation.html</loc></url>
   <url><loc>https://jackgilmorecreative.com/read.html</loc></url>
   <url><loc>https://jackgilmorecreative.com/garden.html</loc></url>
-  <url><loc>https://jackgilmorecreative.com/everything.html</loc></url>
   <url><loc>https://jackgilmorecreative.com/reel.html</loc></url>
   <url><loc>https://jackgilmorecreative.com/series.html?s=hat-guy</loc></url>
   <url><loc>https://jackgilmorecreative.com/comic-series.html?s=the-adventures-of-dan-the-space-wizard</loc></url>
@@ -15,4 +15,7 @@
   <url><loc>https://jackgilmorecreative.com/garden/what-is-this.html</loc><lastmod>2026-10-28</lastmod></url>
   <url><loc>https://jackgilmorecreative.com/garden/the-giant-in-the-mist-explanation.html</loc><lastmod>2026-10-28</lastmod></url>
   <url><loc>https://jackgilmorecreative.com/garden/subway-music-explanation.html</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://jackgilmorecreative.com/garden/hat-guy.html</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://jackgilmorecreative.com/garden/dan-the-space-wizard.html</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://jackgilmorecreative.com/garden/illumination.html</loc><lastmod>2026-10-28</lastmod></url>
 </urlset>

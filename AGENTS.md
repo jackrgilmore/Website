@@ -42,7 +42,7 @@ something it teaches (theme, nav, publish, preview...).
 - Generated pages share one template, `jg-site--page`. Their Share button is
   `jg-site--share-button`; `nav.js` adds the icon and behaviour.
 - Browser-built pages (`read.js`, `animation.js`, `series.js`, `comic*.js`,
-  `everything.js`, `garden.js`, `search.js`) load `data/*.json` or the Org
+  `home.js`, `garden.js`, `search.js`) load `data/*.json` or the Org
   files through `catalog.js` (`Site.*` helpers). `nav.js` builds the nav,
   footer, theme toggle, feed/newsletter popover, Share buttons, and loads
   `search.js` and `keys.js`. `theme.js` runs in `<head>`: theme follows the

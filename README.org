@@ -54,8 +54,8 @@ writing and garden notes need the publish step:
 | =feed.xml=                | The blog's RSS feed (written by =publish.el=). The RSS button in the nav (=nav.js=) offers it and email sign-up (Buttondown) |
 | =og.jpg=                  | =og.png= as a JPEG, for Instagram cross-posts (its API only takes JPEGs) |
 | =sitemap.xml=, =robots.txt= | The page list for search engines (written by =publish.el= each publish), and where to find it |
-| =*.html= + =*.js=          | One pair per page: home (=reel.js=), reel, animation (Watch), series, read, comic-series, comic, garden, everything |
-| =comics.html=, =writing.html=, =dashboard.html=, =article.html= | Old addresses: they just redirect to the new pages |
+| =*.html= + =*.js=          | One pair per page: home (=home.js=: everything, newest first, with the big search box), about (=reel.js=: the page to send people), reel, animation (Watch), series, read, comic-series, comic, garden. |
+| =comics.html=, =writing.html=, =dashboard.html=, =everything.html=, =article.html= | Old addresses: they just redirect to the new pages (the last two, home) |
 
 Each catalog file explains its own format in the comments at its top.
 
