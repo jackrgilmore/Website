@@ -1575,20 +1575,39 @@ title and the end of the article, with its links made full addresses."
 ;; ---- Instagram slides ----
 ;;
 ;; Every blog post also becomes square pictures for Instagram, drawn by
-;; tools/slides.swift: its picture (or the site's card), its text in Georgia
-;; over as many slides as it takes, and a slide about the site; and a
-;; phone-sized picture for the story, pointing people to the website. They're
+;; tools/slides.swift: its text in Georgia over as many slides as it takes,
+;; then a slide about the site (the card, og.png); and a phone-sized picture
+;; for the story: design/story.png (a background to design in Photoshop or
+;; Inkscape) with the post's picture, title and description in the boxes
+;; design/story.json gives (design/story-guide.png shows them). They're
 ;; written to social/SLUG/1.jpg, 2.jpg... and story.jpg, and pushed with the
 ;; site, so Instagram can fetch them when Emacs cross-posts the post: the
 ;; slides as a carousel, then the story.
 ;; The tool is compiled once (into ~/.cache/jg-site/) and only redraws a
-;; post's slides when the post or the tool has changed (social/SLUG/key holds
-;; what they were drawn from). Without Swift (not a Mac), there are no slides
+;; post's slides when the post, the card, the design or the tool has changed
+;; (social/SLUG/key holds what they were drawn from). Without Swift (not a Mac), there are no slides
 ;; and Instagram gets the single picture instead.
 
-(defconst jg-site-slides-max 8
-  "The most text slides a post gets. With its picture and the slide about the
-site that's 10, the most an Instagram carousel can hold.")
+(defconst jg-site-slides-max 9
+  "The most text slides a post gets. With the slide about the site that's 10,
+the most an Instagram carousel can hold.")
+
+(defun jg-site--file-hash (file)
+  "FILE's MD5, or \"\" if there's no FILE."
+  (if (file-exists-p file)
+      (with-temp-buffer
+        (set-buffer-multibyte nil)
+        (insert-file-contents-literally file)
+        (md5 (current-buffer)))
+    ""))
+
+(defun jg-site--write-og-jpg ()
+  "Write og.jpg from og.png when og.png is newer: Instagram only takes JPEGs.
+So the card is designed once, as og.png (or og.svg, exported to og.png)."
+  (let ((png (expand-file-name "og.png" jg-site-root))
+        (jpg (expand-file-name "og.jpg" jg-site-root)))
+    (when (and (file-exists-p png) (file-newer-than-file-p png jpg) (executable-find "sips"))
+      (call-process "sips" nil nil nil "-s" "format" "jpeg" "-s" "formatOptions" "90" png "--out" jpg))))
 
 (defun jg-site--slides-tool ()
   "The compiled slides tool, compiling it if it isn't yet; nil without Swift."
@@ -1636,8 +1655,14 @@ FILE is \"\" when it has no picture of its own."
         (social (expand-file-name "social/" jg-site-root))
         (tool (jg-site--slides-tool))
         (drawn 0))
+    (jg-site--write-og-jpg)
     (if (not tool)
         (message "No Swift here, so no Instagram slides")
+      ;; The guide to the story's design, redrawn when its layout changes
+      (let ((layout (expand-file-name "design/story.json" jg-site-root))
+            (guide (expand-file-name "design/story-guide.png" jg-site-root)))
+        (when (and (file-exists-p layout) (file-newer-than-file-p layout guide))
+          (call-process tool nil nil nil "--guide" (file-name-directory layout))))
       ;; Slides of posts that are gone (or no longer blog posts)
       (when (file-directory-p social)
         (let ((slugs (mapcar (lambda (p) (file-name-base (alist-get 'file p))) posts)))
@@ -1656,10 +1681,13 @@ FILE is \"\" when it has no picture of its own."
                                   (jg-site--feed-body url)))
                         (cover . ,(jg-site--slides-cover url))
                         (card . ,(expand-file-name "og.png" jg-site-root))
+                        (design . ,(expand-file-name "design" jg-site-root))
                         (out . ,out)
                         (site . ,(string-remove-prefix "https://" jg-site-url))
                         (max . ,jg-site-slides-max))))
-               (key (md5 (concat spec tool)))
+               (key (md5 (concat spec tool
+                                 (mapconcat (lambda (f) (jg-site--file-hash (expand-file-name f jg-site-root)))
+                                            '("og.png" "design/story.png" "design/story.json") ""))))
                (key-file (expand-file-name "key" out)))
           (unless (and (file-exists-p key-file)
                        (equal key (with-temp-buffer (insert-file-contents key-file) (buffer-string))))

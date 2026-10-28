@@ -57,15 +57,31 @@ writing and garden notes need the publish step:
 
 Each catalog file explains its own format in the comments at its top.
 
+* Designing the pictures
+
+You can redo these in Photoshop, Inkscape or anything else; the next publish
+uses them (and redraws every post's pictures):
+
+- *The card*, =og.png= (1200×630): what a shared link shows when the page has
+  no picture of its own, and the last slide of each Instagram carousel.
+  =og.svg= is its source, for Inkscape (export it as =og.png=, 1200×630), or
+  make =og.png= in Photoshop. =og.jpg= is made from it when you publish.
+- *The story's background*, =design/story.png= (1080×1920). The post's
+  picture, title and description go on top, in the boxes
+  =design/story.json= gives (x and y from the top left, in pixels; text size,
+  font, color, alignment; the picture's corner rounding). Lay
+  =design/story-guide.png= over your design as a top layer to see where they
+  land and which strips Instagram's buttons cover; it's redrawn when you
+  change =story.json=. Fonts are PostScript names, as Font Book shows them
+  (=Georgia-Bold=). Delete =story.png= for a plain background.
+
 * Things to know
 
-- Each blog post also gets square Instagram slides in =social/POST/=, drawn by
-  =tools/slides.swift= when you publish: its picture, its text in Georgia
-  over as many slides as it takes (8 at most), and a slide about the site; plus =story.jpg=, phone-sized,
-  for the story. Cross-posting puts the square ones on Instagram as a
-  carousel, then the story. They're only redrawn
-  when the post changes.
-
+- Each blog post also gets Instagram pictures in =social/POST/=, drawn by
+  =tools/slides.swift= when you publish: square slides of its text in Georgia
+  (9 at most) and a slide about the site, posted as a carousel; and
+  =story.jpg=, phone-sized, for the story. They're only redrawn when the
+  post or a design file changes.
 - =examples/= holds example books and scripts, laid out like =content/=. They're
   never published; =SPC n w V= builds a throwaway copy of the site with them
   added and previews it at localhost:8001.

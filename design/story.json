@@ -1,0 +1,29 @@
+{
+  "description" : {
+    "align" : "center",
+    "color" : "#78706a",
+    "font" : "Georgia-Italic",
+    "height" : 84,
+    "size" : 34,
+    "width" : 780,
+    "x" : 150,
+    "y" : 1335
+  },
+  "picture" : {
+    "height" : 780,
+    "radius" : 28,
+    "width" : 780,
+    "x" : 150,
+    "y" : 330
+  },
+  "title" : {
+    "align" : "center",
+    "color" : "#1f1b16",
+    "font" : "Georgia-Bold",
+    "height" : 160,
+    "size" : 68,
+    "width" : 860,
+    "x" : 110,
+    "y" : 1160
+  }
+}

@@ -1,58 +1,52 @@
-// Instagram slides for a blog post: square 1080×1080 JPEGs, made by publish.el
-// (jg-site--write-slides) when it publishes. The post goes on Instagram as a
-// carousel of them (the cross-posting in Emacs):
-//   1.jpg       the post's picture (cropped square), or the site's card
-//   2.jpg ...   the post's text in Georgia, split across as many pages as it
-//               takes (at most MAX; past that, the rest is on the website)
-//   last        a page about the website
-// and, for Instagram's story, one phone-sized picture (1080×1920) pointing
-// people to the website:
-//   story.jpg
+// Instagram pictures for a blog post, made by publish.el (jg-site--write-slides)
+// when it publishes, and posted by the cross-posting in Emacs:
+//   1.jpg ...   square (1080×1080) slides for a carousel: the post's text in
+//               Georgia, split across as many as it takes (at most MAX; past
+//               that, the rest is on the website), then a slide about the
+//               website (the site's card, og.png)
+//   story.jpg   phone-sized (1080×1920), for the story: design/story.png (a
+//               background you can make in Photoshop or Inkscape) with the
+//               post's picture, title and description where design/story.json
+//               says
 //
-// Usage: slides SPEC.json, where SPEC is
-//   {"title", "date", "description", "html", "cover", "card", "out", "site", "max"}
-// html is the post's body (no images); cover a picture file or ""; card the
-// site's og.png; out the folder for the slides (emptied first). Prints how
-// many slides it made (not counting the story).
+// Usage:
+//   slides SPEC.json           draw a post's pictures. SPEC is
+//                              {"title", "date", "description", "html", "cover",
+//                               "card", "design", "out", "site", "max"}:
+//                              html the post's body (no images), cover its
+//                              picture file or "", card the site's og.png,
+//                              design the design/ folder, out the folder for
+//                              the pictures (emptied first). Prints how many
+//                              slides it made (not counting the story).
+//   slides --starter DESIGN CARD   write the starting story design into the
+//                              folder DESIGN: story.png, story.json and the
+//                              guide (overwriting them)
+//   slides --guide DESIGN      redraw DESIGN/story-guide.png from story.json
 
 import AppKit
 
-struct Spec: Decodable {
-    let title: String
-    let date: String
-    let description: String
-    let html: String
-    let cover: String
-    let card: String
-    let out: String
-    let site: String
-    let max: Int
-}
-
 let side: CGFloat = 1080
-let margin: CGFloat = 110        // left and right
-let top: CGFloat = 120           // above the text
-let bottom: CGFloat = 150        // below it, for the footer
+let tall: CGFloat = 1920                     // the story
+let margin: CGFloat = 110                    // left and right
+let top: CGFloat = 120                       // above the text
+let bottom: CGFloat = 150                    // below it, for the footer
 let textSize: CGFloat = 34
 
 let ink = NSColor(srgbRed: 0.12, green: 0.105, blue: 0.09, alpha: 1)
 let gold = NSColor(srgbRed: 0.60, green: 0.46, blue: 0.22, alpha: 1)
 let faint = NSColor(srgbRed: 0.47, green: 0.44, blue: 0.40, alpha: 1)
+let paper = NSColor(srgbRed: 0.985, green: 0.975, blue: 0.959, alpha: 1)
 
 func georgia(_ size: CGFloat, bold: Bool = false, italic: Bool = false) -> NSFont {
     let name = bold ? (italic ? "Georgia-BoldItalic" : "Georgia-Bold") : (italic ? "Georgia-Italic" : "Georgia")
     return NSFont(name: name, size: size) ?? NSFont.systemFont(ofSize: size)
 }
 
-let spec = try JSONDecoder().decode(Spec.self, from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1])))
-let card = NSImage(contentsOfFile: spec.card)
+var card: NSImage?                           // the site's card (og.png)
 
-let paper = NSColor(srgbRed: 0.985, green: 0.975, blue: 0.959, alpha: 1)
-
-// One slide: a bitmap SIDE wide and HEIGHT tall (square, unless it's the
-// story) with the origin at the top left (y going down), filled with paper,
-// then whatever DRAW draws
-func slide(height: CGFloat = side, _ draw: () -> Void) -> NSBitmapImageRep {
+// A bitmap SIDE wide and HEIGHT tall with the origin at the top left (y going
+// down), filled with paper (unless CLEAR), then whatever DRAW draws
+func slide(height: CGFloat = side, clear: Bool = false, _ draw: () -> Void) -> NSBitmapImageRep {
     let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(side), pixelsHigh: Int(height),
                                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
                                colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
@@ -65,7 +59,8 @@ func slide(height: CGFloat = side, _ draw: () -> Void) -> NSBitmapImageRep {
     // The paper: the card's own background (a corner of it, stretched), so
     // it matches the card exactly; a color picked from it comes out a shade
     // off, through color management, and shows as a band around the card
-    if let card = card {
+    if clear {
+    } else if let card = card {
         drawImage(card, in: NSRect(x: 0, y: 0, width: side, height: height), from: NSRect(x: 2, y: 2, width: 1, height: 1))
     } else {
         paper.setFill()
@@ -80,20 +75,19 @@ func drawImage(_ image: NSImage, in rect: NSRect, from source: NSRect = .zero) {
     image.draw(in: rect, from: source, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
 }
 
-// The post's picture, if it has one that loads
-let photo: NSImage? = {
-    guard !spec.cover.isEmpty, let image = NSImage(contentsOfFile: spec.cover),
-          let rep = image.representations.first, rep.pixelsWide > 0 else { return nil }
-    image.size = NSSize(width: rep.pixelsWide, height: rep.pixelsHigh)   // its own pixels
-    return image
-}()
-
 // IMAGE filling RECT, its middle cropped to RECT's shape
 func drawCropped(_ image: NSImage, in rect: NSRect) {
     let w = image.size.width, h = image.size.height
     let scale = min(w / rect.width, h / rect.height)
     let cw = rect.width * scale, ch = rect.height * scale
     drawImage(image, in: rect, from: NSRect(x: (w - cw) / 2, y: (h - ch) / 2, width: cw, height: ch))
+}
+
+// IMAGE as big as fits in RECT, centered, nothing cropped
+func drawFitted(_ image: NSImage, in rect: NSRect) {
+    let scale = min(rect.width / image.size.width, rect.height / image.size.height)
+    let w = image.size.width * scale, h = image.size.height * scale
+    drawImage(image, in: NSRect(x: rect.midX - w / 2, y: rect.midY - h / 2, width: w, height: h))
 }
 
 // TEXT drawn centered across the slide at Y, wrapped; returns its height
@@ -109,6 +103,180 @@ func centered(_ text: String, _ font: NSFont, _ color: NSColor, y: CGFloat, widt
                             options: [.usesLineFragmentOrigin], attributes: attrs)
     return ceil(box.height)
 }
+
+func measure(_ text: String, _ font: NSFont, width: CGFloat = side - 2 * margin) -> CGFloat {
+    let style = NSMutableParagraphStyle()
+    style.lineHeightMultiple = 1.15
+    return ceil((text as NSString).boundingRect(
+        with: NSSize(width: width, height: .greatestFiniteMagnitude),
+        options: [.usesLineFragmentOrigin], attributes: [.font: font, .paragraphStyle: style]).height)
+}
+
+func save(_ rep: NSBitmapImageRep, _ path: String, png: Bool = false) throws {
+    try rep.representation(using: png ? .png : .jpeg, properties: png ? [:] : [.compressionFactor: 0.9])!
+        .write(to: URL(fileURLWithPath: path))
+}
+
+
+// ============ THE STORY'S DESIGN ============
+// story.json: a box (in pixels, from the top left of the 1080×1920 story) for
+// each of the post's picture, title and description, and how its text looks.
+// Anything left out is as in the starter.
+
+struct Box: Codable {
+    var x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat
+    var size: CGFloat? = nil         // text: the biggest it's set (smaller if it won't fit)
+    var font: String? = nil          // text: a font's PostScript name (Font Book shows it)
+    var color: String? = nil         // text: "#1f1b16"
+    var align: String? = nil         // text: "left", "center" or "right"
+    var radius: CGFloat? = nil       // the picture: its corners' rounding
+    var rect: NSRect { NSRect(x: x, y: y, width: width, height: height) }
+}
+
+struct StoryLayout: Codable {
+    var picture = Box(x: 150, y: 330, width: 780, height: 780, radius: 28)
+    var title = Box(x: 110, y: 1160, width: 860, height: 160,
+                    size: 68, font: "Georgia-Bold", color: "#1f1b16", align: "center")
+    var description = Box(x: 150, y: 1335, width: 780, height: 84,
+                          size: 34, font: "Georgia-Italic", color: "#78706a", align: "center")
+}
+
+func storyLayout(_ design: String) -> StoryLayout {
+    guard let data = FileManager.default.contents(atPath: design + "/story.json") else { return StoryLayout() }
+    do {
+        return try JSONDecoder().decode(StoryLayout.self, from: data)
+    } catch {
+        FileHandle.standardError.write("design/story.json: \(error); using the starter's layout\n".data(using: .utf8)!)
+        return StoryLayout()
+    }
+}
+
+func color(_ hex: String?, _ fallback: NSColor) -> NSColor {
+    guard let hex = hex?.trimmingCharacters(in: CharacterSet(charactersIn: "# ")), hex.count == 6,
+          let n = UInt32(hex, radix: 16) else { return fallback }
+    return NSColor(srgbRed: CGFloat(n >> 16 & 255) / 255, green: CGFloat(n >> 8 & 255) / 255,
+                   blue: CGFloat(n & 255) / 255, alpha: 1)
+}
+
+// TEXT set in BOX: as big as BOX.size, smaller (down to 60%) if that won't
+// fit, then cut short with "…"; centered up and down in the box
+func fit(_ text: String, in box: Box) {
+    guard !text.isEmpty else { return }
+    let style = NSMutableParagraphStyle()
+    style.alignment = box.align == "left" ? .left : box.align == "right" ? .right : .center
+    style.lineHeightMultiple = 1.12
+    let biggest = box.size ?? 40
+    func attrs(_ size: CGFloat) -> [NSAttributedString.Key: Any] {
+        [.font: NSFont(name: box.font ?? "Georgia", size: size) ?? georgia(size),
+         .foregroundColor: color(box.color, ink), .paragraphStyle: style]
+    }
+    func height(_ s: String, _ size: CGFloat) -> CGFloat {
+        ceil((s as NSString).boundingRect(with: NSSize(width: box.width, height: .greatestFiniteMagnitude),
+                                          options: [.usesLineFragmentOrigin], attributes: attrs(size)).height)
+    }
+    var size = biggest
+    while size > biggest * 0.6 && height(text, size) > box.height { size -= 2 }
+    var words = text.split(separator: " ").map(String.init)
+    var shown = text
+    while words.count > 1 && height(shown, size) > box.height {
+        words.removeLast()
+        shown = words.joined(separator: " ") + "…"
+    }
+    let h = min(height(shown, size), box.height)
+    (shown as NSString).draw(with: NSRect(x: box.x, y: box.y + (box.height - h) / 2, width: box.width, height: h),
+                             options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine], attributes: attrs(size))
+}
+
+// The starter background: the paper, "New on the blog" above the picture,
+// and below the description a gold pill pointing to the website
+func starterBackground(site: String) -> NSBitmapImageRep {
+    slide(height: tall) {
+        centered("New on the blog", georgia(40, italic: true), gold, y: 250, width: 860)
+        let text = "Read it on my website  →"
+        let attrs: [NSAttributedString.Key: Any] = [.font: georgia(40), .foregroundColor: paper]
+        let words = (text as NSString).size(withAttributes: attrs)
+        let pill = NSRect(x: (side - words.width - 128) / 2, y: 1450, width: words.width + 128, height: 116)
+        gold.setFill()
+        NSBezierPath(roundedRect: pill, xRadius: 58, yRadius: 58).fill()
+        (text as NSString).draw(at: NSPoint(x: pill.minX + 64, y: pill.midY - words.height / 2), withAttributes: attrs)
+        centered("\(site) · link in bio", georgia(30, italic: true), gold, y: 1600, width: 860)
+    }
+}
+
+// The guide: a see-through layer to lay over story.png while designing it.
+// The boxes the post fills in, and the strips Instagram covers with its own
+// buttons (keep anything important out of those)
+func guide(_ layout: StoryLayout) -> NSBitmapImageRep {
+    slide(height: tall, clear: true) {
+        let covered = NSColor(srgbRed: 0.85, green: 0.2, blue: 0.2, alpha: 0.18)
+        covered.setFill()
+        NSRect(x: 0, y: 0, width: side, height: 250).fill()
+        NSRect(x: 0, y: tall - 250, width: side, height: 250).fill()
+        let note: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 30, weight: .medium),
+                                                   .foregroundColor: NSColor(srgbRed: 0.7, green: 0.1, blue: 0.1, alpha: 0.9)]
+        ("Instagram's buttons cover this" as NSString).draw(at: NSPoint(x: 40, y: 190), withAttributes: note)
+        ("Instagram's buttons cover this" as NSString).draw(at: NSPoint(x: 40, y: tall - 230), withAttributes: note)
+        for (name, box, tint) in [("picture", layout.picture, NSColor.systemBlue),
+                                  ("title", layout.title, NSColor.systemGreen),
+                                  ("description", layout.description, NSColor.systemPurple)] {
+            tint.withAlphaComponent(0.16).setFill()
+            box.rect.fill()
+            tint.withAlphaComponent(0.85).setStroke()
+            let outline = NSBezierPath(rect: box.rect.insetBy(dx: 1.5, dy: 1.5))
+            outline.lineWidth = 3
+            outline.setLineDash([14, 8], count: 2, phase: 0)
+            outline.stroke()
+            ("\(name)  \(Int(box.x)), \(Int(box.y))  \(Int(box.width))×\(Int(box.height))" as NSString)
+                .draw(at: NSPoint(x: box.x + 12, y: box.y + 8),
+                      withAttributes: [.font: NSFont.systemFont(ofSize: 26, weight: .semibold),
+                                       .foregroundColor: tint.withAlphaComponent(0.95)])
+        }
+    }
+}
+
+let args = CommandLine.arguments
+if args.count > 2 && args[1] == "--starter" {
+    let design = args[2]
+    card = args.count > 3 ? NSImage(contentsOfFile: args[3]) : nil
+    try FileManager.default.createDirectory(atPath: design, withIntermediateDirectories: true)
+    try save(starterBackground(site: "jackgilmorecreative.com"), design + "/story.png", png: true)
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+    try encoder.encode(StoryLayout()).write(to: URL(fileURLWithPath: design + "/story.json"))
+    try save(guide(StoryLayout()), design + "/story-guide.png", png: true)
+    exit(0)
+}
+if args.count > 2 && args[1] == "--guide" {
+    try save(guide(storyLayout(args[2])), args[2] + "/story-guide.png", png: true)
+    exit(0)
+}
+
+
+// ============ A POST ============
+
+struct Spec: Decodable {
+    let title: String
+    let date: String
+    let description: String
+    let html: String
+    let cover: String
+    let card: String
+    let design: String
+    let out: String
+    let site: String
+    let max: Int
+}
+
+let spec = try JSONDecoder().decode(Spec.self, from: Data(contentsOf: URL(fileURLWithPath: args[1])))
+card = NSImage(contentsOfFile: spec.card)
+
+// The post's picture, if it has one that loads
+let photo: NSImage? = {
+    guard !spec.cover.isEmpty, let image = NSImage(contentsOfFile: spec.cover),
+          let rep = image.representations.first, rep.pixelsWide > 0 else { return nil }
+    image.size = NSSize(width: rep.pixelsWide, height: rep.pixelsHigh)   // its own pixels
+    return image
+}()
 
 // ---- The text, from the post's HTML, in Georgia ----
 
@@ -150,17 +318,10 @@ for match in numbers.matches(in: body.string, range: NSRange(location: 0, length
     body.replaceCharacters(in: NSRange(location: NSMaxRange(match.range(at: 1)), length: 1), with: ". ")
 }
 
-// The first text slide starts with the title, the date and a short rule: how
-// much room that takes, measured with the same fonts it's drawn with
+// The first slide starts with the title, the date and a short rule: how much
+// room that takes, measured with the same fonts it's drawn with
 let titleFont = georgia(54, bold: true)
 let dateFont = georgia(26, italic: true)
-func measure(_ text: String, _ font: NSFont, width: CGFloat = side - 2 * margin) -> CGFloat {
-    let style = NSMutableParagraphStyle()
-    style.lineHeightMultiple = 1.15
-    return ceil((text as NSString).boundingRect(
-        with: NSSize(width: width, height: .greatestFiniteMagnitude),
-        options: [.usesLineFragmentOrigin], attributes: [.font: font, .paragraphStyle: style]).height)
-}
 let titleHeight = measure(spec.title, titleFont)
 let dateHeight = spec.date.isEmpty ? 0 : measure(spec.date, dateFont)
 let firstTop = top + titleHeight + (spec.date.isEmpty ? 0 : 18 + dateHeight) + 34 + 2 + 52
@@ -181,21 +342,10 @@ while true {
 let cut = pages.count > spec.max            // too long: the rest is on the website
 if cut { pages = Array(pages.prefix(spec.max)) }
 
-// ---- Draw the slides ----
+// ---- The carousel: the text, then the website ----
 
 var slides: [NSBitmapImageRep] = []
 
-// 1: the post's picture, cropped square; or the card, on its own paper
-slides.append(slide {
-    if let photo = photo {
-        drawCropped(photo, in: NSRect(x: 0, y: 0, width: side, height: side))
-    } else if let card = card {
-        let h = side * card.size.height / card.size.width
-        drawImage(card, in: NSRect(x: 0, y: (side - h) / 2, width: side, height: h))
-    }
-})
-
-// The text
 for (i, page) in pages.enumerated() {
     slides.append(slide {
         if i == 0 {
@@ -237,55 +387,27 @@ slides.append(slide {
     centered("Link in bio", georgia(28, italic: true), gold, y: y + 26)
 })
 
-// ---- The story ----
-// Phone-sized. Instagram's own buttons cover its top and bottom, so it's all
-// in a block in the middle: what it is, the picture, the title and its
-// description, and a button-like pill pointing to the website
+// ---- The story: the design's background, then the post in its boxes ----
 
-let tall: CGFloat = 1920
-let inner: CGFloat = 860                    // the width things are set in
-var blurb = spec.description
-if blurb.count > 170 {                      // a sentence or two, not a paragraph
-    blurb = String(blurb.prefix(170)).replacingOccurrences(of: "\\s+\\S*$", with: "", options: .regularExpression) + "…"
-}
-let kickerFont = georgia(40, italic: true)
-let storyTitleFont = georgia(68, bold: true)
-let blurbFont = georgia(34, italic: true)
-let pillFont = georgia(40)
-let pillText = "Read it on my website  →"
-let footText = "\(spec.site) · link in bio"
-let picture: CGFloat = photo != nil ? inner : (card.map { side * $0.size.height / $0.size.width } ?? 0)
-let blocks: [CGFloat] = [measure("New on the blog", kickerFont, width: inner), 44, picture, 64,
-                         measure(spec.title, storyTitleFont, width: inner),
-                         blurb.isEmpty ? 0 : 24 + measure(blurb, blurbFont, width: inner - 40),
-                         76, 116, 36, measure(footText, georgia(30, italic: true), width: inner)]
+let boxes = storyLayout(spec.design)
+let background = NSImage(contentsOfFile: spec.design + "/story.png")
 let story = slide(height: tall) {
-    var y = max(260, (tall - blocks.reduce(0, +)) / 2 - 30)
-    y += centered("New on the blog", kickerFont, gold, y: y, width: inner) + 44
+    if let background = background {
+        drawCropped(background, in: NSRect(x: 0, y: 0, width: side, height: tall))
+    }
+    // The picture, cropped to its box; with none, the card, fitted in it
+    let frame = boxes.picture.rect
     if let photo = photo {
-        let frame = NSRect(x: (side - inner) / 2, y: y, width: inner, height: inner)
         NSGraphicsContext.saveGraphicsState()
-        NSBezierPath(roundedRect: frame, xRadius: 28, yRadius: 28).addClip()
+        let r = boxes.picture.radius ?? 0
+        NSBezierPath(roundedRect: frame, xRadius: r, yRadius: r).addClip()
         drawCropped(photo, in: frame)
         NSGraphicsContext.restoreGraphicsState()
     } else if let card = card {
-        drawImage(card, in: NSRect(x: 0, y: y, width: side, height: picture))
+        drawFitted(card, in: frame)
     }
-    y += picture + 64
-    y += centered(spec.title, storyTitleFont, ink, y: y, width: inner)
-    if !blurb.isEmpty {
-        y += 24 + centered(blurb, blurbFont, faint, y: y + 24, width: inner - 40)
-    }
-    y += 76
-    // The pill: gold, the width of its words plus room either side
-    let attrs: [NSAttributedString.Key: Any] = [.font: pillFont, .foregroundColor: paper]
-    let words = (pillText as NSString).size(withAttributes: attrs)
-    let pill = NSRect(x: (side - words.width - 128) / 2, y: y, width: words.width + 128, height: 116)
-    gold.setFill()
-    NSBezierPath(roundedRect: pill, xRadius: 58, yRadius: 58).fill()
-    (pillText as NSString).draw(at: NSPoint(x: pill.minX + 64, y: pill.midY - words.height / 2), withAttributes: attrs)
-    y += 116 + 36
-    centered(footText, georgia(30, italic: true), gold, y: y, width: inner)
+    fit(spec.title, in: boxes.title)
+    fit(spec.description, in: boxes.description)
 }
 
 // ---- Save them ----
@@ -296,9 +418,7 @@ for file in try FileManager.default.contentsOfDirectory(atPath: spec.out) where 
     try FileManager.default.removeItem(at: out.appendingPathComponent(file))
 }
 for (n, rep) in slides.enumerated() {
-    try rep.representation(using: .jpeg, properties: [.compressionFactor: 0.9])!
-        .write(to: out.appendingPathComponent("\(n + 1).jpg"))
+    try save(rep, out.appendingPathComponent("\(n + 1).jpg").path)
 }
-try story.representation(using: .jpeg, properties: [.compressionFactor: 0.9])!
-    .write(to: out.appendingPathComponent("story.jpg"))
+try save(story, out.appendingPathComponent("story.jpg").path)
 print(slides.count)
