@@ -1,6 +1,6 @@
 #+title: The Thoughts of Trees
 #+type: story
-#+date: 2026-10-16
+#+date: 2026-10-27
 #+publication:
 #+description: I wonder what trees think.
 
