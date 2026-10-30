@@ -120,8 +120,7 @@
                 var isNew = l === newest;
                 return '<li' + (isNew ? ' class="is-new"' : '') + '><a href="' + Site.esc(l[4]) + '" data-tone="' + l[0] + '">'
                     + '<span class="home-new-kind">' + Site.esc(l[1])
-                    + (isNew ? ' <span class="new-tag"><svg viewBox="0 0 16 16" aria-hidden="true">'
-                        + '<path d="M8 1.5 9.6 6.4 14.5 8 9.6 9.6 8 14.5 6.4 9.6 1.5 8 6.4 6.4Z"/></svg>new!</span>' : '')
+                    + (isNew ? ' <span class="new-tag">new!</span>' : '')
                     + '</span>'
                     + '<span class="home-new-title">' + Site.esc(l[2]) + '</span>'
                     + (l[3] ? '<span class="home-new-meta">' + Site.esc(l[3]) + '</span>' : '')

@@ -1865,9 +1865,7 @@ kbd {
 }
 
 .new-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
+    display: inline-block;
     margin-left: 0.45rem;
     padding: 0 0.4rem;
     font-size: 0.62rem;
@@ -1879,12 +1877,6 @@ kbd {
     border: 1px solid currentColor;
     border-radius: 999px;
     vertical-align: 1px;
-}
-
-.new-tag svg {
-    width: 1em;
-    height: 1em;
-    fill: currentColor;
 }
 
 /* Animation: a row per series and group, its first four */
