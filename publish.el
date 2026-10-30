@@ -271,6 +271,22 @@ public note never points at (or reveals the location of) a private one."
      :url (plist-get info :jg-url)
      :contents contents)))
 
+(defconst jg-site--note-graph-scripts
+  "<script src=\"/catalog.js\" defer></script>
+<script src=\"https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js\" defer></script>
+<script src=\"/garden-note.js\" defer></script>
+"
+  "What a garden note loads to draw the graph of the notes near it.")
+
+(defconst jg-site--note-graph
+  "<section class=\"note-graph-section\" hidden>
+<h2>Nearby notes</h2>
+<div class=\"garden-graph note-graph\" data-note=\"%s\"></div>
+</section>
+"
+  "Under a garden note (%s: its URL), the graph of the notes near it.
+It stays hidden unless garden-note.js finds some, and has d3 to draw them.")
+
 (defconst jg-site--share-button
   "<button class=\"share-button\" type=\"button\" data-share aria-label=\"Share\" title=\"Share\"></button>"
   "A page's Share button. nav.js adds its icon and makes it work: the share
@@ -377,7 +393,7 @@ Under the byline is a Share button (nav.js makes it work), then ACTIONS
 <link rel=\"stylesheet\" href=\"/site.css\">
 <script src=\"/nav.js\" defer></script>
 <script src=\"/analytics.js\" defer></script>
-" (or head "") "</head>
+" (if (eq kind 'garden) jg-site--note-graph-scripts "") (or head "") "</head>
 <body>
 <main class=\"page page-narrow\">
 "    ;; Breadcrumbs: Garden / this note, or Read / Blog (or Writing) / this piece
@@ -398,6 +414,10 @@ Under the byline is a Share button (nav.js makes it work), then ACTIONS
      contents "
 </article>
 "    (or after "")
+     ;; A garden note: the notes near it, drawn by garden-note.js
+     (if (and (eq kind 'garden) url)
+         (format jg-site--note-graph (jg-site--escape url))
+       "")
      (if (not backlinks) ""
        (concat "<aside class=\"backlinks\">\n<h2>Linked from</h2>\n<ul>\n"
                (mapconcat (lambda (b) (format "<li><a href=\"%s\">%s</a></li>"

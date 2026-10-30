@@ -1,5 +1,6 @@
 // The garden page: the graph of every public org-roam note (Site.gardenGraph,
-// with its search button), then every note, most recently tended first.
+// with its search button), then every note, most recently tended first;
+// pointing at one in the list lights it up in the graph.
 // data/garden.json is written by publish.el (SPC n w p) from the org-roam
 // notes tagged publish.
 
@@ -43,7 +44,8 @@
                     + '<span class="entry-meta">' + Site.esc(meta) + '</span></a>';
             }).join('')
             + '</section>';
-        Site.gardenGraph(box.querySelector('.garden-graph'), garden);
+        Site.lightFromList(box.querySelector('.reading-list'),
+            Site.gardenGraph(box.querySelector('.garden-graph'), garden));
     });
 
 })();

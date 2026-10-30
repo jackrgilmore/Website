@@ -54,7 +54,7 @@ writing and garden notes need the publish step:
 | =feed.xml=                | The blog's RSS feed (written by =publish.el=). The RSS button in the nav (=nav.js=) offers it and email sign-up (Buttondown) |
 | =og.jpg=                  | =og.png= as a JPEG, for Instagram cross-posts (its API only takes JPEGs) |
 | =sitemap.xml=, =robots.txt= | The page list for search engines (written by =publish.el= each publish), and where to find it |
-| =*.html= + =*.js=          | One pair per page: home (=home.js=: everything, newest first, with the big search box), about (=reel.js=: the page to send people), reel, animation (Watch), series, read, comic-series, comic, garden. |
+| =*.html= + =*.js=          | One pair per page: home (=home.js=: everything, newest first, with the big search box), about (=reel.js=: the page to send people), reel, animation (Watch), series, read, comic-series, comic, garden. =garden-note.js= draws the "Nearby notes" graph under each garden note. |
 | =comics.html=, =writing.html=, =dashboard.html=, =everything.html=, =article.html= | Old addresses: they just redirect to the new pages (the last two, home) |
 
 Each catalog file explains its own format in the comments at its top.
@@ -98,6 +98,16 @@ uses them (and redraws every post's pictures):
 - =examples/= holds example books and scripts, laid out like =content/=. They're
   never published; =SPC n w V= builds a throwaway copy of the site with them
   added and previews it at localhost:8001.
+
+- The garden graph (Garden page, home page, and "Nearby notes" under each
+  note: that note and the notes within two links of it). Point at a dot (or
+  tab to it) to light up the notes it links to and see their whole names; on
+  a phone the first tap does that and the second opens the note. Drag dots,
+  scroll or pinch to zoom, or use the + − ⤢ buttons (⤢ fits everything in
+  view); the search button (or =f=) finds a note. Pointing at a note in the
+  list under the graph lights it up in the graph. Long names are cut short
+  (=LABEL_MAX= in =catalog.js=, 22 characters), and a name that would cover
+  another, or a dot, hides until you zoom in or point at it.
 
 - Every piece (writing, garden notes, books and chapters, comics, series,
   episodes, videos) has a Share button (just an icon): the share sheet on a

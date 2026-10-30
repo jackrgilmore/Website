@@ -153,7 +153,8 @@
             box.innerHTML = '<div class="garden-graph home-graph"></div><div class="note-list">' + notes.map(function (n) {
                 return '<a href="' + Site.esc(n.id) + '">' + Site.esc(n.title) + '</a>';
             }).join('') + '</div>';
-            Site.gardenGraph(box.querySelector('.garden-graph'), garden);
+            Site.lightFromList(box.querySelector('.note-list'),
+                Site.gardenGraph(box.querySelector('.garden-graph'), garden));
         }
     });
 

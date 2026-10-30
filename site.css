@@ -1942,6 +1942,7 @@ kbd {
 .garden-graph line {
     stroke: var(--line);
     stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
 }
 
 .garden-graph circle {
@@ -1954,8 +1955,12 @@ kbd {
 .garden-graph text {
     fill: var(--muted);
     font-family: 'Libre Baskerville', Georgia, serif;
-    font-size: 11px;
     pointer-events: none;
+}
+
+/* A name that would cover another (catalog.js decides) */
+.garden-graph text.hidden {
+    visibility: hidden;
 }
 
 .garden-graph g.node:hover circle {
@@ -1964,6 +1969,98 @@ kbd {
 
 .garden-graph g.node:hover text {
     fill: var(--heading);
+}
+
+.garden-graph g.node {
+    outline: none;
+}
+
+.garden-graph g.node:focus-visible circle {
+    stroke: var(--heading);
+    stroke-width: 2.5;
+}
+
+/* Pointing at a note: it and its neighbours stay, the rest fade */
+.garden-graph svg.lit g.node:not(.lit-node):not(.lit-near) {
+    opacity: 0.2;
+}
+
+.garden-graph svg.lit line:not(.lit-line) {
+    opacity: 0.2;
+}
+
+.garden-graph line.lit-line {
+    stroke: var(--accent);
+}
+
+.garden-graph g.node.lit-node text,
+.garden-graph g.node.lit-near text {
+    fill: var(--heading);
+}
+
+/* The note this graph is under */
+.garden-graph g.node.current circle {
+    fill: var(--heading);
+}
+
+.garden-graph g.node.current text {
+    fill: var(--heading);
+    font-weight: 700;
+}
+
+.graph-zoom {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+.graph-zoom button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.graph-zoom button + button {
+    border-top: 1px solid var(--line);
+}
+
+.graph-zoom button:hover {
+    color: var(--accent);
+}
+
+/* Under a garden note: the notes near it (publish.el, garden-note.js) */
+.note-graph-section {
+    margin-top: 3rem;
+}
+
+.note-graph-section h2 {
+    font-size: 0.85rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--muted);
+    margin: 0 0 0.5rem;
+}
+
+.garden-graph.note-graph {
+    height: 320px;
+}
+
+.note-graph-section + .backlinks {
+    margin-top: 1.5rem;
 }
 
 .note-list {

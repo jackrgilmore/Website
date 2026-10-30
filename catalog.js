@@ -688,13 +688,57 @@ var Site = (function () {
     }
 
     // The garden graph: each public org-roam note is a dot, each link between two
-    // notes a line. Drag to move dots, scroll or pinch to zoom, click to read.
-    // The search button in its corner finds a note in the graph.
+    // notes a line. Drag to move dots, scroll or pinch to zoom (or use the + − ⤢
+    // buttons), click to read. Pointing at a note, or tabbing to it, lights up the
+    // notes it links to and shows their whole names; on a phone the first tap
+    // lights a note up and the second opens it. The search button in its corner
+    // finds a note in the graph.
+    //
+    // Names stay the same size on screen whatever the zoom, are cut short after
+    // LABEL_MAX characters, and one that would cover another name (or a dot) is
+    // hidden, the less-linked note giving way. Zooming in makes room, so more
+    // names appear; pointing at a dot always shows its name.
+    //
     // HOLDER is an empty .garden-graph element; it is removed if d3 is missing.
+    // OPTS.current (a note's URL) draws just that note and the notes within two
+    // links of it, with it in the middle: the graph under each garden note.
+    // Returns { light(id) } so a list beside the graph can light a note up
+    // (light(null) to stop), or nothing if there was no graph to draw.
     var graphCount = 0;
+    var LABEL_MAX = 22;
+    var LABEL_SIZE = 11; // px on screen
 
-    function gardenGraph(holder, garden) {
-        if (typeof d3 === 'undefined' || !garden.nodes.length) {
+    // TITLE cut to about LABEL_MAX characters, at a space if there's one near the end
+    function shortTitle(title) {
+        if (title.length <= LABEL_MAX + 1) return title;
+        var cut = title.slice(0, LABEL_MAX);
+        var space = cut.lastIndexOf(' ');
+        if (space > LABEL_MAX * 0.6) cut = cut.slice(0, space);
+        return cut.replace(/[\s,;:.\-–—]+$/, '') + '…';
+    }
+
+    // The notes within DEPTH links of the note ID, and the links between them
+    function neighbourhood(garden, id, depth) {
+        var keep = {};
+        keep[id] = true;
+        for (var i = 0; i < depth; i++) {
+            var found = {};
+            garden.links.forEach(function (l) {
+                if (keep[l.source]) found[l.target] = true;
+                if (keep[l.target]) found[l.source] = true;
+            });
+            Object.keys(found).forEach(function (k) { keep[k] = true; });
+        }
+        return {
+            nodes: garden.nodes.filter(function (n) { return keep[n.id]; }),
+            links: garden.links.filter(function (l) { return keep[l.source] && keep[l.target]; })
+        };
+    }
+
+    function gardenGraph(holder, garden, opts) {
+        opts = opts || {};
+        if (opts.current) garden = neighbourhood(garden, opts.current, 2);
+        if (typeof d3 === 'undefined' || !garden.nodes.length || (opts.current && !garden.links.length)) {
             holder.remove(); // graph library didn't load (or nothing to draw)
             return;
         }
@@ -711,46 +755,189 @@ var Site = (function () {
                 links.push({ source: l.source, target: l.target });
             }
         });
-        var nodes = garden.nodes.map(function (n) { return { id: n.id, title: n.title, degree: 0 }; });
+        var nodes = garden.nodes.map(function (n) {
+            return { id: n.id, title: n.title, short: shortTitle(n.title), degree: 0 };
+        });
         var byId = {};
         nodes.forEach(function (n) { byId[n.id] = n; });
         links.forEach(function (l) { byId[l.source].degree++; byId[l.target].degree++; });
+        nodes.forEach(function (n) { n.r = 5 + Math.sqrt(n.degree) * 3; });
+        var current = opts.current && byId[opts.current];
+        if (current) {
+            current.fx = 0; // pinned in the middle
+            current.fy = 0;
+        }
 
         var svg = d3.select(holder).append('svg')
             .attr('viewBox', [-width / 2, -height / 2, width, height])
-            .attr('role', 'img')
+            .attr('role', 'group')
             .attr('aria-label', 'Graph of ' + nodes.length + ' notes and the links between them');
         var world = svg.append('g');
-
-        var zoom = d3.zoom().scaleExtent([0.3, 4]).on('zoom', function (e) {
-            world.attr('transform', e.transform);
-        });
-        svg.call(zoom);
+        var view = d3.zoomIdentity;
+        var touched = false; // has the reader zoomed or panned yet?
 
         var line = world.append('g').selectAll('line').data(links).join('line');
-        var node = world.append('g').selectAll('g').data(nodes).join('g').attr('class', 'node');
-        node.append('circle').attr('r', function (d) { return 5 + Math.sqrt(d.degree) * 3; });
-        node.append('text')
-            .attr('x', function (d) { return 9 + Math.sqrt(d.degree) * 3; })
-            .attr('y', 4)
-            .text(function (d) { return d.title; });
+        var node = world.append('g').selectAll('g').data(nodes).join('g')
+            .attr('class', 'node')
+            .classed('current', function (d) { return d === current; })
+            .attr('tabindex', 0)
+            .attr('role', 'link')
+            .attr('aria-label', function (d) { return d.title; });
+        node.append('circle').attr('r', function (d) { return d.r; });
+        var label = node.append('text').text(function (d) { return d.short; });
         node.append('title').text(function (d) { return d.title; });
+        node.each(function (d) { d.el = this; });
 
+        // How wide each name is at LABEL_SIZE, short and whole (again once the
+        // font has loaded, since it's wider than the fallback)
+        function measure() {
+            label.attr('font-size', LABEL_SIZE).each(function (d) {
+                this.textContent = d.title;
+                d.wFull = this.getComputedTextLength();
+                this.textContent = d.short;
+                d.wShort = this.getComputedTextLength();
+                this.textContent = d.shown || d.short;
+            });
+        }
+        measure();
+        if (document.fonts) document.fonts.ready.then(function () { measure(); sizeLabels(); });
+
+        // Names keep their size on screen: shrink them as the view zooms in
+        function sizeLabels() {
+            label.attr('font-size', LABEL_SIZE / view.k).attr('y', 4 / view.k);
+            placeLabels();
+        }
+
+        // Which names to show: the most important first, then each one that
+        // doesn't cover a name already shown or someone else's dot, to the
+        // right of its dot or else to the left. The note pointed at (or found,
+        // or this page's) always shows; its neighbours try their whole name,
+        // then the short one, then give way (to other names only: the dots
+        // behind them have faded).
+        function importance(d) {
+            var c = d.el.classList;
+            if (d === current || c.contains('lit-node') || c.contains('found')) return 3;
+            if (c.contains('lit-near') || c.contains('match') || c.contains('near')) return 2;
+            return 1;
+        }
+        function placeLabels() {
+            var k = view.k;
+            var h = LABEL_SIZE * 1.3 / k;
+            var placed = [];
+            nodes.slice().sort(function (a, b) {
+                return importance(b) - importance(a) || b.degree - a.degree || a.title.localeCompare(b.title);
+            }).forEach(function (d) {
+                var must = importance(d) === 3;
+                var overDots = importance(d) > 1;
+                var tries = [];
+                (d.want === d.title ? [d.title, d.short] : [d.short]).forEach(function (text) {
+                    tries.push([text, 'right'], [text, 'left']);
+                });
+                d.shown = null;
+                tries.some(function (t) {
+                    var w = (t[0] === d.title ? d.wFull : d.wShort) / k;
+                    var near = d.r + 2 / k;
+                    var far = d.r + 6 / k + w;
+                    var box = t[1] === 'right'
+                        ? { x0: d.x + near, y0: d.y - h / 2, x1: d.x + far, y1: d.y + h / 2 }
+                        : { x0: d.x - far, y0: d.y - h / 2, x1: d.x - near, y1: d.y + h / 2 };
+                    var clear = must || !(placed.some(function (p) {
+                        return box.x0 < p.x1 && p.x0 < box.x1 && box.y0 < p.y1 && p.y0 < box.y1;
+                    }) || !overDots && nodes.some(function (n) {
+                        return n !== d && box.x0 < n.x + n.r && n.x - n.r < box.x1 && box.y0 < n.y + n.r && n.y - n.r < box.y1;
+                    }));
+                    if (clear) {
+                        d.shown = t[0];
+                        d.side = t[1];
+                        placed.push(box);
+                    }
+                    return clear;
+                });
+            });
+            label.classed('hidden', function (d) { return !d.shown; })
+                .attr('text-anchor', function (d) { return d.side === 'left' ? 'end' : 'start'; })
+                .attr('x', function (d) { return (d.side === 'left' ? -1 : 1) * (d.r + 4 / k); })
+                .each(function (d) {
+                    if (d.shown && this.textContent !== d.shown) this.textContent = d.shown;
+                });
+        }
+
+        // Light up note D and the notes it links to, with their whole names
+        // (null puts everything back)
+        function light(d) {
+            var near = {};
+            links.forEach(function (l) {
+                if (l.source === d) near[l.target.id] = true;
+                if (l.target === d) near[l.source.id] = true;
+            });
+            svg.classed('lit', !!d);
+            node.classed('lit-node', function (n) { return n === d; })
+                .classed('lit-near', function (n) { return !!near[n.id]; });
+            line.classed('lit-line', function (l) { return !!d && (l.source === d || l.target === d); });
+            nodes.forEach(function (n) {
+                n.want = (n === d || near[n.id] || n === current) ? n.title : n.short;
+            });
+            lit = d;
+            placeLabels();
+        }
+        var lit = null;
+        if (current) light(null); // the note itself shows its whole name
+
+        var zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', function (e) {
+            if (e.sourceEvent) touched = true;
+            view = e.transform;
+            world.attr('transform', view);
+            sizeLabels();
+        });
+        svg.call(zoom).on('dblclick.zoom', null);
+
+        // Zoom so every note (and room for its name) is in view, no closer than 1.4x
+        function fit(glide) {
+            var x0 = d3.min(nodes, function (d) { return d.x - d.r; });
+            var x1 = d3.max(nodes, function (d) { return d.x + d.r + d.wShort; });
+            var y0 = d3.min(nodes, function (d) { return d.y - d.r; });
+            var y1 = d3.max(nodes, function (d) { return d.y + d.r; });
+            var k = Math.min(1.4, (width - 40) / (x1 - x0 || 1), (height - 40) / (y1 - y0 || 1));
+            var to = d3.zoomIdentity.scale(k).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
+            (glide && !still.matches ? svg.transition().duration(500) : svg).call(zoom.transform, to);
+        }
+        var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        function draw() {
+            line.attr('x1', function (d) { return d.source.x; })
+                .attr('y1', function (d) { return d.source.y; })
+                .attr('x2', function (d) { return d.target.x; })
+                .attr('y2', function (d) { return d.target.y; });
+            node.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+        }
+
+        // Settle the dots most of the way before showing them, so the graph
+        // opens already in view, then let it finish settling on screen
+        var ticks = 0;
         var simulation = d3.forceSimulation(nodes)
             .force('link', d3.forceLink(links).id(function (d) { return d.id; }).distance(70))
             .force('charge', d3.forceManyBody().strength(-260))
-            .force('collide', d3.forceCollide(function (d) { return 18 + Math.sqrt(d.degree) * 3; }))
+            // a little extra room around each dot for its name
+            .force('collide', d3.forceCollide(function (d) { return 18 + Math.sqrt(d.degree) * 3 + Math.min(d.wShort, 140) * 0.3; }))
             .force('x', d3.forceX())
             .force('y', d3.forceY())
+            .stop();
+        simulation.tick(120);
+        draw();
+        fit(false);
+        simulation
             .on('tick', function () {
-                line.attr('x1', function (d) { return d.source.x; })
-                    .attr('y1', function (d) { return d.source.y; })
-                    .attr('x2', function (d) { return d.target.x; })
-                    .attr('y2', function (d) { return d.target.y; });
-                node.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-            });
+                draw();
+                if (nodes.length < 150 || ++ticks % 5 === 0) placeLabels();
+            })
+            .on('end', function () {
+                placeLabels();
+                if (!touched) fit(true);
+            })
+            .restart();
 
         var moved = false;
+        var touch = false;
         node.call(d3.drag()
             .on('start', function (e, d) {
                 moved = false;
@@ -765,21 +952,70 @@ var Site = (function () {
             })
             .on('end', function (e, d) {
                 if (!e.active) simulation.alphaTarget(0);
-                d.fx = null;
-                d.fy = null;
+                if (d !== current) {
+                    d.fx = null;
+                    d.fy = null;
+                }
             }));
 
-        node.on('click', function (e, d) {
-            if (!moved) window.location.href = d.id;
+        node.on('pointerdown', function (e) { touch = e.pointerType === 'touch'; })
+            .on('pointerenter', function (e, d) { if (e.pointerType !== 'touch') light(d); })
+            .on('pointerleave', function (e) { if (e.pointerType !== 'touch') light(null); })
+            .on('focus', function (e, d) { light(d); })
+            .on('blur', function () { light(null); })
+            .on('keydown', function (e, d) {
+                if (e.key === 'Enter') window.location.href = d.id;
+            })
+            .on('click', function (e, d) {
+                if (moved) return;
+                if (touch && lit !== d) light(d); // first tap on a phone: show it
+                else window.location.href = d.id;
+            });
+        // A tap on the empty background puts things back
+        svg.on('click', function (e) { if (e.target === svg.node()) light(null); });
+
+        // The zoom buttons, in the bottom corner
+        holder.insertAdjacentHTML('beforeend',
+            '<div class="graph-zoom">'
+            + '<button type="button" data-zoom="in" aria-label="Zoom in" title="Zoom in">+</button>'
+            + '<button type="button" data-zoom="out" aria-label="Zoom out" title="Zoom out">−</button>'
+            + '<button type="button" data-zoom="fit" aria-label="Fit every note in view" title="Fit every note in view">⤢</button>'
+            + '</div>');
+        holder.querySelector('.graph-zoom').addEventListener('click', function (e) {
+            var button = e.target.closest('[data-zoom]');
+            if (!button) return;
+            touched = true;
+            var how = button.getAttribute('data-zoom');
+            if (how === 'fit') fit(true);
+            else svg.transition().duration(still.matches ? 0 : 250).call(zoom.scaleBy, how === 'in' ? 1.5 : 1 / 1.5);
         });
 
-        graphSearch(holder, svg, zoom, node, line, nodes, links);
+        graphSearch(holder, svg, zoom, node, line, nodes, links, placeLabels);
+
+        return {
+            light: function (id) { light(id ? byId[id] || null : null); }
+        };
+    }
+
+    // Pointing at (or tabbing to) a note's link in LIST lights the note up in
+    // GRAPH, what gardenGraph returned (nothing if it drew no graph).
+    function lightFromList(list, graph) {
+        if (!list || !graph) return;
+        function note(e) {
+            var a = e.target.closest('a[href^="/garden/"]');
+            return a && a.getAttribute('href');
+        }
+        list.addEventListener('mouseover', function (e) { graph.light(note(e)); });
+        list.addEventListener('mouseleave', function () { graph.light(null); });
+        list.addEventListener('focusin', function (e) { graph.light(note(e)); });
+        list.addEventListener('focusout', function () { graph.light(null); });
     }
 
     // The search button in the graph's corner. Typing fades every note that
     // doesn't match; Enter (or clicking a result) flies to the note and lights
-    // up its links; Shift+Enter (or Shift+click) opens it.
-    function graphSearch(holder, svg, zoom, node, line, nodes, links) {
+    // up its links; Shift+Enter (or Shift+click) opens it. RELABEL re-picks
+    // which names show, since matches always show theirs.
+    function graphSearch(holder, svg, zoom, node, line, nodes, links, relabel) {
         var id = 'graph-search-' + (++graphCount);
         holder.insertAdjacentHTML('beforeend',
             '<div class="graph-search">'
@@ -815,6 +1051,7 @@ var Site = (function () {
                 node.classed('match', false).classed('found', false).classed('near', false);
                 line.classed('found', false);
                 toggle.focus();
+                relabel();
             }
         }
 
@@ -832,6 +1069,7 @@ var Site = (function () {
             node.classed('found', false).classed('near', false)
                 .classed('match', function (d) { return words.length > 0 && matches.indexOf(d) !== -1; });
             line.classed('found', false);
+            relabel();
             list.innerHTML = matches.length ? matches.map(function (n, i) {
                 return '<li role="option" id="' + id + '-' + i + '" data-i="' + i + '">'
                     + '<span class="graph-search-title">' + esc(n.title) + '</span>'
@@ -867,6 +1105,7 @@ var Site = (function () {
                 .classed('found', function (n) { return n === d; })
                 .classed('near', function (n) { return !!near[n.id]; });
             line.classed('found', function (l) { return l.source === d || l.target === d; });
+            relabel();
         }
 
         function use(i, openIt) {
@@ -946,6 +1185,7 @@ var Site = (function () {
         viewSwitch: viewSwitch,
         seriesBlock: seriesBlock,
         gardenGraph: gardenGraph,
+        lightFromList: lightFromList,
         crumbs: crumbs,
         failed: failed
     };
