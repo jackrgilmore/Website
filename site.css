@@ -4,27 +4,32 @@
    only swap the values at the top.
    ============================================== */
 
-/* ---- Light mode ---- */
+/* ---- Light mode ----
+   The colors come from Hat Guy in the favicon: his hat (#62a8d6, the accent
+   in dark mode, deepened here so it reads on white), his ink outline
+   (#1f1b17, the headings) and the red behind him (--new, the "new!" tag).
+   The paper and greys lean slightly blue to sit with the hat. */
 :root {
-    --bg: #faf7f2;
-    --surface: #f0ebe3;
-    --surface-hover: #e8e1d6;
+    --bg: #f7f9fb;
+    --surface: #e9f0f6;
+    --surface-hover: #dce7f0;
     --heading: #1f1b17;
-    --text: #3b352f;
-    --muted: #6f675e;
-    --faint: #8f877e;
-    --accent: #946f2f;
-    --accent-hover: #6f5222;
-    --line: rgba(40, 30, 20, 0.12);
-    --shadow: 0 6px 24px rgba(60, 40, 20, 0.12);
-    --scrim: rgba(20, 16, 12, 0.88);
-    --backdrop: rgba(40, 30, 20, 0.28);
+    --text: #363c43;
+    --muted: #5c6670;
+    --faint: #7d8791;
+    --accent: #2c6e9e;
+    --accent-hover: #235a82;
+    --new: #c42323;
+    --line: rgba(20, 45, 70, 0.12);
+    --shadow: 0 6px 24px rgba(20, 45, 70, 0.12);
+    --scrim: rgba(10, 16, 22, 0.88);
+    --backdrop: rgba(20, 40, 60, 0.28);
     /* Search: one color per kind of thing */
-    --tone-page: #946f2f;
+    --tone-page: #2c6e9e;
     --tone-anim: #b0503a;
     --tone-comic: #2c7673;
     --tone-story: #8a4f7d;
-    --tone-blog: #4c6890;
+    --tone-blog: #5b5ea6;
     --tone-garden: #557535;
     color-scheme: light;
 }
@@ -32,24 +37,25 @@
 /* ---- Dark mode: the computer's setting, unless the toggle says light ---- */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-        --bg: #111111;
-        --surface: #1a1a1a;
-        --surface-hover: #222121;
-        --heading: #e8e0d4;
-        --text: #d4cdc4;
-        --muted: #8f887f;
-        --faint: #6a645d;
-        --accent: #c9a96e;
-        --accent-hover: #e0c48a;
+        --bg: #0f1419;
+        --surface: #18202a;
+        --surface-hover: #202a35;
+        --heading: #e9eef3;
+        --text: #cfd8e0;
+        --muted: #8e9aa6;
+        --faint: #6a7580;
+        --accent: #62a8d6;
+        --accent-hover: #8cc4e8;
+        --new: #ff6b5e;
         --line: rgba(255, 255, 255, 0.08);
         --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
         --scrim: rgba(0, 0, 0, 0.92);
         --backdrop: rgba(0, 0, 0, 0.6);
-        --tone-page: #c9a96e;
+        --tone-page: #62a8d6;
         --tone-anim: #e08c6e;
         --tone-comic: #6cbdb7;
         --tone-story: #c792bb;
-        --tone-blog: #8fa9cf;
+        --tone-blog: #a3a6e6;
         --tone-garden: #9cc36f;
         color-scheme: dark;
     }
@@ -57,24 +63,25 @@
 
 /* ---- Dark mode: chosen with the toggle ---- */
 :root[data-theme="dark"] {
-    --bg: #111111;
-    --surface: #1a1a1a;
-    --surface-hover: #222121;
-    --heading: #e8e0d4;
-    --text: #d4cdc4;
-    --muted: #8f887f;
-    --faint: #6a645d;
-    --accent: #c9a96e;
-    --accent-hover: #e0c48a;
+    --bg: #0f1419;
+    --surface: #18202a;
+    --surface-hover: #202a35;
+    --heading: #e9eef3;
+    --text: #cfd8e0;
+    --muted: #8e9aa6;
+    --faint: #6a7580;
+    --accent: #62a8d6;
+    --accent-hover: #8cc4e8;
+    --new: #ff6b5e;
     --line: rgba(255, 255, 255, 0.08);
     --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
     --scrim: rgba(0, 0, 0, 0.92);
     --backdrop: rgba(0, 0, 0, 0.6);
-    --tone-page: #c9a96e;
+    --tone-page: #62a8d6;
     --tone-anim: #e08c6e;
     --tone-comic: #6cbdb7;
     --tone-story: #c792bb;
-    --tone-blog: #8fa9cf;
+    --tone-blog: #a3a6e6;
     --tone-garden: #9cc36f;
     color-scheme: dark;
 }
@@ -1846,6 +1853,40 @@ kbd {
     color: var(--faint);
 }
 
+/* The newest thing on the site (home.js): its color down the side, a wash
+   of the hat blue, and a small red "new!" tag beside what it is */
+.home-new .is-new a {
+    border-left-color: var(--tone);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.home-new .is-new a:hover {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.new-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin-left: 0.45rem;
+    padding: 0 0.4rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: none;
+    line-height: 1.6;
+    color: var(--new);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    vertical-align: 1px;
+}
+
+.new-tag svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+}
+
 /* Animation: a row per series and group, its first four */
 .home-row + .home-row {
     margin-top: 2rem;
@@ -3199,8 +3240,9 @@ kbd {
         grid-template-columns: minmax(0, 1fr);
     }
 
+    /* The backdrop is sized to what the keyboard leaves showing (search.js) */
     .search-panel {
-        max-height: calc(100dvh - 1.5rem);
+        max-height: 100%;
     }
 
     .search-result,

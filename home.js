@@ -91,26 +91,38 @@
             : '<p class="empty">No reel yet: add #+reel: to content/animation.org</p>';
         if (animation.reel) el('home-reel-share').innerHTML = shareButton('/reel.html', 'Jack Gilmore — Demo Reel');
 
-        // ---- The newest of each: [tone, what, title, meta, href] ----
+        // ---- The newest of each: [tone, what, title, meta, href, date] ----
         var latest = [];
         var ep = episodes[episodes.length - 1];
-        if (ep) latest.push(['anim', 'New episode', ep.title, ep.series.title + ' · Episode ' + ep.number, episodeHref(ep)]);
+        if (ep) latest.push(['anim', 'New episode', ep.title, ep.series.title + ' · Episode ' + ep.number, episodeHref(ep), ep.date]);
         var comic = comics.slice().sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); })[0];
         if (comic) latest.push(['comic', 'Comic', comic.title,
-            comic.series ? comic.series.title + ' · Issue ' + comic.number : Site.prettyDate(comic.date), comicHref(comic)]);
+            comic.series ? comic.series.title + ' · Issue ' + comic.number : Site.prettyDate(comic.date), comicHref(comic), comic.date]);
         var piece = creative.concat(books, scripts).sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); })[0];
         if (piece) latest.push(['story', piece.type.charAt(0).toUpperCase() + piece.type.slice(1), piece.title,
-            [Site.prettyDate(piece.date), piece.words && Site.minutes(piece.words)].filter(Boolean).join(' · '), piece.url]);
+            [Site.prettyDate(piece.date), piece.words && Site.minutes(piece.words)].filter(Boolean).join(' · '), piece.url, piece.date]);
         var post = blog[0];
         if (post) latest.push(['blog', 'Blog post', post.title,
-            [Site.prettyDate(post.date), Site.minutes(post.words)].filter(Boolean).join(' · '), post.url]);
+            [Site.prettyDate(post.date), Site.minutes(post.words)].filter(Boolean).join(' · '), post.url, post.date]);
         var note = notes[0];
         if (note) latest.push(['garden', 'Garden note', note.title,
             note.modified ? 'Tended ' + Site.prettyDate(note.modified.slice(0, 10)) : '', note.id]);
+        // The newest of these gets a "new!" tag, so a fresh post is the first
+        // thing seen. Only dated things compete (SPC n w e dates videos; older
+        // episodes have no :DATE:), and garden notes don't: their date is
+        // when they were last tended, not when they went up. On a tie the
+        // first in the list wins.
+        var newest = latest.reduce(function (best, l) {
+            return l[0] !== 'garden' && l[5] && (!best || l[5] > best[5]) ? l : best;
+        }, null);
         el('home-new').innerHTML = latest.length
             ? '<ul class="home-new">' + latest.map(function (l) {
-                return '<li><a href="' + Site.esc(l[4]) + '" data-tone="' + l[0] + '">'
-                    + '<span class="home-new-kind">' + Site.esc(l[1]) + '</span>'
+                var isNew = l === newest;
+                return '<li' + (isNew ? ' class="is-new"' : '') + '><a href="' + Site.esc(l[4]) + '" data-tone="' + l[0] + '">'
+                    + '<span class="home-new-kind">' + Site.esc(l[1])
+                    + (isNew ? ' <span class="new-tag"><svg viewBox="0 0 16 16" aria-hidden="true">'
+                        + '<path d="M8 1.5 9.6 6.4 14.5 8 9.6 9.6 8 14.5 6.4 9.6 1.5 8 6.4 6.4Z"/></svg>new!</span>' : '')
+                    + '</span>'
                     + '<span class="home-new-title">' + Site.esc(l[2]) + '</span>'
                     + (l[3] ? '<span class="home-new-meta">' + Site.esc(l[3]) + '</span>' : '')
                     + '</a></li>';

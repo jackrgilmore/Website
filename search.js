@@ -612,6 +612,17 @@
         window.location.href = r.item.href;
     }
 
+    // On a phone the keyboard covers the bottom of the screen without
+    // shrinking the page (iPhones especially), so the results ran on under
+    // it. The visual viewport is the part still showing: keep the panel
+    // inside that, moving with it as the keyboard comes and goes.
+    function fit() {
+        var vv = window.visualViewport;
+        backdrop.style.top = vv.offsetTop + 'px';
+        backdrop.style.bottom = 'auto';
+        backdrop.style.height = vv.height + 'px';
+    }
+
     // TEXT (optional): what to search for, already typed (the home page's
     // big search box hands over what's typed in it)
     function open(text) {
@@ -622,6 +633,11 @@
         backdrop.offsetWidth;   // so the fade-in runs
         backdrop.classList.add('open');
         document.body.style.overflow = 'hidden';
+        if (window.visualViewport) {
+            visualViewport.addEventListener('resize', fit);
+            visualViewport.addEventListener('scroll', fit);
+            fit();
+        }
         input.focus();
         if (typeof text === 'string') {
             input.value = text;
@@ -638,6 +654,10 @@
         backdrop.classList.remove('open');
         backdrop.hidden = true;
         document.body.style.overflow = '';
+        if (window.visualViewport) {
+            visualViewport.removeEventListener('resize', fit);
+            visualViewport.removeEventListener('scroll', fit);
+        }
         if (!leaving && opener && opener.focus) opener.focus();
     }
 
