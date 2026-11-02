@@ -49,11 +49,18 @@ if [[ -f og.svg && ( og.svg -nt og.png || favicon.svg -nt og.png ) ]]; then
     magick $tmp/og.png $plain PNG24:og.png && echo "Made og.png"
 fi
 
-# The dark card: og.svg with the light colors swapped for the dark theme's
-# (site.css), drawn next to a copy of favicon.svg so Hat Guy comes along
-if [[ -f og.svg && ( ! -f design/card-dark.png || og.svg -nt design/card-dark.png || favicon.svg -nt design/card-dark.png ) ]]; then
+# The dark card: og.svg with its light colors (site.css's light theme:
+# paper, heading, accent, muted) swapped for the Instagram pictures' colors
+# in design/look.json (or the dark theme's, for any it leaves out), drawn
+# next to a copy of favicon.svg so Hat Guy comes along
+look() {  # look NAME DEFAULT: design/look.json's color NAME
+  plutil -extract "colors.$1" raw -o - design/look.json 2>/dev/null || echo $2
+}
+if [[ -f og.svg && ( ! -f design/card-dark.png || og.svg -nt design/card-dark.png ||
+                     favicon.svg -nt design/card-dark.png || design/look.json -nt design/card-dark.png ) ]]; then
   cp favicon.svg $tmp/ &&
-    sed -e 's/#faf7f2/#111111/' -e 's/#1f1b17/#e8e0d4/' -e 's/#946f2f/#c9a96e/g' -e 's/#8f877e/#8f887f/' \
+    sed -e "s/#f7f9fb/$(look background '#0f1419')/" -e "s/#1f1b17/$(look title '#e9eef3')/" \
+        -e "s/#2c6e9e/$(look accent '#62a8d6')/g" -e "s/#5c6670/$(look muted '#8e9aa6')/" \
         og.svg > $tmp/card-dark.svg &&
     rsvg-convert $tmp/card-dark.svg -o $tmp/card-dark.png &&
     magick $tmp/card-dark.png $plain PNG24:design/card-dark.png && echo "Made design/card-dark.png"

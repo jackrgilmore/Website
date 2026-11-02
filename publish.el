@@ -1599,8 +1599,10 @@ title and the end of the article, with its links made full addresses."
 ;; as many slides as it takes, then a slide about the site (the card in dark
 ;; colors, design/card-dark.png, which tools/icons.sh makes from og.svg); and
 ;; a phone-sized picture for the story: design/story.png (a background to
-;; design in Photoshop or Inkscape) with the post's picture, title and description in the boxes
-;; design/story.json gives (design/story-guide.png shows them). They're
+;; design in Photoshop or Inkscape; without one, a plain one) with the post's
+;; picture, title and description in the boxes design/story.json gives
+;; (design/story-guide.png shows them). Their colors, text sizes and words
+;; are in design/look.json, to edit by hand. They're
 ;; written to social/SLUG/1.jpg, 2.jpg... and story.jpg, and pushed with the
 ;; site, so Instagram can fetch them when Emacs cross-posts the post: the
 ;; slides as a carousel, then the story.
@@ -1686,6 +1688,7 @@ FILE is \"\" when it has no picture of its own."
   (let ((posts (seq-filter (lambda (p) (equal (alist-get 'type p) "blog")) writing))
         (social (expand-file-name "social/" jg-site-root))
         (tool (jg-site--slides-tool))
+        (warned nil)
         (drawn 0))
     (jg-site--write-og-jpg)
     (if (not tool)
@@ -1724,16 +1727,25 @@ FILE is \"\" when it has no picture of its own."
                         (max . ,jg-site-slides-max))))
                (key (md5 (concat spec tool
                                  (mapconcat (lambda (f) (jg-site--file-hash (expand-file-name f jg-site-root)))
-                                            '("og.png" "design/card-dark.png" "design/hat-guy.png" "design/story.png" "design/story.json") ""))))
+                                            '("og.png" "design/card-dark.png" "design/hat-guy.png" "design/story.png" "design/story.json"
+                                              "design/look.json") ""))))
                (key-file (expand-file-name "key" out)))
           (unless (and (file-exists-p key-file)
                        (equal key (with-temp-buffer (insert-file-contents key-file) (buffer-string))))
             (let ((spec-file (make-temp-file "jg-slides" nil ".json" spec)))
               (unwind-protect
-                  (if (eq 0 (call-process tool nil nil nil spec-file))
-                      (progn (with-temp-file key-file (insert key))
-                             (setq drawn (1+ drawn)))
-                    (message "Couldn't draw the Instagram slides for %s" url))
+                  (with-temp-buffer
+                    ;; What it says besides the slide count (a mistake in
+                    ;; design/look.json, say) is shown, once a publish
+                    (let ((status (call-process tool nil t nil spec-file)))
+                      (dolist (line (split-string (buffer-string) "\n" t "[ \t]+"))
+                        (unless (or (string-match-p "\\`[0-9]+\\'" line) (member line warned))
+                          (push line warned)
+                          (message "%s" line)))
+                      (if (eq 0 status)
+                          (progn (with-temp-file key-file (insert key))
+                                 (setq drawn (1+ drawn)))
+                        (message "Couldn't draw the Instagram slides for %s" url))))
                 (delete-file spec-file))))))
       (when (> drawn 0)
         (message "Drew Instagram slides for %d post%s" drawn (if (= drawn 1) "" "s"))))))

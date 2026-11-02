@@ -35,7 +35,7 @@
   <rect
      width="1200"
      height="630"
-     fill="#faf7f2"
+     fill="#f7f9fb"
      id="rect1" />
   <!-- Hat Guy: favicon.svg itself, scaled up, so the card follows the icon
        (tools/icons.sh remakes og.png when either changes) -->
@@ -60,7 +60,7 @@
      y="360"
      font-size="44px"
      font-style="italic"
-     fill="#946f2f"
+     fill="#2c6e9e"
      id="text2"
      style="font-family:Baskerville, 'Libre Baskerville', Georgia, serif"><tspan
        style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Georgia;-inkscape-font-specification:'Georgia Italic'"
@@ -72,14 +72,14 @@
      y="382.2207"
      width="242.29492"
      height="7.2597656"
-     fill="#946f2f"
+     fill="#2c6e9e"
      id="rect2"
      style="font-family:Baskerville, 'Libre Baskerville', Georgia, serif;stroke-width:1.9771;stroke-dasharray:none" />
   <text
      x="521.21045"
      y="482.85114"
      font-size="41.252px"
-     fill="#8f877e"
+     fill="#5c6670"
      id="text3"
      style="font-family:Baskerville, 'Libre Baskerville', Georgia, serif;stroke-width:1.37507"><tspan
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;stroke-width:1.37507"

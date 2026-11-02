@@ -1,0 +1,21 @@
+{
+  "colors" : {
+    "background" : "#0f1419",
+    "title" : "#e9eef3",
+    "text" : "#cfd8e0",
+    "accent" : "#62a8d6",
+    "muted" : "#8e9aa6"
+  },
+  "sizes" : {
+    "text" : 38,
+    "title" : 56,
+    "label" : 26,
+    "date" : 26
+  },
+  "words" : {
+    "label" : "Blog",
+    "story label" : "New on the blog",
+    "last slide" : "More writing, comics and animation at",
+    "link in bio" : "Link in bio"
+  }
+}

@@ -1,29 +1,27 @@
 {
-  "description" : {
-    "align" : "center",
-    "color" : "#8f887f",
-    "font" : "Georgia-Italic",
-    "height" : 84,
-    "size" : 34,
-    "width" : 780,
-    "x" : 150,
-    "y" : 1335
+  "description": {
+    "align": "center",
+    "font": "Georgia-Italic",
+    "height": 84,
+    "size": 34,
+    "width": 780,
+    "x": 150,
+    "y": 1335
   },
-  "picture" : {
-    "height" : 780,
-    "radius" : 20,
-    "width" : 780,
-    "x" : 150,
-    "y" : 370
+  "picture": {
+    "height": 780,
+    "radius": 20,
+    "width": 780,
+    "x": 150,
+    "y": 370
   },
-  "title" : {
-    "align" : "center",
-    "color" : "#e8e0d4",
-    "font" : "Georgia-Bold",
-    "height" : 160,
-    "size" : 64,
-    "width" : 860,
-    "x" : 110,
-    "y" : 1170
+  "title": {
+    "align": "center",
+    "font": "Georgia-Bold",
+    "height": 160,
+    "size": 64,
+    "width": 860,
+    "x": 110,
+    "y": 1170
   }
 }

@@ -5,9 +5,9 @@
 //               that, the rest is on the website), then a slide about the
 //               website (the site's card in dark colors, design/card-dark.png)
 //   story.jpg   phone-sized (1080×1920), for the story: design/story.png (a
-//               background you can make in Photoshop or Inkscape) with the
-//               post's picture, title and description where design/story.json
-//               says
+//               background you can make in Photoshop or Inkscape; without
+//               one, a plain one in look.json's colors) with the post's
+//               picture, title and description where design/story.json says
 //
 // Usage:
 //   slides SPEC.json           draw a post's pictures. SPEC is
@@ -23,6 +23,9 @@
 //                              folder DESIGN: story.png, story.json and the
 //                              guide (overwriting them)
 //   slides --guide DESIGN      redraw DESIGN/story-guide.png from story.json
+//
+// How they look (colors, text sizes, the words on them) comes from
+// design/look.json, which is meant to be edited by hand; see "THE LOOK" below.
 
 import AppKit
 
@@ -31,16 +34,68 @@ let tall: CGFloat = 1920                     // the story
 let margin: CGFloat = 110                    // left and right
 let top: CGFloat = 120                       // above the text
 let bottom: CGFloat = 160                    // below it, for the footer
-let textSize: CGFloat = 34
 let footSize: CGFloat = 30                   // the site at the bottom
 let pageSize: CGFloat = 44                   // the page numbers beside it, bigger to read
 
-// The website's dark theme (site.css): headings, text, accent, muted, background
-let ink = NSColor(srgbRed: 0.91, green: 0.878, blue: 0.831, alpha: 1)      // #e8e0d4
-let prose = NSColor(srgbRed: 0.831, green: 0.804, blue: 0.769, alpha: 1)    // #d4cdc4
-let gold = NSColor(srgbRed: 0.788, green: 0.663, blue: 0.431, alpha: 1)    // #c9a96e
-let faint = NSColor(srgbRed: 0.561, green: 0.533, blue: 0.498, alpha: 1)   // #8f887f
-let paper = NSColor(srgbRed: 0.067, green: 0.067, blue: 0.067, alpha: 1)   // #111111
+func warn(_ message: String) {
+    FileHandle.standardError.write((message + "\n").data(using: .utf8)!)
+}
+
+// "#62a8d6" as a color, or FALLBACK if it isn't one
+func color(_ hex: String?, _ fallback: NSColor) -> NSColor {
+    guard let hex = hex?.trimmingCharacters(in: CharacterSet(charactersIn: "# ")), hex.count == 6,
+          let n = UInt32(hex, radix: 16) else { return fallback }
+    return NSColor(srgbRed: CGFloat(n >> 16 & 255) / 255, green: CGFloat(n >> 8 & 255) / 255,
+                   blue: CGFloat(n & 255) / 255, alpha: 1)
+}
+
+
+// ============ THE LOOK ============
+// design/look.json, three groups, each optional (anything left out is as below):
+//   "colors"  background, title, text, accent (the label, date, rule, site),
+//             muted (page numbers, the story's description): "#rrggbb"
+//   "sizes"   text (the post's text), title, label, date: in pixels, on a
+//             1080-wide picture
+//   "words"   label (above the title; "" for none), story label (above the
+//             story's picture), last slide, link in bio
+// The defaults are the website's dark theme (site.css), the Hat Guy blue.
+
+var lookColors: [String: String] = [:]
+var lookSizes: [String: Double] = [:]
+var lookWords: [String: String] = [:]
+
+func loadLook(_ design: String) {
+    guard let data = FileManager.default.contents(atPath: design + "/look.json") else { return }
+    guard let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+        warn("design/look.json isn't valid JSON (a missing comma or quote?), so the standard look is used")
+        return
+    }
+    lookColors = json["colors"] as? [String: String] ?? [:]
+    lookSizes = (json["sizes"] as? [String: Any] ?? [:]).compactMapValues { ($0 as? NSNumber)?.doubleValue }
+    lookWords = json["words"] as? [String: String] ?? [:]
+}
+
+func lookColor(_ name: String, _ standard: String) -> NSColor {
+    let fallback = color(standard, .white)
+    if let given = lookColors[name], color(given, .clear) == .clear {
+        warn("design/look.json: \"\(given)\" (colors, \(name)) isn't a color like \"#62a8d6\"")
+        return fallback
+    }
+    return color(lookColors[name], fallback)
+}
+func lookSize(_ name: String, _ standard: CGFloat) -> CGFloat {
+    lookSizes[name].map { CGFloat($0) } ?? standard
+}
+func lookWord(_ name: String, _ standard: String) -> String {
+    lookWords[name] ?? standard
+}
+
+var paper: NSColor { lookColor("background", "#0f1419") }
+var ink: NSColor { lookColor("title", "#e9eef3") }
+var prose: NSColor { lookColor("text", "#cfd8e0") }
+var accent: NSColor { lookColor("accent", "#62a8d6") }
+var faint: NSColor { lookColor("muted", "#8e9aa6") }
+var textSize: CGFloat { lookSize("text", 38) }
 
 func georgia(_ size: CGFloat, bold: Bool = false, italic: Bool = false) -> NSFont {
     let name = bold ? (italic ? "Georgia-BoldItalic" : "Georgia-Bold") : (italic ? "Georgia-Italic" : "Georgia")
@@ -125,7 +180,7 @@ struct Box: Codable {
     var x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat
     var size: CGFloat? = nil         // text: the biggest it's set (smaller if it won't fit)
     var font: String? = nil          // text: a font's PostScript name (Font Book shows it)
-    var color: String? = nil         // text: "#1f1b16"
+    var color: String? = nil         // text: "#1f1b16"; left out, look.json's (title or muted)
     var align: String? = nil         // text: "left", "center" or "right"
     var radius: CGFloat? = nil       // the picture: its corners' rounding
     var rect: NSRect { NSRect(x: x, y: y, width: width, height: height) }
@@ -134,9 +189,9 @@ struct Box: Codable {
 struct StoryLayout: Codable {
     var picture = Box(x: 150, y: 370, width: 780, height: 780, radius: 20)
     var title = Box(x: 110, y: 1170, width: 860, height: 160,
-                    size: 64, font: "Georgia-Bold", color: "#e8e0d4", align: "center")
+                    size: 64, font: "Georgia-Bold", align: "center")
     var description = Box(x: 150, y: 1335, width: 780, height: 84,
-                          size: 34, font: "Georgia-Italic", color: "#8f887f", align: "center")
+                          size: 34, font: "Georgia-Italic", align: "center")
 }
 
 func storyLayout(_ design: String) -> StoryLayout {
@@ -144,21 +199,15 @@ func storyLayout(_ design: String) -> StoryLayout {
     do {
         return try JSONDecoder().decode(StoryLayout.self, from: data)
     } catch {
-        FileHandle.standardError.write("design/story.json: \(error); using the starter's layout\n".data(using: .utf8)!)
+        warn("design/story.json: \(error); using the starter's layout")
         return StoryLayout()
     }
 }
 
-func color(_ hex: String?, _ fallback: NSColor) -> NSColor {
-    guard let hex = hex?.trimmingCharacters(in: CharacterSet(charactersIn: "# ")), hex.count == 6,
-          let n = UInt32(hex, radix: 16) else { return fallback }
-    return NSColor(srgbRed: CGFloat(n >> 16 & 255) / 255, green: CGFloat(n >> 8 & 255) / 255,
-                   blue: CGFloat(n & 255) / 255, alpha: 1)
-}
-
 // TEXT set in BOX: as big as BOX.size, smaller (down to 60%) if that won't
-// fit, then cut short with "…"; centered up and down in the box
-func fit(_ text: String, in box: Box) {
+// fit, then cut short with "…"; centered up and down in the box. Its color is
+// the box's, or COLOR (from look.json) if the box doesn't give one
+func fit(_ text: String, in box: Box, color standard: NSColor) {
     guard !text.isEmpty else { return }
     let style = NSMutableParagraphStyle()
     style.alignment = box.align == "left" ? .left : box.align == "right" ? .right : .center
@@ -166,7 +215,7 @@ func fit(_ text: String, in box: Box) {
     let biggest = box.size ?? 40
     func attrs(_ size: CGFloat) -> [NSAttributedString.Key: Any] {
         [.font: NSFont(name: box.font ?? "Georgia", size: size) ?? georgia(size),
-         .foregroundColor: color(box.color, ink), .paragraphStyle: style]
+         .foregroundColor: color(box.color, standard), .paragraphStyle: style]
     }
     func height(_ s: String, _ size: CGFloat) -> CGFloat {
         ceil((s as NSString).boundingRect(with: NSSize(width: box.width, height: .greatestFiniteMagnitude),
@@ -185,13 +234,16 @@ func fit(_ text: String, in box: Box) {
                              options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine], attributes: attrs(size))
 }
 
-// The starter background, kept plain: the dark paper, "New on the blog"
-// above the picture, and the website, small, at the bottom
+// The plain background, used when there's no design/story.png: the paper,
+// look.json's story label above the picture, and the website, small, at the
+// bottom
+func drawPlainBackground(site: String) {
+    centered(lookWord("story label", "New on the blog"), georgia(36, italic: true), accent, y: 280, width: 860)
+    centered(site, georgia(32, italic: true), faint, y: 1625, width: 860)
+}
+
 func starterBackground(site: String) -> NSBitmapImageRep {
-    slide(height: tall) {
-        centered("New on the blog", georgia(36, italic: true), gold, y: 280, width: 860)
-        centered(site, georgia(32, italic: true), faint, y: 1625, width: 860)
-    }
+    slide(height: tall) { drawPlainBackground(site: site) }
 }
 
 // The guide: a see-through layer to lay over story.png while designing it.
@@ -228,6 +280,7 @@ func guide(_ layout: StoryLayout) -> NSBitmapImageRep {
 let args = CommandLine.arguments
 if args.count > 2 && args[1] == "--starter" {
     let design = args[2]
+    loadLook(design)
     card = args.count > 3 ? NSImage(contentsOfFile: args[3]) : nil
     try FileManager.default.createDirectory(atPath: design, withIntermediateDirectories: true)
     try save(starterBackground(site: "jackgilmorecreative.com"), design + "/story.png", png: true)
@@ -260,6 +313,7 @@ struct Spec: Decodable {
 }
 
 let spec = try JSONDecoder().decode(Spec.self, from: Data(contentsOf: URL(fileURLWithPath: args[1])))
+loadLook(spec.design)
 card = NSImage(contentsOfFile: spec.card)
 
 // The post's picture, if it has one that loads
@@ -310,13 +364,21 @@ for match in numbers.matches(in: body.string, range: NSRange(location: 0, length
     body.replaceCharacters(in: NSRange(location: NSMaxRange(match.range(at: 1)), length: 1), with: ". ")
 }
 
-// The first slide starts with the title, the date and a short rule: how much
-// room that takes, measured with the same fonts it's drawn with
-let titleFont = georgia(54, bold: true)
-let dateFont = georgia(26, italic: true)
+// The first slide starts with the label ("BLOG", spaced out in capitals, like
+// the website's own label above a post's title), the title, the date and a
+// short rule: how much room that takes, measured with the same fonts it's
+// drawn with
+let label = lookWord("label", "Blog").uppercased()
+let labelAttrs: [NSAttributedString.Key: Any] = [.font: georgia(lookSize("label", 26), bold: true),
+                                                 .foregroundColor: accent,
+                                                 .kern: lookSize("label", 26) * 0.18]
+let labelHeight = label.isEmpty ? 0 : ceil((label as NSString).size(withAttributes: labelAttrs).height)
+let titleFont = georgia(lookSize("title", 56), bold: true)
+let dateFont = georgia(lookSize("date", 26), italic: true)
 let titleHeight = measure(spec.title, titleFont)
 let dateHeight = spec.date.isEmpty ? 0 : measure(spec.date, dateFont)
-let firstTop = top + titleHeight + (spec.date.isEmpty ? 0 : 18 + dateHeight) + 34 + 2 + 52
+let firstTop = top + (label.isEmpty ? 0 : labelHeight + 16) + titleHeight
+    + (spec.date.isEmpty ? 0 : 18 + dateHeight) + 34 + 2 + 52
 
 // Split the text into pages: a text container per slide, as many as it takes
 let storage = NSTextStorage(attributedString: body)
@@ -342,12 +404,19 @@ for (i, page) in pages.enumerated() {
     slides.append(slide {
         if i == 0 {
             var y = top
+            if !label.isEmpty {
+                let w = (label as NSString).size(withAttributes: labelAttrs).width
+                // The kerning adds space after the last letter too: centre without it
+                (label as NSString).draw(at: NSPoint(x: (side - w + lookSize("label", 26) * 0.18) / 2, y: y),
+                                         withAttributes: labelAttrs)
+                y += labelHeight + 16
+            }
             y += centered(spec.title, titleFont, ink, y: y)
             if !spec.date.isEmpty {
                 y += 18
-                y += centered(spec.date, dateFont, gold, y: y)
+                y += centered(spec.date, dateFont, accent, y: y)
             }
-            gold.setFill()
+            accent.setFill()
             NSRect(x: (side - 90) / 2, y: y + 34, width: 90, height: 2).fill()
         }
         let range = layout.glyphRange(for: page.0)
@@ -357,7 +426,7 @@ for (i, page) in pages.enumerated() {
         // Footer: the site, and where you are in the post
         let foot = side - 108
         (spec.site as NSString).draw(at: NSPoint(x: margin, y: foot),
-                                     withAttributes: [.font: georgia(footSize, italic: true), .foregroundColor: gold])
+                                     withAttributes: [.font: georgia(footSize, italic: true), .foregroundColor: accent])
         // On the same baseline as the site, though bigger
         let last = i == pages.count - 1 && cut
         let more = last ? "continued on the website" : "\(i + 1) / \(pages.count)"
@@ -378,9 +447,9 @@ slides.append(slide {
         y += h + 30
     }
     y += centered(cut ? "Read the rest of “\(spec.title)” at \(spec.site)"
-                      : "More writing, comics and animation at \(spec.site)",
+                      : "\(lookWord("last slide", "More writing, comics and animation at")) \(spec.site)",
                   georgia(34), prose, y: y, width: side - 2 * 140)
-    centered("Link in bio", georgia(28, italic: true), gold, y: y + 26)
+    centered(lookWord("link in bio", "Link in bio"), georgia(28, italic: true), accent, y: y + 26)
 })
 
 // ---- The story: the design's background, then the post in its boxes ----
@@ -390,6 +459,8 @@ let background = NSImage(contentsOfFile: spec.design + "/story.png")
 let story = slide(height: tall) {
     if let background = background {
         drawCropped(background, in: NSRect(x: 0, y: 0, width: side, height: tall))
+    } else {
+        drawPlainBackground(site: spec.site)
     }
     // The picture, cropped to its box; with none, Hat Guy (as favicon.svg
     // draws him, sticker border and all), smaller, in the middle of it
@@ -404,8 +475,8 @@ let story = slide(height: tall) {
         let s = min(frame.width, frame.height) * 0.6
         drawImage(hat, in: NSRect(x: frame.midX - s / 2, y: frame.midY - s / 2, width: s, height: s))
     }
-    fit(spec.title, in: boxes.title)
-    fit(spec.description, in: boxes.description)
+    fit(spec.title, in: boxes.title, color: ink)
+    fit(spec.description, in: boxes.description, color: faint)
 }
 
 // ---- Save them ----

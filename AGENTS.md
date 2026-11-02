@@ -56,9 +56,13 @@ something it teaches (theme, nav, publish, preview...).
   no API). Log in the `*cross-post*` buffer. Instagram fetches images by URL,
   so they must be pushed first: GitHub's 404 page gives "Only photo or video
   can be accepted as media type".
-- `design/story.png` + `story.json` (+ generated `story-guide.png`) are the
-  user-editable story design; `og.png`/`og.svg` the card. Changing them
-  redraws every post's pictures (`social/SLUG/key` holds the inputs' hash).
+- `design/look.json` (colors, sizes, words of all the Instagram pictures;
+  `icons.sh` also colors `card-dark.png` from it), `design/story.png`
+  (optional; plain background without it) + `story.json` (+ generated
+  `story-guide.png`) are the user-editable design; `og.png`/`og.svg` the
+  card. Changing them redraws every post's pictures (`social/SLUG/key`
+  holds the inputs' hash). The user edits these by hand (they removed AI
+  tooling from Emacs): keep them plain, and `SPC n w L` previews them.
 - `examples/` holds sample books and scripts that are never published;
   `SPC n w V` builds a throwaway copy with them at localhost:8001.
 

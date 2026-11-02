@@ -49,7 +49,8 @@ writing and garden notes need the publish step:
 | =analytics.js=            | Visitor counts (GoatCounter) and events: videos watched, pieces read to the end, links followed (every page) |
 | =favicon.*=, =apple-touch-icon.png= | The icon: Hat Guy. Draw =favicon.svg=; the others are made from it when you publish (=tools/icons.sh=) |
 | =og.png= (from =og.svg=)   | The picture a shared link shows when a page has none of its own |
-| =design/card-dark.png=    | The same card in the site's dark colors, for the Instagram pictures (made from =og.svg=) |
+| =design/look.json=        | The Instagram pictures' colors, text sizes and words: edit by hand (=SPC n w l=, preview with =SPC n w L=) |
+| =design/card-dark.png=    | The same card in the Instagram pictures' colors (=design/look.json=), for their last slide (made from =og.svg=) |
 | =design/hat-guy.png=      | Hat Guy alone, big, for the story of a post with no picture (made from =favicon.svg=) |
 | =feed.xml=                | The blog's RSS feed (written by =publish.el=). The RSS button in the nav (=nav.js=) offers it and email sign-up (Buttondown) |
 | =og.jpg=                  | =og.png= as a JPEG, for Instagram cross-posts (its API only takes JPEGs) |
@@ -77,21 +78,32 @@ uses them (and redraws every post's pictures):
   (Hat Guy on the story of a post with no picture) from it
   (=tools/icons.sh=, which needs =brew install librsvg imagemagick=; run it
   by hand to see them without publishing).
-- *The story's background*, =design/story.png= (1080×1920). The post's
+- *The look of the Instagram pictures*, =design/look.json=: their colors,
+  text sizes and words (the "BLOG" label over the title, "New on the blog"
+  on the story...), edited by hand. =SPC n w l= opens it and =SPC n w L=
+  draws the newest blog post's pictures in a copy of the site and opens them
+  in Preview, so you can see a change without publishing. Colors are
+  =#rrggbb=; sizes are pixels on a picture 1080 wide. A mistake (a missing
+  comma, a color that isn't one) is reported when you publish, and the
+  standard look (the site's dark theme) is used instead. The dark card on
+  the last slide (=design/card-dark.png=) is =og.svg= in these colors.
+- *The story's background*: plain, in =look.json='s colors, unless you put
+  a picture at =design/story.png= (1080×1920). The post's
   picture, title and description go on top, in the boxes
   =design/story.json= gives (x and y from the top left, in pixels; text size,
-  font, color, alignment; the picture's corner rounding). Lay
+  font, alignment, and a color if you want one other than =look.json='s;
+  the picture's corner rounding). Lay
   =design/story-guide.png= over your design as a top layer to see where they
   land and which strips Instagram's buttons cover; it's redrawn when you
   change =story.json=. Fonts are PostScript names, as Font Book shows them
-  (=Georgia-Bold=). Delete =story.png= for a plain background. To start
-  over from the plain dark one: build the tool (=swiftc tools/slides.swift
+  (=Georgia-Bold=). Delete =story.png= to go back to the plain background. To
+  start a design from the plain one: build the tool (=swiftc tools/slides.swift
   -o /tmp/slides=) and run =/tmp/slides --starter design design/card-dark.png=.
 
 * Things to know
 
 - Each blog post also gets Instagram pictures in =social/POST/=, drawn by
-  =tools/slides.swift= when you publish, in the site's dark colors: square
+  =tools/slides.swift= when you publish, in the colors of =design/look.json=: square
   slides of its text in Georgia (9 at most) and a slide about the site, posted as a carousel; and
   =story.jpg=, phone-sized, for the story. They're only redrawn when the
   post or a design file changes.
