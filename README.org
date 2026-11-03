@@ -8,7 +8,7 @@ the Web tutorial in my dotfiles (=SPC n w t=, or =~/dotfiles/tutorial/eow-lesson
 
 * Updating the site (from Emacs)
 
-All under =SPC n w= (set up in =~/dotfiles/doom/.config/doom/config.org=):
+All under =SPC n w= (set up in =~/dotfiles/doom/.config/doom/website.org=):
 
 | Key         | Does                                                   |
 |-------------+--------------------------------------------------------|
@@ -139,7 +139,7 @@ uses them (and redraws every post's pictures):
   Instagram (@jackgilmorecreative) through its API, and Facebook's share
   window opens with the caption on the clipboard (Facebook doesn't let apps
   post to personal profiles). Setup and details: "Cross-posting the blog" in
-  =config.org=.
+  =~/dotfiles/doom/.config/doom/website.org=.
 
 - The whole repo is public on GitHub, including drafts in =content/writing/=
   (=#+draft: t= only keeps them off the site). Keep secret drafts in =~/org=.

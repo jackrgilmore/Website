@@ -14,9 +14,10 @@ something it teaches (theme, nav, publish, preview...).
 - **This repo**: `~/Projects/Website`. Not `~/Desktop/Website`: the Desktop
   is OneDrive, which flipped file modes and was a corruption risk; the site
   was moved out on 2026-10-28 and the old copy deleted.
-- **Emacs side**: Doom literate config `~/dotfiles/doom/.config/doom/config.org`
-  (separate repo, `~/dotfiles`), tangled into `config.el`. The website section
-  is under the "Website" heading: `my/website-*` (preview, publish-and-push,
+- **Emacs side**: Doom literate config in `~/dotfiles/doom/.config/doom/`
+  (separate repo, `~/dotfiles`). The website part is its own file,
+  `website.org` (tangled into `website.el`, which `config.el` loads); the
+  hyper-p and hyper-v popups are `writing.org` and `visual.org`. In it: `my/website-*` (preview, publish-and-push,
   new post...), `my/crosspost*` / `my/instagram-*` / `my/newsletter-*`
   (cross-posting), keys under `SPC n w`. `my/website-dir` points here.
 - **Writing sources**: `content/writing/*.org` and `*.fountain` (scripts);
@@ -80,15 +81,14 @@ something it teaches (theme, nav, publish, preview...).
 - The user's Emacs runs as a daemon. Its socket is
   `$TMPDIR/emacs501/server` (here `/var/folders/qc/hq064w6d2p52b04ny4_gmmsm0000gn/T/emacs501/server`):
   `emacsclient -s <socket> --eval '...'` to reload config or test commands
-  in the real session. After editing `config.org`, tangle and reload:
+  in the real session. After editing one of the config's `.org` files
+  (each names its own `.el` in a `#+property` line), tangle it and reload:
   ```
   cd ~/dotfiles/doom/.config/doom
-  emacs --batch --eval '(progn (require (quote org)) (require (quote ob-tangle)) (setf (alist-get :tangle org-babel-default-header-args) "config.el") (org-babel-tangle-file "config.org"))'
+  emacs --batch --eval '(progn (require (quote org)) (require (quote ob-tangle)) (org-babel-tangle-file "website.org"))'
   emacsclient -s <socket> --eval '(load (expand-file-name "~/dotfiles/doom/.config/doom/config.el") nil t)'
   ```
-  Plain `org-babel-tangle-file` tangles 0 blocks: Doom defaults `:tangle`
-  to config.el, plain Org to no. Check `config.el` still reads (`read` it
-  form by form) before loading it.
+  Check the `.el` still reads (`read` it form by form) before loading it.
 - Preview: the user's `SPC n w v` serves this folder at localhost:8000. For
   your own checks serve a copy on another port. Screenshots: headless Edge,
   `"/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge" --headless=new --user-data-dir=<scratch> --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=W,H --screenshot=<png> <url>`
@@ -107,7 +107,7 @@ something it teaches (theme, nav, publish, preview...).
 - The shell is zsh: `$var` holding several paths does not word-split, and
   unmatched globs are errors. `grep` is aliased to ugrep, and BSD `grep -Z`
   means decompress, not NUL-separate: use `/usr/bin/grep`, or `find -print0`.
-- Editing `config.org` by slicing from one `(defun` to the next `#+end_src`
+- Editing the config's `.org` by slicing from one `(defun` to the next `#+end_src`
   once deleted `my/crosspost-facebook`. After big edits, diff the list of
   `defun`/`defvar` names against `git show HEAD:...`.
 - macOS color management: a color picked from an image and filled back in
@@ -126,6 +126,6 @@ something it teaches (theme, nav, publish, preview...).
 - Verify visually (screenshots) and say what was and wasn't checked.
 - Don't commit or push unless asked; the user's own `SPC n w P` publishes.
   Commit messages end with the Co-Authored-By line the session specifies.
-- Keep README.org, the comments in `publish.el`/`config.org`, and the
+- Keep README.org, the comments in `publish.el`/`website.org`, and the
   tutorial accurate when behaviour changes. Match the existing style: prose
   comments explaining why, plain names.
