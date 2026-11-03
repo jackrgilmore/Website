@@ -22,6 +22,7 @@
         video:       { label: 'Animation',       tone: 'anim',   filter: 'animation', icon: 'film',   verb: 'Play' },
         comicSeries: { label: 'Comic series',    tone: 'comic',  filter: 'comics',    icon: 'issues', verb: 'Open the series' },
         comic:       { label: 'Comic',           tone: 'comic',  filter: 'comics',    icon: 'panels', verb: 'Read' },
+        drawing:     { label: 'Drawing',         tone: 'draw',   filter: 'drawings',  icon: 'panels', verb: 'Look' },
         writing:     { label: 'Writing',         tone: 'story',  filter: 'writing',   icon: 'book',   verb: 'Read' },
         blog:        { label: 'Blog post',       tone: 'blog',   filter: 'writing',   icon: 'pen',    verb: 'Read' },
         note:        { label: 'Garden note',     tone: 'garden', filter: 'garden',    icon: 'sprout', verb: 'Open the note' }
@@ -33,6 +34,7 @@
         ['pages', 'Pages', 'page'],
         ['animation', 'Animation', 'anim'],
         ['comics', 'Comics', 'comic'],
+        ['drawings', 'Drawings', 'draw'],
         ['writing', 'Writing', 'story'],
         ['garden', 'Garden', 'garden']
     ];
@@ -53,6 +55,7 @@
         ['/about.html', 'About', 'About me, the reel, and how to get in touch', 'jack gilmore about me bio contact email instagram hire', 'window'],
         ['/animation.html', 'Watch', 'Animation: series, projects and more', 'animation videos gallery', 'window'],
         ['/read.html', 'Read', 'Comics, stories and the blog', 'comics writing stories essays poems', 'window'],
+        ['/drawings.html', 'Drawings', 'Sketches, studies and finished pieces', 'drawings art sketches illustration sketchbook', 'window'],
         ['/garden.html', 'Garden', 'Notes in progress, and the graph of how they link', 'notes digital garden graph', 'window'],
         ['/reel.html', 'Demo Reel', 'The reel on its own page, to send to people', 'showreel portfolio share', 'window']
     ];
@@ -115,11 +118,12 @@
                     Site.loadAnimation().catch(function (e) { console.error(e); return null; }),
                     Site.loadComics().catch(function (e) { console.error(e); return null; }),
                     Site.loadJSON('/data/writing.json', []),
-                    Site.loadJSON('/data/garden.json', { nodes: [], links: [] })
+                    Site.loadJSON('/data/garden.json', { nodes: [], links: [] }),
+                    Site.loadDrawings().catch(function (e) { console.error(e); return null; })
                 ]);
             })
             .then(function (all) {
-                index = build(all[0], all[1], all[2] || [], all[3] || { nodes: [], links: [] });
+                index = build(all[0], all[1], all[2] || [], all[3] || { nodes: [], links: [] }, all[4]);
                 render();
                 return loadText(index);
             })
@@ -135,7 +139,7 @@
     }
 
     // Everything on the site, in the order it's listed when nothing is typed
-    function build(animation, comics, writing, garden) {
+    function build(animation, comics, writing, garden, drawings) {
         var items = [];
         function add(item) {
             var kind = KINDS[item.kind];
@@ -226,6 +230,23 @@
                     meta: [c.collection, Site.prettyDate(c.date)].filter(Boolean).join(' · '),
                     text: c.summary,
                     date: c.date
+                });
+            });
+        }
+
+        // ---- Drawings ----
+        if (drawings) {
+            drawings.groups.forEach(function (g) {
+                add({ kind: 'section', href: '/drawings.html#' + Site.slug(g), title: g, meta: 'On the Drawings page', words: 'drawings', boost: 2 });
+            });
+            drawings.drawings.forEach(function (d) {
+                add({
+                    kind: 'drawing',
+                    href: '/drawing.html?d=' + encodeURIComponent(d.id),
+                    title: d.title,
+                    meta: [d.group, Site.prettyDate(d.date)].filter(Boolean).join(' · '),
+                    text: d.summary,
+                    date: d.date
                 });
             });
         }

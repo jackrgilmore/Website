@@ -13,7 +13,7 @@ All under =SPC n w= (set up in =~/dotfiles/doom/.config/doom/config.org=):
 | Key         | Does                                                   |
 |-------------+--------------------------------------------------------|
 | =SPC n w n= | New piece of writing                                   |
-| =SPC n w e= | New video or comic: asks which series/season or group  |
+| =SPC n w e= | New video, comic or drawing (or a series' cover)       |
 | =SPC n w a= | Open =content/animation.org= (reel, Hat Guy, gallery)   |
 | =SPC n w c= | Open =content/comics.org=                               |
 | =SPC n w g= | Make the org-roam note I'm in public (or private)      |
@@ -34,9 +34,11 @@ writing and garden notes need the publish step:
 |--------------------------+--------------------------------------------------------|
 | =content/animation.org=   | The reel (=#+reel:=), series and episodes, gallery. Read by the browser |
 | =content/comics.org=      | Comic series and panels. Read by the browser           |
+| =content/drawings.org=    | The Drawings page: a heading with a picture is a drawing, one without is a group. Read by the browser (=drawings.js=, =drawing.js=) |
+| =content/drawings/=       | Drawings' pictures (linked as =drawings/...=) and their smaller copies for the wall (=:THUMB:=) |
 | =content/writing/*.org=   | Stories, essays, blog posts (=#+type:=, =#+draft: t=)    |
 | =content/writing/*.org= with =#+type: book= | A book: each =*= heading a chapter, =#+cover:= its cover. Becomes a page, a page per chapter and an EPUB |
-| =content/writing/BOOK/*.org= | A book's chapter files: each read in by an =#+include: "BOOK/01-name.org" :minlevel 2= line under its chapter's heading in =BOOK.org= (Emacs makes these: hyper-p, =k=). Not pieces themselves |
+| =content/writing/BOOK/*.org= | A book's chapter files, and =about.org=: each read in by an =#+include:= line in =BOOK.org= (a chapter's under its heading, with =:minlevel 2=; the About's above the first chapter). Emacs's book desk (hyper-p, =k=) makes and changes these. Not pieces themselves |
 | =content/writing/*.fountain= | Screenplays in Fountain (title page: =Title:=, =Revision:= to name the draft, =Draft: t= to hide it). Each also becomes a screenplay-format PDF (Download PDF on its page) |
 | =~/org/roam/=             | org-roam notes; ones tagged =publish= become the garden |
 | =content/comics/=, =thumbs/= | Comic pages (linked as =comics/...=), thumbnails (=../thumbs/...=) |

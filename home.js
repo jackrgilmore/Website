@@ -1,7 +1,7 @@
 // The home page: everything on the site in one place. The big search box,
 // a link to each part of the site (with how much is in it), the reel beside
 // the newest thing in each part, then animation, comics and writing (the Read
-// page's panels, from catalog.js) and the garden graph.
+// page's panels, from catalog.js), the newest drawings and the garden graph.
 // The page about me, to send people, is /about.html (reel.js).
 
 (function () {
@@ -48,12 +48,14 @@
         Site.loadAnimation().catch(function (e) { console.error(e); return null; }),
         Site.loadComics().catch(function (e) { console.error(e); return null; }),
         Site.loadJSON('/data/writing.json', []),
-        Site.loadJSON('/data/garden.json', { nodes: [], links: [] })
+        Site.loadJSON('/data/garden.json', { nodes: [], links: [] }),
+        Site.loadDrawings().catch(function (e) { console.error(e); return null; })
     ]).then(function (all) {
         var animation = all[0] || { reel: null, series: [], groups: [], gallery: [] };
         var comicData = all[1] || { series: [], gallery: [] };
         var writing = all[2] || [];
         var garden = all[3] || { nodes: [], links: [] };
+        var drawings = (all[4] || { drawings: [] }).drawings;
 
         // Every episode with a video, in order; every comic with pages
         var episodes = [];
@@ -78,6 +80,7 @@
             ['/read.html#comics', 'Comics', plural(comics.length, 'comic'), 'comic'],
             ['/read.html#writing', 'Writing', plural(creative.length + books.length + scripts.length, 'piece'), 'story'],
             ['/read.html#blog', 'Blog', plural(blog.length, 'post'), 'blog'],
+            ['/drawings.html', 'Drawings', plural(drawings.length, 'drawing'), 'draw'],
             ['/garden.html', 'Garden', plural(garden.nodes.length, 'note'), 'garden']
         ];
         el('home-jump').innerHTML = parts.map(function (p) {
@@ -104,6 +107,10 @@
         var post = blog[0];
         if (post) latest.push(['blog', 'Blog post', post.title,
             [Site.prettyDate(post.date), Site.minutes(post.words)].filter(Boolean).join(' · '), post.url, post.date]);
+        var drawing = drawings[0];
+        if (drawing) latest.push(['draw', 'Drawing', drawing.title,
+            [drawing.group, Site.prettyDate(drawing.date)].filter(Boolean).join(' · '),
+            '/drawing.html?d=' + encodeURIComponent(drawing.id), drawing.date]);
         var note = notes[0];
         if (note) latest.push(['garden', 'Garden note', note.title,
             note.modified ? 'Tended ' + Site.prettyDate(note.modified.slice(0, 10)) : '', note.id]);
@@ -155,6 +162,15 @@
 
         // ---- Comics and writing: books and scripts, then the Read page's panels ----
         el('home-read').innerHTML = Site.readShelves(books, scripts) + Site.readHub(comics, creative, blog, '/read.html');
+
+        // ---- Drawings: the newest few, on a little wall like the Drawings page's ----
+        el('home-drawings').innerHTML = drawings.length
+            ? '<div class="drawing-wall">' + drawings.slice(0, 6).map(function (d) {
+                return '<a class="drawing-tile" href="' + Site.esc('/drawing.html?d=' + encodeURIComponent(d.id)) + '">'
+                    + '<img src="' + Site.esc(Site.thumbOf(d)) + '" alt="' + Site.esc(d.title) + '" loading="lazy">'
+                    + '<span class="card-title">' + Site.esc(d.title) + '</span></a>';
+            }).join('') + '</div>'
+            : '<p class="empty">The first drawings are on their way.</p>';
 
         // ---- Garden: the graph (catalog.js), then every note ----
         var box = el('home-garden');

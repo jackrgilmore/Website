@@ -38,11 +38,12 @@ function shareButton(url, title) {
 
     // ============ NAV ============
 
-    // Watch (animation), Read (comics, writing, the blog), Garden, the reel,
+    // Watch (animation), Read (comics, writing, the blog), Drawings, Garden, the reel,
     // and About (the page to send people). The home page has everything.
     var links = [
         ['/animation.html', 'watch'],
         ['/read.html', 'read'],
+        ['/drawings.html', 'drawings'],
         ['/garden.html', 'garden'],
         ['/reel.html', 'reel'],
         ['/about.html', 'about']
@@ -53,6 +54,7 @@ function shareButton(url, title) {
     var section = path;
     if (path === '/series.html') section = '/animation.html';
     if (path === '/comic.html' || path === '/comic-series.html' || path.indexOf('/writing/') === 0) section = '/read.html';
+    if (path === '/drawing.html') section = '/drawings.html';
     if (path.indexOf('/garden/') === 0) section = '/garden.html';
 
     var html = '<nav class="site-nav"><a href="/" class="nav-name">Jack Gilmore</a><div class="nav-links">';

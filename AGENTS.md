@@ -21,7 +21,9 @@ something it teaches (theme, nav, publish, preview...).
   (cross-posting), keys under `SPC n w`. `my/website-dir` points here.
 - **Writing sources**: `content/writing/*.org` and `*.fountain` (scripts);
   media in `content/writing/media/SLUG/`. Videos: `content/animation.org`;
-  comics: `content/comics.org` (parsed in the browser by `catalog.js`).
+  comics: `content/comics.org`; drawings: `content/drawings.org` + pictures in
+  `content/drawings/` (all parsed in the browser by `catalog.js`;
+  `Site.loadDrawings`, pages `drawings.html`/`drawing.html?d=ID`).
 - **Garden**: org-roam notes tagged `publish` in `~/org/roam/` (Google Drive).
 - **Secrets** (never commit, never print): `~/.config/website/instagram.json`
   (Instagram token, auto-refreshed), `~/.config/website/buttondown.json`.
@@ -44,7 +46,7 @@ something it teaches (theme, nav, publish, preview...).
   It wipes and regenerates `writing/` and `garden/` every run.
 - Generated pages share one template, `jg-site--page`. Their Share button is
   `jg-site--share-button`; `nav.js` adds the icon and behaviour.
-- Browser-built pages (`read.js`, `animation.js`, `series.js`, `comic*.js`,
+- Browser-built pages (`read.js`, `animation.js`, `series.js`, `comic*.js`, `drawing*.js`,
   `home.js`, `garden.js`, `garden-note.js`, `search.js`) load `data/*.json` or the Org
   files through `catalog.js` (`Site.*` helpers). `nav.js` builds the nav,
   footer, theme toggle, feed/newsletter popover, Share buttons, and loads

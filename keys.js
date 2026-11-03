@@ -1,7 +1,7 @@
 // Keyboard shortcuts, on every page (nav.js loads this). Press ? for the list.
 //
 //   ⌘K or /     search (that one lives in search.js)
-//   g, then h w r g l a   go to Home (everything), Watch, Read, Garden, Reel, About
+//   g, then h w r d g l a   go to Home (everything), Watch, Read, Drawings, Garden, Reel, About
 //   t           light / dark mode
 //   c           copy this page's link
 //   u           up a level (the last link in the breadcrumbs)
@@ -18,6 +18,7 @@
         ['h', '/', 'Home'],
         ['w', '/animation.html', 'Watch'],
         ['r', '/read.html', 'Read'],
+        ['d', '/drawings.html', 'Drawings'],
         ['g', '/garden.html', 'Garden'],
         ['l', '/reel.html', 'Reel'],
         ['a', '/about.html', 'About']

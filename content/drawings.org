@@ -1,0 +1,18 @@
+#+title: Drawings
+
+# This file is the drawings page. The site reads it directly, so saving it and
+# pushing is all an update takes. (In Emacs: hyper-v, then d, adds a drawing
+# for you: it makes the picture web-ready, copies it in and links it.)
+#
+# - Pictures go in content/drawings/, next to this file. Links are relative to
+#   this file, so they start with drawings/:
+#     [[file:drawings/fox-study.jpg]]
+# - A heading with a picture under it is a drawing. A heading without one is a
+#   group (Sketchbook, Characters...): each heading under it is a drawing in
+#   that group, and the page gets a button for it.
+# - A drawing's first picture is the drawing. Any more under it are shown
+#   below it, on its own page (details, sketches, the process).
+# - The other text under a heading is its description.
+# - Properties: :DATE: 2026-11-03 (the newest is first on the page), :THUMB:
+#   drawings/x-thumb.jpg (a smaller copy for the wall; else the drawing itself).
+# - Start a heading with COMMENT to hide it without deleting it.

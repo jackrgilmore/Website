@@ -9,8 +9,8 @@
 ;;   ~/org/roam/**/*.org             ->  garden/*.html   + data/garden.json
 ;;   (only notes with the filetag :publish:)
 ;;
-;; The animation and comics pages don't need this: the site reads
-;; content/animation.org and content/comics.org directly in the browser.
+;; The animation, comics and drawings pages don't need this: the site reads
+;; content/animation.org, comics.org and drawings.org directly in the browser.
 ;;
 ;; Run it from Emacs with M-x jg-site-publish (Doom: SPC n w p), or from a
 ;; terminal in this folder with:
@@ -1569,7 +1569,7 @@ its file): a heading there has its title, or TEXT has one of its links."
         (seq-some (lambda (link) (string-search link text)) links))))
 
 (defun jg-site--date-new-entries (file committed)
-  "Date today each new video or comic in FILE (relative to content/): a
+  "Date today each new video, comic or drawing in FILE (relative to content/): a
 heading with a :DATE: that wasn't in the last commit's copy of FILE."
   (let* ((rel (concat "content/" file))
          (path (expand-file-name rel jg-site-root))
@@ -1852,7 +1852,7 @@ Links to anything unpublished (private notes, drafts) are left out."
       (insert (json-encode data) "\n"))))
 
 (defconst jg-site--sitemap-pages
-  '("/" "/about.html" "/animation.html" "/read.html" "/garden.html" "/reel.html")
+  '("/" "/about.html" "/animation.html" "/read.html" "/drawings.html" "/garden.html" "/reel.html")
   "The hand-written pages, for the sitemap (not the old ones that redirect).")
 
 (defun jg-site--series-slugs (file)
@@ -1925,6 +1925,7 @@ site root), and its folders: the images and attachments copied for them
          (new-urls (when committed
                      (jg-site--date-new-entries "animation.org" committed)
                      (jg-site--date-new-entries "comics.org" committed)
+                     (jg-site--date-new-entries "drawings.org" committed)
                      (append (jg-site--date-new-pages (jg-site--writing) committed)
                              (jg-site--date-new-pages (jg-site--notes) committed))))
          ;; ...then read everything, new dates included

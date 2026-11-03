@@ -28,6 +28,7 @@
     --tone-page: #2c6e9e;
     --tone-anim: #b0503a;
     --tone-comic: #2c7673;
+    --tone-draw: #a0622a;
     --tone-story: #8a4f7d;
     --tone-blog: #5b5ea6;
     --tone-garden: #557535;
@@ -54,6 +55,7 @@
         --tone-page: #62a8d6;
         --tone-anim: #e08c6e;
         --tone-comic: #6cbdb7;
+        --tone-draw: #e3a96b;
         --tone-story: #c792bb;
         --tone-blog: #a3a6e6;
         --tone-garden: #9cc36f;
@@ -80,6 +82,7 @@
     --tone-page: #62a8d6;
     --tone-anim: #e08c6e;
     --tone-comic: #6cbdb7;
+    --tone-draw: #e3a96b;
     --tone-story: #c792bb;
     --tone-blog: #a3a6e6;
     --tone-garden: #9cc36f;
@@ -1192,6 +1195,82 @@ kbd {
 
 
 /* ====================
+   DRAWINGS (drawings.js, drawing.js)
+   ==================== */
+
+/* The wall: columns, each drawing at its own shape, filling down then across */
+.drawing-wall {
+    columns: 3 260px;
+    column-gap: 1.5rem;
+}
+
+.drawing-tile {
+    display: block;
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+    border: none;
+    color: inherit;
+}
+
+.drawing-tile img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease;
+}
+
+.drawing-tile:hover img {
+    transform: translateY(-3px);
+}
+
+.drawing-tile .card-title {
+    display: block;
+    margin-top: 0.6rem;
+}
+
+/* One drawing: as big as the window allows, whatever its shape */
+.drawing-main {
+    margin: 1rem 0 2rem;
+    text-align: center;
+}
+
+.drawing-main img {
+    max-width: 100%;
+    max-height: 85vh;
+    width: auto;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+}
+
+.drawing-head {
+    margin-bottom: 1.5rem;
+}
+
+.drawing-words {
+    max-width: 680px;
+    margin: 0 auto 2rem;
+}
+
+.drawing-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 2rem 0;
+}
+
+.drawing-more img {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+}
+
+
+/* ====================
    LIGHTBOX
    ==================== */
 
@@ -2270,6 +2349,7 @@ kbd {
 [data-tone="page"] { --tone: var(--tone-page); }
 [data-tone="anim"] { --tone: var(--tone-anim); }
 [data-tone="comic"] { --tone: var(--tone-comic); }
+[data-tone="draw"] { --tone: var(--tone-draw); }
 [data-tone="story"] { --tone: var(--tone-story); }
 [data-tone="blog"] { --tone: var(--tone-blog); }
 [data-tone="garden"] { --tone: var(--tone-garden); }

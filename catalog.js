@@ -1,7 +1,7 @@
 // Shared helpers for every page.
 //
-// The animation and comics pages are written in Org (content/animation.org and
-// content/comics.org). This file reads those Org files in the browser, works out
+// The animation, comics and drawings pages are written in Org (content/animation.org,
+// content/comics.org and content/drawings.org). This file reads those Org files in the browser, works out
 // how to embed each video, and draws the cards, players and lightbox.
 //
 // Only a small part of Org is understood, which is all the catalogs need:
@@ -423,6 +423,38 @@ var Site = (function () {
                     data.byId[item.id] = item;
                 });
             });
+            return data;
+        });
+    }
+
+    // Everything in content/drawings.org, newest first:
+    //   { drawings: [...], groups: ['Sketchbook', ...], byId: { id: drawing } }
+    // A top-level heading with a picture under it is a drawing; one without
+    // is a group, and each heading under it is a drawing in that group. A
+    // drawing's first picture is the drawing; any more are shown under it
+    // (details, sketches, the process).
+    function loadDrawings() {
+        return loadOrg('drawings.org').then(function (doc) {
+            var data = { drawings: [], groups: [], byId: {} };
+            function add(node, group) {
+                var item = makeItem(node);
+                if (!item.images.length) return;
+                item.id = item.slug;
+                while (data.byId[item.id]) item.id += '-2';
+                item.group = group || '';
+                data.drawings.push(item);
+                data.byId[item.id] = item;
+                if (group && data.groups.indexOf(group) === -1) data.groups.push(group);
+            }
+            doc.children.forEach(function (top) {
+                if (makeItem(top).images.length) add(top, '');
+                else top.children.forEach(function (child) { add(child, top.title); });
+            });
+            // Newest first (ISO dates sort as strings); undated ones last, in file order
+            data.drawings = data.drawings
+                .map(function (d, i) { return [d, i]; })
+                .sort(function (a, b) { return (b[0].date || '').localeCompare(a[0].date || '') || a[1] - b[1]; })
+                .map(function (pair) { return pair[0]; });
             return data;
         });
     }
@@ -1171,6 +1203,7 @@ var Site = (function () {
         thumbOf: thumbOf,
         loadAnimation: loadAnimation,
         loadComics: loadComics,
+        loadDrawings: loadDrawings,
         loadJSON: loadJSON,
         card: card,
         minutes: minutes,
