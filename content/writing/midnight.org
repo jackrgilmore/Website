@@ -2,7 +2,7 @@
 #+type: story
 #+date: 2026-11-01
 #+publication:
-#+description:
+#+description: Traveling through dreams
 
 I traversed the black ice of dreams. It was easy to slip up here. To fall into the dark desires of a slumbering priest, or the empty philosophies of a half-awake teenager. It was the gaps you needed to watch out for. The icy breaks of failure. One slip of the foot could send you catapulting into nightmares beyond the reach of remembering.
 

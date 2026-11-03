@@ -129,9 +129,13 @@ Org files and Fountain screenplays alike; a .fountain file is always a script."
                                                   (jg-site--kw kw "draft date")))
                                ""))
                   (description . ,(or (jg-site--kw kw "description") ""))
-                  (words . ,(if fountain
-                                (jg-site--fountain-word-count file)
-                              (jg-site--word-count file)))
+                  (words . ,(cond (fountain (jg-site--fountain-word-count file))
+                                  ;; A book's words are its chapters', which
+                                  ;; may live in files of their own
+                                  ((jg-site--book-p kw)
+                                   (apply #'+ 0 (mapcar (lambda (c) (alist-get 'words c))
+                                                        (jg-site--book-chapters file))))
+                                  (t (jg-site--word-count file))))
                   (url . ,(jg-site--url "writing" file))
                   ;; A script's draft and its date, for the title page on its
                   ;; card (Read page)
@@ -1035,6 +1039,20 @@ PDF to the file OUT."
 ;;   * The First Chapter
 ;;   ...
 ;;
+;; A long book can keep each chapter in a file of its own: the chapter's
+;; heading stays in the book (that's its title, and the headings' order is the
+;; contents), and its text is an Org #+include: of the chapter's file, in a
+;; folder named after the book. Org's exporter reads the file in where the line
+;; is, so a chapter page is the same either way; only counting words has to
+;; read the files in itself (`jg-site--expanded-words'). :minlevel 2 makes any
+;; heading inside a chapter file a section of that chapter, not a new one.
+;;
+;;   * The First Chapter
+;;   #+include: "the-long-road/01-the-first-chapter.org" :minlevel 2
+;;
+;; content/writing/the-long-road/ isn't a piece of its own: only the files
+;; directly in content/writing/ are.
+;;
 ;; It becomes:
 ;;
 ;;   writing/the-long-road.html            its page: cover, about, contents, download
@@ -1082,6 +1100,20 @@ text starts (after its heading and properties), END where the next starts."
                chapters))))
     (nreverse chapters)))
 
+(defun jg-site--expanded-words (beg end dir)
+  "Words between BEG and END of this buffer, with any #+include: files (paths
+from DIR) read in where they're named. Keywords, drawers and comments don't count."
+  (let ((text (buffer-substring-no-properties beg end)))
+    (with-temp-buffer
+      (insert text)
+      (let ((org-inhibit-startup t)
+            (default-directory dir))
+        (delay-mode-hooks (org-mode))
+        (ignore-errors (org-export-expand-include-keyword nil dir)))
+      (goto-char (point-min))
+      (flush-lines "^[ \t]*\\(#\\+\\|:[A-Za-z_]+:\\|#\\( \\|$\\)\\)")
+      (count-words (point-min) (point-max)))))
+
 (defun jg-site--chapter-url (file n)
   "The site URL of chapter N of the book FILE."
   (format "/writing/%s/chapter-%d.html" (url-hexify-string (file-name-base file)) n))
@@ -1097,7 +1129,8 @@ text starts (after its heading and properties), END where the next starts."
                 (setq n (1+ n))
                 `((title . ,(nth 0 chapter))
                   (url . ,(jg-site--chapter-url file n))
-                  (words . ,(count-words (nth 1 chapter) (nth 2 chapter)))))
+                  (words . ,(jg-site--expanded-words (nth 1 chapter) (nth 2 chapter)
+                                                     (file-name-directory file)))))
               (jg-site--chapter-regions)))))
 
 (defun jg-site--reading-time (words)
@@ -1158,7 +1191,8 @@ at site URL (in OUT-DIR, where its images are copied to)."
                 (push `((number . ,n)
                         (title . ,(jg-site--escape (nth 0 region)))
                         (url . ,(jg-site--chapter-url file n))
-                        (words . ,(count-words (point-min) (point-max)))
+                        (words . ,(jg-site--expanded-words (point-min) (point-max)
+                                                           (file-name-directory file)))
                         (html . ,(jg-site--export-body (jg-site--chapter-url file n) chapter-dir)))
                       chapters)))))
       (unless visiting (kill-buffer buffer)))

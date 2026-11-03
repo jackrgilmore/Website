@@ -30,6 +30,9 @@ something it teaches (theme, nav, publish, preview...).
 
 - `publish.el` (`jg-site-publish`): exports writing to `writing/*.html`
   (books to `writing/SLUG.html` + `writing/SLUG/chapter-N.html` + `.epub`;
+  a book's chapters may be files in `content/writing/SLUG/`, `#+include:`d
+  under their headings, which org-export reads in; word counts go through
+  `jg-site--expanded-words` so they count those files;
   scripts to HTML + a screenplay `.pdf` written by hand-rolled PDF code),
   garden notes to `garden/`, and writes `data/writing.json`,
   `data/garden.json`, `sitemap.xml`, `feed.xml` (blog only), `og.jpg` (from
